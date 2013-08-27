@@ -1,0 +1,7 @@
+#ifndef DEBUG_H
+#define DEBUG_H
+
+void _debug(char *);
+void _assert(int);
+
+#endif
