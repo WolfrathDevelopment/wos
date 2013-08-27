@@ -24,11 +24,6 @@ void update_cursor(){
 }
 
 void put_char(char c){
-
-	if(c == '\n'){
-		cursor_y++;
-		return;
-	}
 	
 	/*
    	 * Low nibble is the foreground color

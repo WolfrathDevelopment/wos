@@ -1,0 +1,8 @@
+-----------------------------------------------------------------------------
+OS CODING CONVENTIONS
+-----------------------------------------------------------------------------
+
+MACROS :
+
+	C-style macros should be named using all uppercase letters.
+	e.g. #define ARRAYSIZE(x) (sizeof(x)/sizeof((x)[0]))

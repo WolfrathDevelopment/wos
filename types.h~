@@ -10,4 +10,5 @@ typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
 
+/* A page directory entry */
 typedef uint w_pde;

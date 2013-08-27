@@ -9,8 +9,6 @@ int main(){
 	init_descriptor_tables();
 	clear_screen();
 	put_string("Here's to the broments");
-	asm volatile("sti");
-	asm volatile("int $0x3");
 	for(;;)
 		;
 }

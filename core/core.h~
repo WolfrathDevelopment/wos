@@ -16,8 +16,6 @@ ushort in_short(ushort port);
 void update_cursor();
 void put_char(char);
 void put_string(char *);
-void put_hex(uint);
-void put_decimal(uint);
 void clear_screen();
 
 /* string.c */
