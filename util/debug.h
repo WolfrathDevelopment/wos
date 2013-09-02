@@ -1,8 +1,17 @@
+/*
+ * debug.h
+ * Wolfrath/Kriewall, 2013
+ *
+ * Standard debugging functions
+ */
+
 #ifndef DEBUG_H
 #define DEBUG_H
 
-void _panic(char *);
+#include "../core/core.h"
+
 void _debug(char *);
-void _assert(int);
+void _panic(char *);
+void _assert(uint);
 
 #endif

@@ -32,7 +32,6 @@ mboot:
 [EXTERN main]                   ; C code entry point.
 
 start:
-  push    esp
   push    ebx                   ; Load multiboot header location
   cli                           ; Disable interrupts.
   call main

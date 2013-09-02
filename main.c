@@ -1,16 +1,25 @@
-// wOS - Joel Wolfrath, 2012
-// main.c - kernel entrypoint into c.
+/*
+ * main.c
+ * Wolfrath/Kriewall, 2013
+ * 
+ * Kernel entry into C code
+ */
 
 #include "core/core.h"
-#include "core/boot.h"
+#include "mm/mem.h"
 
-int main(){
+int main(Multiboot_info *mboot_ptr){
 
-	init_descriptor_tables();
 	clear_screen();
-	put_string("Here's to the broments");
-	asm volatile("sti");
-	asm volatile("int $0x3");
+	read_mmap(mboot_ptr);
+
+	/* Set up segments */
+	init_seg();
+
+	/* Set up idt */
+	init_idt();
+	sti();
+	
 	for(;;)
 		;
 }
