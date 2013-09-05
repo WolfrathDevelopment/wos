@@ -1,3 +1,10 @@
+/*
+ * console.c
+ * Wolfrath/Kriewall, 2013
+ *
+ * Impelentation of console functions
+ */
+
 #include "core.h"
 
 ushort *vid_mem = (ushort *)0xB8000;
@@ -23,10 +30,52 @@ void update_cursor(){
 	out_byte(CRTPORT + 1, loc);
 }
 
+void printf(char* str, ... ){
+
+	uint* argv = (uint*)(void*)(&str + 1);
+	int i,c;
+	char* s;
+	for(i = 0; (c = str[i] & 0xff) != 0; i++){
+
+		if(c != '%'){
+			put_char(c);
+			continue;
+		}
+
+		c = str[++i] & 0xff;
+		if(c == 0)
+			break;
+
+		switch(c){
+		case 'd':
+			put_decimal(*argv++);
+			break;
+		case 'x':
+		case 'p':
+			put_hex(*argv++);
+			break;
+		case 's':
+			if((s = (char*)*argv++) == 0)
+				s = "(null)";
+			for(; *s; s++)
+				put_char(*s);
+			break;
+		case '%':
+			put_char('%');
+			break;
+		default:
+			put_char('%');
+			put_char(c);
+			break;
+		}
+	}
+}
+
 void put_char(char c){
 
 	if(c == '\n'){
 		cursor_y++;
+		cursor_x = 0;
 		return;
 	}
 	
@@ -59,14 +108,16 @@ void put_string(char * str){
 void put_hex(uint n){
 
 	int tmp,i;
-	put_string("0x");
+	//put_string("0x");
 
 	char noZeroes = 1;
 
 	for (i = 28; i > 0; i -= 4){
 		tmp = (n >> i) & 0xF;
-		if (tmp == 0 && noZeroes != 0)
+		if (tmp == 0 && noZeroes != 0){
+			put_char('0');
 			continue;
+		}
     
 		if (tmp >= 0xa){
 			noZeroes = 0;

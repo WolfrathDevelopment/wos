@@ -16,9 +16,6 @@
 #define NUM_PTE 1024
 #define PAGE_SIZE 4096
 
-// log2(PGSIZE)
-#define PGSHIFT 12
-
 // page directory index
 #define PD_INDEX(va) (((uint)(va) >> 22) & 0x3FF)
 
@@ -27,9 +24,6 @@
 
 // construct virtual address from indexes and offset
 #define GET_VIRT(d, t, o) ((uint)((d) << 22 | (t) << 12 | (o)))
-
-#define PGROUNDUP(sz) (((sz)+PGSIZE-1) & ~(PGSIZE-1))
-#define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))
 
 // Page table/directory entry flags.
 #define PTE_P 0x001 // Present
@@ -46,7 +40,21 @@
 #define PTE_ADDR(pte) ((uint)(pte) & ~0xFFF)
 #define PTE_FLAGS(pte) ((uint)(pte) & 0xFFF)
 
+//Alignment operations for a page
+#define PAGE_ALIGN(pte) (pte = (uint*)(((uint)pte & 0xfffff000) + PAGE_SIZE))
+#define PAGE_ALIGNED(pte) pte & 0xfffff000
+#define FLAG_ALIGN 1
+#define FLAG_NOALIGN 0
+
+/* heap.c */
+
+uint* kmalloc(uint size, int align);
+
 /* paging.c */
+
+void set_page_directory(w_pde*);
+w_pte* alloc_page(uint*,uint);
+w_pde* allocate_page_directory(int);
 void page_fault_handler(Registers);
 void init_paging();
 

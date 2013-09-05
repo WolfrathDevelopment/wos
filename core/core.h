@@ -26,6 +26,7 @@ typedef struct{
 	int value;
 }Atomic_int;
 
+/* These operations guarenteed to be atomic */
 inline int atomic_read(const Atomic_int*);
 inline int xchg(volatile uint*,int);
 inline int atomic_set(Atomic_int*, int);
@@ -35,6 +36,7 @@ inline void atomic_inc(Atomic_int*);
 inline void atomic_dec(Atomic_int*);
 
 /* console.c */
+void printf(char*, ... );
 void update_cursor();
 void put_char(char);
 void put_string(char *);
