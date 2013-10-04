@@ -14,6 +14,8 @@
 
 #include "../core/core.h"
 
+#define PAGE_FAULT 14
+
 #define IRQ0 32
 #define IRQ1 33
 #define IRQ2 34
@@ -31,6 +33,13 @@
 #define IRQ14 46
 #define IRQ15 47
 
+#define SEG_KERNEL_CODE	0x08
+#define SEG_KERNEL_DATA	0x10
+#define SEG_USER_CODE		0x18
+#define SEG_USER_DATA		0x20
+#define SEG_USER_TLS		0x28
+#define SEG_TSS			0x30
+
 void init_seg();
 void init_idt();
 
@@ -42,7 +51,7 @@ typedef struct gdt_entry_struct{
     uchar  access;              // Access flags, determine what ring this segment can be used in.
     uchar  granularity;
     uchar  base_high;           // The last 8 bits of the base.
-} __attribute__((packed)) GDT_e;
+} __attribute__((packed)) w_gdte;
 
 // Defines a GDT pointer.
 // Points to beginning of array of GDT_e
@@ -50,7 +59,7 @@ typedef struct gdt_ptr_struct{
 
     ushort limit;               // The upper 16 bits of all selector limits.
     uint base;                // The address of the first gdt_entry struct.
-} __attribute__((packed)) GDT_p;
+} __attribute__((packed)) w_gdtp;
 
 // A struct describing an interrupt gate.
 typedef struct idt_entry_struct{
@@ -60,14 +69,14 @@ typedef struct idt_entry_struct{
     uchar  always0;             // This must always be zero.
     uchar  flags;               // More flags.
     ushort base_hi;             // The upper 16 bits of the address to jump to.
-} __attribute__((packed)) IDT_e;
+} __attribute__((packed)) w_idte;
 
 // pointer to an array of interrupt handlers.
 typedef struct idt_ptr_struct{
 
     ushort limit;
     uint base;                // The address of the first element in the idt_entry array.
-} __attribute__((packed)) IDT_p;
+} __attribute__((packed)) w_idtp;
 
 // ISR handlers
 extern void isr0 ();
@@ -125,10 +134,10 @@ typedef struct{
     uint edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
     uint int_no, err_code;    // Interrupt number and error code
     uint eip, cs, eflags, useresp, ss; // Pushed by the processor
-} Registers;
+} w_regs;
 
 // Generic callback
-typedef void (*w_isr)(Registers);
+typedef void (*w_isr)(w_regs);
 void register_interrupt_handler(uchar, w_isr);
 
 #endif

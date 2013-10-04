@@ -7,19 +7,24 @@
 
 #include "core/core.h"
 #include "mm/mem.h"
+#include "drivers/drivers.h"
 
-int main(Multiboot_info *mboot_ptr){
+int main(w_multiboot_info *mboot_ptr){
 
 	clear_screen();
 	read_mmap(mboot_ptr);
 
 	/* Set up segments */
 	init_seg();
-
-	/* Set up idt */
 	init_idt();
 	sti();
-	
-	for(;;)
-		;
+
+	kbd_install();
+	init_paging();
+
+	// Lets cause a page fault!!!
+	uint *ptr = (uint*)0xA0000000;
+   	uint do_page_fault = *ptr;
+
+	_panic("End of Main");
 }

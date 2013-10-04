@@ -9,6 +9,7 @@
  */
 
 #include "boot.h"
+#include "../proc/proc.h"
 
 //defined in assembly
 extern void gdt_flush(uint);
@@ -17,48 +18,50 @@ extern void idt_flush(uint);
 static void set_gdt(int,uint,uint,uchar,uchar);
 static void set_idt(uchar,uint,ushort,uchar);
 
-GDT_e gdt_entries[5];
-GDT_p   g_ptr;
-IDT_e idt_entries[256];
-IDT_p   i_ptr;
+w_gdte gdt_entries[7];
+w_gdtp   g_ptr;
+w_idte idt_entries[256];
+w_idtp   i_ptr;
+w_tss current_tss;
 
-// Extern the ISR handler array so we can nullify them on startup.
 extern w_isr interrupt_handlers[];
 
-void init_seg(){
+#define SEG_P     	0x80		// Is Present?
+#define SEG_TSS	0x01		// Is TSS?
+#define SEG_SEG	0x10		// Is Segment?
+#define SEG_X		0x08		// Executable?
+#define SEG_W		0x02		// Writable?
 
-	g_ptr.limit = (sizeof(GDT_e) * 5) - 1;
+#define SEG_AVAIL	0x10		// Is Available?
+#define SEG_32	0x40		// Is 32 bit?
+#define SEG_GBYTE	0x00		// Granularity byte?
+#define SEG_GPAGE	0x80		// Granularity page?
+
+#define SEG_KERN	0x00		// Kernel permissions?
+#define SEG_USER	0x60		// User permissions?
+
+static void seg_init(){
+
+	g_ptr.limit = (sizeof(w_gdte) * 5) - 1;
 	g_ptr.base  = (uint)&gdt_entries;
 
-	set_gdt(0, 0, 0, 0, 0);                // Null segment
-	set_gdt(1, 0, 0xFFFFFFFF, 0x9A, 0xCF); // Code segment
-	set_gdt(2, 0, 0xFFFFFFFF, 0x92, 0xCF); // Data segment
-	set_gdt(3, 0, 0xFFFFFFFF, 0xFA, 0xCF); // User mode code segment
-	set_gdt(4, 0, 0xFFFFFFFF, 0xF2, 0xCF); // User mode data segment
+	set_gdt(0, 0, 0, 0, 0);
+	set_gdt(1, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_KERN | SEG_X ) , ( SEG_32 | SEG_GPAGE ) );
+	set_gdt(2, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_KERN ) , ( SEG_32 | SEG_GPAGE ) );
+	set_gdt(3, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER |  SEG_X ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
+	set_gdt(4, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
+	set_gdt(5, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
+	set_gdt(6, (uint)&current_tss, sizeof(w_tss), ( SEG_P | SEG_KERN | SEG_X | SEG_TSS ) , ( SEG_32 | SEG_GBYTE ) );
 
 	gdt_flush((uint)&g_ptr);
 }
 
-// Set the value of one GDT entry.
-static void set_gdt(int num, uint base, uint limit, uchar access, uchar gran){
+static void idt_init(){
 
-	gdt_entries[num].base_low = (base & 0xFFFF);
-	gdt_entries[num].base_middle = (base >> 16) & 0xFF;
-	gdt_entries[num].base_high = (base >> 24) & 0xFF;
-
-	gdt_entries[num].limit_low = (limit & 0xFFFF);
-	gdt_entries[num].granularity = (limit >> 16) & 0x0F;
-    
-	gdt_entries[num].granularity |= gran & 0xF0;
-	gdt_entries[num].access = access;
-}
-
-void init_idt(){
-
-	i_ptr.limit = sizeof(IDT_e) * 256 -1;
+	i_ptr.limit = sizeof(w_idte) * 256 -1;
 	i_ptr.base  = (uint)&idt_entries;
 
-	memset(&idt_entries, 0, sizeof(IDT_e)*256);
+	zero_mem((uint*)&idt_entries, sizeof(w_idte)*256);
 
 	// Remap the irq table.
 	out_byte(0x20, 0x11);
@@ -122,9 +125,30 @@ void init_idt(){
 	set_idt(47, (uint)irq15, 0x08, 0x8E);
 
 	idt_flush((uint)&i_ptr);
+}
 
-	// Zero all ISRs
-	memset(&interrupt_handlers, 0, sizeof(w_isr)*256);
+void init_seg(){
+	seg_init();
+	idt_init();
+	zero_mem((uint*)&interrupt_handlers, sizeof(w_isr)*256);
+}
+
+// Set the value of one GDT entry.
+static void set_gdt(int num, uint base, uint limit, uchar access, uchar gran){
+
+	gdt_entries[num].base_low = (base & 0xFFFF);
+	gdt_entries[num].base_middle = (base >> 16) & 0xFF;
+	gdt_entries[num].base_high = (base >> 24) & 0xFF;
+
+	gdt_entries[num].limit_low = (limit & 0xFFFF);
+	gdt_entries[num].granularity = (limit >> 16) & 0x0F;
+    
+	gdt_entries[num].granularity |= gran & 0xF0;
+	gdt_entries[num].access = access;
+}
+
+void init_idt(){
+
 }
 
 static void set_idt(uchar num, uint base, ushort sel, uchar flags){

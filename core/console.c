@@ -6,16 +6,80 @@
  */
 
 #include "core.h"
+#include "../mm/mem.h"
 
-ushort *vid_mem = (ushort *)0xB8000;
+#define COLOR_WHITE 15
+#define COLOR_BLACK 0
 
-ushort cursor_x = 0;
-ushort cursor_y = 0;
+#define NUM_ROWS 25
+#define NUM_COLS 80
+
+static short cursor_x = 0;
+static short cursor_y = 0;
+
+static char command[10];
+
+ushort *vid_mem = (ushort *) KVIRT(VGA_FRAME_BUF);
+
+void move_cursor(int inc,int x){
+
+	if(x)
+		cursor_x += inc;
+	else
+		cursor_y += inc;
+
+	update_cursor();
+}
+
+// Scroll one line down
+static void scroll(){
+
+	/*
+   	 * Low nibble is the foreground color
+	 * Upper nibble is the background colour.
+	 * Here, background is black and
+	 * foreground is white.
+	 */
+   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+   
+	// The attribute byte is the top 8 bits of the short
+	ushort space = ' ' | (attr << 8);
+
+	int i;
+	for (i = 0; i < (NUM_ROWS - 1) * NUM_COLS; i++)
+		vid_mem[i] = vid_mem[i + NUM_COLS];
+
+	/* Write a blank bottom line */
+	for (i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++)
+		vid_mem[i] = space;
+        
+	cursor_y = NUM_ROWS - 1;
+}
 
 void update_cursor(){
 
+	if(cursor_x < 0){
+
+		if(cursor_y > 0){
+			cursor_x = NUM_COLS - 1;
+			cursor_y--;
+		}
+		else
+			cursor_x = 0;
+	}
+	if(cursor_y < 0)
+		cursor_y = 0;
+
+	if(cursor_x > NUM_COLS - 1){
+		cursor_x = 0;
+		cursor_y++;
+	}
+
+	if(cursor_y >= NUM_ROWS)
+		scroll();
+
 	/* The screen is 80 characters wide */
-	ushort loc = (cursor_y * 80) + cursor_x;
+	ushort loc = (cursor_y * NUM_COLS) + cursor_x;
 	
 	/* Signal VGA high byte */
 	out_byte(CRTPORT, 14);
@@ -73,27 +137,42 @@ void printf(char* str, ... ){
 
 void put_char(char c){
 
+	uchar bflag = 0;
+
 	if(c == '\n'){
 		cursor_y++;
 		cursor_x = 0;
+		update_cursor();
 		return;
 	}
-	
+	else if(c == '\b'){
+		c = ' ';
+
+		// Move all characters back one space
+		int i = cursor_y * NUM_COLS + cursor_x;
+		for ( ; i < NUM_ROWS * NUM_COLS; i++)
+			vid_mem[i] = vid_mem[i + 1];
+
+		cursor_x--;
+		bflag = 1;
+	}
+
 	/*
    	 * Low nibble is the foreground color
 	 * Upper nibble is the background colour.
 	 * Here, background is black (0) and
 	 * foreground is white(15).
 	 */
-   	uchar attr = (0 << 4) | (15 & 0x0F);
+   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
    
 	// The attribute byte is the top 8 bits of the short
    	ushort style = attr << 8;
 
-	ushort *location = vid_mem + (cursor_y * 80 + cursor_x);
+	ushort *location = vid_mem + (cursor_y * NUM_COLS + cursor_x);
        *location = c | style;
 
-	cursor_x++;
+	if(!bflag)
+		cursor_x++;
 	update_cursor();
 }
 
@@ -167,17 +246,16 @@ void put_decimal(uint n){
 
 void clear_screen(){
 	// Make an attribute byte for the default colours
-   	uchar attr = (0 << 4) | (15 & 0x0F);
+   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
 	ushort style = attr << 8;
    	ushort blank = ' ' | style;
 
    	int i;
-   	for (i = 0; i < 80*25; i++)
+   	for (i = 0; i < NUM_ROWS * NUM_COLS; i++)
    	    vid_mem[i] = blank;
-   	
 
-   	// Move the hardware cursor back to the start.
    	cursor_x = 0;
    	cursor_y = 0;
-   	update_cursor();
+
+	update_cursor();
 }

@@ -14,31 +14,32 @@ void register_interrupt_handler(uchar n, w_isr handler){
 	interrupt_handlers[n] = handler;
 }
 
-// Called from ASM interrupt handler stub.
-void isr_handler(Registers regs){
+/* Generic handler called from asm */
+void isr_handler(w_regs regs){
 
-	put_string("recieved interrupt: ");
-	put_decimal(regs.int_no);
-	put_char('\n');
-
+	/* Is there a handler registered? */
 	if (interrupt_handlers[regs.int_no] != 0){
 
 		w_isr handler = interrupt_handlers[regs.int_no];
 		handler(regs);
 	}
+	else{
+		printf("Recieved Interrupt 0x%p\n", regs.int_no);
+	}
 }
 
-// Called from our ASM interrupt handler stub.
-void irq_handler(Registers regs){
+/* Generic handler called from asm */
+void irq_handler(w_regs regs){
 
-	// Send an EOI (end of interrupt) signal to the PICs.
-	// If this interrupt involved the slave...
+	/* Send an EOI signal to the PIC */
+	
 	if (regs.int_no >= 40){
-		// Send reset signal to slave.
+
+		/* Send reset signal to slave */
 		out_byte(0xA0, 0x20);
 	}
 
-	// Send reset signal to master
+	/* Reset master */
 	out_byte(0x20, 0x20);
 
 	if (interrupt_handlers[regs.int_no] != 0){

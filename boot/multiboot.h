@@ -123,7 +123,7 @@ typedef struct{
 	uint width;
 	uint height;
 	uint depth;
-}  Multiboot_header;
+}  w_multiboot_header;
      
 /* The symbol table for a.out. */
 typedef struct{
@@ -132,7 +132,7 @@ typedef struct{
 	uint strsize;
 	uint addr;
 	uint reserved;
-}Multiboot_aout_symbol_table;
+}w_multiboot_aout_symbol_table;
      
 /* The section header table for ELF. */
 typedef struct{
@@ -141,7 +141,7 @@ typedef struct{
 	uint size;
 	uint addr;
 	uint shndx;
-} Multiboot_elf_section_header_table;
+} w_multiboot_elf_section_header_table;
      
 typedef struct{
 
@@ -164,8 +164,8 @@ typedef struct{
     
 	union{
 
-		Multiboot_aout_symbol_table aout_sym;
-		Multiboot_elf_section_header_table elf_sec;
+		w_multiboot_aout_symbol_table aout_sym;
+		w_multiboot_elf_section_header_table elf_sec;
 	} u;
      
 	/* Memory Mapping buffer */
@@ -192,7 +192,7 @@ typedef struct{
 	ushort vbe_interface_seg;
 	ushort vbe_interface_off;
 	ushort vbe_interface_len;
-} Multiboot_info;
+} w_multiboot_info;
      
 typedef struct{
 
@@ -205,7 +205,7 @@ typedef struct{
     
 	/* padding to take it to 16 bytes (must be zero) */
 	uint pad;
-} Multiboot_mod;
+} w_multiboot_mod;
      
 #endif /* ! ASM_FILE */
      

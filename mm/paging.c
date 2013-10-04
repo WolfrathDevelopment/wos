@@ -6,16 +6,27 @@
  */
 
 #include "mem.h"
+#include "../core/core.h"
+#include "../util/debug.h"
 
-w_pde* current_page_directory;
+/* Initial page directory */
+__attribute__((__aligned__(PAGE_SIZE)))
+w_pde init_pgdir[NUM_PDE] = {
 
-void set_page_directory(w_pde* dir){
+	/* Identity map 4MiB starting at 0 and 0xC0000000 */
+	[0] = (0) | PTE_P | PTE_W | PTE_PS,
+	[PD_INDEX(KMAP_START)] = (0) | PTE_P | PTE_W | PTE_PS,
+};
 
-	current_page_directory = dir;
+static w_pde* current_page_directory;
+static w_pde* kernel_page_directory;
+
+static void enable_paging(){
+
 	uint cr0;
 	
 	// Give cr3 the address of this page directory
-	asm volatile("mov %0, %%cr3":: "r"(dir));
+	asm volatile("mov %0, %%cr3":: "r"(current_page_directory));
 
 	// Read the value currently in cr0
 	asm volatile("mov %%cr0, %0": "=r"(cr0));
@@ -29,75 +40,46 @@ void set_page_directory(w_pde* dir){
 	// Paging is now enabled!!
 }
 
- /* Allocate a page at the given physical address */
-w_pte* alloc_page(uint * addr, uint flags){
+static void disable_paging(){
 
-	uint result = 0;	
+	uint cr0;
 
-	// Make sure we are page aligned
-	if(!PAGE_ALIGNED(addr))
-		PAGE_ALIGN(addr);
+	// Read the value currently in cr0
+	asm volatile("mov %%cr0, %0": "=r"(cr0));
 
-	/*
-	 * Zero out the page.
- 	 * Since page is 4kb, we only need to iterate
-	 * up to PAGE_SIZE / sizeof(int)
-	 */
-	int i = 0;
-	uint *it = addr;
-	while( i++ < PAGE_SIZE / 4){
-		*it++ = NULL;
-	}
+	// Unset the paging bit
+	cr0 &= 0x7FFFFFFF;
 
-	// First 20 bits are address, last 12 are flags
-	// Cast to uint to avoid pointer arithmetic
-	result = (uint)addr;
-
-	// For sanity's sake, lets force the flags into 12 bits
-	flags &= 0xFFF;
-	return (w_pte*)(result | flags);
+	// Write new cr0 value back to the register
+	asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
-w_pde* allocate_page_directory(int is_kernel){
+void set_page_directory(w_pde* dir){
 
-	w_pde* dir;
-
-	if(is_kernel){
-		
-		/* Allocate the page directory */
-		dir = (w_pde*) kmalloc(NUM_PDE * sizeof(w_pde), FLAG_ALIGN);
-
-		int i;
-		for(i = 0; i<NUM_PDE; i++){
-			
-			/* Allocate a page table */			
-			w_pte * table = (w_pte*) kmalloc(NUM_PTE * sizeof(w_pte), FLAG_ALIGN);
-
-			/* Point the directory entry at this new table */
-			dir[i] |= ((uint) table | PTE_W); 
-
-			/* Page table entries will get set once pages are mapped */
-		}
-	}
+	current_page_directory = dir;
 }
 
 void init_paging(){
 
-	/* Allocate the kernel page directory */
-	current_page_directory = allocate_page_directory(1);
-
+	init_lock(&mem_lock);
 	register_interrupt_handler(14, page_fault_handler);
+
+	/* Invalidate the identity mapped pages 0 - 4MiB */
 }
 
-void page_fault_handler(Registers regs){
+/* Flushes this page from the TLB */
+void invalidate_page(uint addr){
+	asm volatile("invlpg (%0)" ::"r" (addr) : "memory");
+}
 
-	//fault address is in reg CR2
+void page_fault_handler(w_regs regs){
+
 	uint fault_addr;
+
+	/* cr2 holds fault address */
 	asm volatile("mov %%cr2, %0" : "=r" (fault_addr));
 
-	//error details
 	int exist = !(regs.err_code & 0x1);
-	//write operation?
 	int rw = regs.err_code & 0x2;
 	int us = regs.err_code & 0x4;
 	int res = regs.err_code & 0x8;
@@ -115,4 +97,7 @@ void page_fault_handler(Registers regs){
 	if(res){
 		
 	}
+
+	printf("Page fault at 0x%p!\n", fault_addr);
+	_panic("Unhandled exception!");
 }

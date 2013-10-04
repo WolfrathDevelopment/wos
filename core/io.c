@@ -1,3 +1,10 @@
+/*
+ * io.c
+ * Wolfrath/Kriewall, 2013
+ *
+ * Impelentation of basic io functions on x86
+ */
+
 #include "core.h"
 
 /*
@@ -9,6 +16,15 @@
  *         : list of clobbered registers     
  *        );
  */
+
+void zero_mem(uint* addr, uint many){
+	
+	many /= 4;
+	uint* it = addr;
+
+	while(many-- > 0)
+		*it++ = 0;
+}
 
 /* Write a byte to the specified port */
 void out_byte(ushort port, uchar val){
@@ -30,4 +46,10 @@ ushort in_short(ushort port){
     ushort val;
     asm volatile("in %1, %0" : "=a" (val) : "dN" (port));
     return val;
+}
+
+inline uint read_eflags(void){
+	uint eflags;
+	asm volatile("pushfl; popl %0" : "=r" (eflags));
+	return eflags;
 }

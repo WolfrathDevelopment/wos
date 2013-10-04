@@ -7,13 +7,13 @@
 
 #include "core.h"
 
-void init_lock(Spinlock* lk){
+void init_lock(w_spinlock* lk){
 
 	atomic_set(&lk->locked,0);
 	lk->cpu = 0;
 }
 
-void acquire(Spinlock* lk){
+void acquire(w_spinlock* lk){
 
 	// prevent deadlock
 	push_cli();
@@ -29,7 +29,7 @@ void acquire(Spinlock* lk){
 	//lk->cpu = current_cpu
 }
 
-void release(Spinlock* lk){
+void release(w_spinlock* lk){
 
 	if(!is_held(lk))
 		return;
@@ -40,7 +40,7 @@ void release(Spinlock* lk){
 	pop_cli();
 }
 
-uint is_held(Spinlock* lk){
+uint is_held(w_spinlock* lk){
 
 	return atomic_read(&lk->locked);
 	//make sure the running cpu is the one holding the lock
