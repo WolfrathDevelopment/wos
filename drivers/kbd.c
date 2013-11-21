@@ -106,7 +106,7 @@ static uchar skbdus[128] ={
     0,	/* All other keys are undefined */
 };
 
-static void kbd_callback(w_regs regs){
+static void kbd_callback(struct w_regs regs){
 
 	uchar scancode = in_byte(0x60);
 

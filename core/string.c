@@ -1,5 +1,11 @@
-#include "core.h"
+/*
+ * console.c
+ * Wolfrath/Kriewall, 2013
+ *
+ * Impelentation of basic string functions
+ */
 
+#include "core.h"
 
 /* Copy length bytes from src to dest */
 void memcpy(uchar *dest, const uchar *src, uint length){

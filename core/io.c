@@ -17,7 +17,7 @@
  *        );
  */
 
-void zero_mem(uint* addr, uint many){
+void zero_mem(void* addr, uint many){
 	
 	many /= 4;
 	uint* it = addr;
@@ -52,4 +52,12 @@ inline uint read_eflags(void){
 	uint eflags;
 	asm volatile("pushfl; popl %0" : "=r" (eflags));
 	return eflags;
+}
+
+inline void cli(void){
+	asm volatile("cli");
+}
+
+inline void sti(void){
+	asm volatile("sti");
 }

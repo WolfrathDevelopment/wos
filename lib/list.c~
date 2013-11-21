@@ -1,0 +1,58 @@
+/*
+ * list.c
+ * Wolfrath 2013
+ *
+ * Linked list function implementations
+ */
+
+#include "list.h"
+
+/* Add the node to the end of the list */
+
+void list_add(struct w_listnode** head, struct w_listnode* node){
+
+	if(head == NULL){
+		*head = node;
+	}
+	else{
+
+		struct w_listnode* it = *head;
+
+		while(it->next)
+			it = it->next;
+		
+		it->next = node;
+	}
+}
+
+/* Remove the node passed as an argument */
+
+struct w_listnode* list_remove(struct w_listnode** head, struct w_listnode* node){
+
+	/* Sanity check */
+
+	if(head == NULL)
+		return;
+
+
+	struct w_listnode* del = head;
+
+	if(node == head){
+
+		/* If we need to delete the head... */
+
+		head = del->next;
+	}
+	else{
+
+		while(del->next != node)
+			del = del->next;
+
+		struct w_listnode* prev = del;
+		del = prev->next;
+		prev->next = del->next;
+	}
+
+	return del;
+}
+

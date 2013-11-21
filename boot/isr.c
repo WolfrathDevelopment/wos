@@ -15,7 +15,7 @@ void register_interrupt_handler(uchar n, w_isr handler){
 }
 
 /* Generic handler called from asm */
-void isr_handler(w_regs regs){
+void isr_handler(struct w_regs regs){
 
 	/* Is there a handler registered? */
 	if (interrupt_handlers[regs.int_no] != 0){
@@ -29,7 +29,7 @@ void isr_handler(w_regs regs){
 }
 
 /* Generic handler called from asm */
-void irq_handler(w_regs regs){
+void irq_handler(struct w_regs regs){
 
 	/* Send an EOI signal to the PIC */
 	

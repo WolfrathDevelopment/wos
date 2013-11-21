@@ -11,59 +11,124 @@
 #include "boot.h"
 #include "../proc/proc.h"
 
-//defined in assembly
+
+/* ASM flush routines */
+
 extern void gdt_flush(uint);
 extern void idt_flush(uint);
+
 
 static void set_gdt(int,uint,uint,uchar,uchar);
 static void set_idt(uchar,uint,ushort,uchar);
 
-w_gdte gdt_entries[7];
-w_gdtp   g_ptr;
-w_idte idt_entries[256];
-w_idtp   i_ptr;
-w_tss current_tss;
+
+/* The new GDT */
+
+struct w_gdte gdt_entries[7];
+struct w_gdtp g_ptr;
+
+
+/* The new IDT */
+
+struct w_idte idt_entries[256];
+struct w_idtp i_ptr;
+
+
+/* Task state of current task */
+
+struct w_tss current_tss;
+
 
 extern w_isr interrupt_handlers[];
 
+
+/* Segment flags */
+
 #define SEG_P     	0x80		// Is Present?
-#define SEG_TSS	0x01		// Is TSS?
-#define SEG_SEG	0x10		// Is Segment?
+#define SEG_TSS		0x01		// Is TSS?
+#define SEG_SEG		0x10		// Is Segment?
 #define SEG_X		0x08		// Executable?
 #define SEG_W		0x02		// Writable?
 
 #define SEG_AVAIL	0x10		// Is Available?
-#define SEG_32	0x40		// Is 32 bit?
+#define SEG_32		0x40		// Is 32 bit?
 #define SEG_GBYTE	0x00		// Granularity byte?
 #define SEG_GPAGE	0x80		// Granularity page?
 
 #define SEG_KERN	0x00		// Kernel permissions?
 #define SEG_USER	0x60		// User permissions?
 
+
+/* Initialize segments */
+
 static void seg_init(){
 
-	g_ptr.limit = (sizeof(w_gdte) * 5) - 1;
+	g_ptr.limit = (sizeof(struct w_gdte) * 5) - 1;
 	g_ptr.base  = (uint)&gdt_entries;
 
+	uint tmp_access;
+	uint tmp_gran;
+
+	/* Segment 0 */
+
 	set_gdt(0, 0, 0, 0, 0);
-	set_gdt(1, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_KERN | SEG_X ) , ( SEG_32 | SEG_GPAGE ) );
-	set_gdt(2, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_KERN ) , ( SEG_32 | SEG_GPAGE ) );
-	set_gdt(3, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER |  SEG_X ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
-	set_gdt(4, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
-	set_gdt(5, 0, 0xFFFFFFFF, ( SEG_P | SEG_W | SEG_SEG | SEG_USER ) , ( SEG_32 | SEG_GPAGE | SEG_AVAIL ) );
-	set_gdt(6, (uint)&current_tss, sizeof(w_tss), ( SEG_P | SEG_KERN | SEG_X | SEG_TSS ) , ( SEG_32 | SEG_GBYTE ) );
+
+
+	/* Set segment 1 */
+
+	tmp_access = SEG_P | SEG_W | SEG_SEG | SEG_KERN | SEG_X;
+	tmp_gran = SEG_32 | SEG_GPAGE;
+	set_gdt(1, 0, 0xFFFFFFFF,  tmp_access, tmp_gran);
+
+
+	/* Segment 2 */
+	
+	tmp_access = SEG_P | SEG_W | SEG_SEG | SEG_KERN;
+	tmp_gran = SEG_32 | SEG_GPAGE;
+	set_gdt(2, 0, 0xFFFFFFFF,  tmp_access, tmp_gran);
+
+
+	/* Segment 3 */
+
+	tmp_access = SEG_P | SEG_W | SEG_SEG | SEG_USER | SEG_X;
+	tmp_gran = SEG_32 | SEG_GPAGE | SEG_AVAIL;
+	set_gdt(3, 0, 0xFFFFFFFF,  tmp_access, tmp_gran);
+
+
+	/* Segment 4 */
+
+	tmp_access = SEG_P | SEG_W | SEG_SEG | SEG_USER;
+	tmp_gran = SEG_32 | SEG_GPAGE | SEG_AVAIL;
+	set_gdt(4, 0, 0xFFFFFFFF,  tmp_access, tmp_gran);
+
+
+	/* Segment 5 */
+
+	tmp_access = SEG_P | SEG_W | SEG_SEG | SEG_USER;
+	tmp_gran = SEG_32 | SEG_GPAGE | SEG_AVAIL;
+	set_gdt(5, 0, 0xFFFFFFFF,  tmp_access, tmp_gran);
+
+	
+	/* Segment 6 */
+
+	tmp_access = SEG_P | SEG_KERN | SEG_X | SEG_TSS;
+	tmp_gran = SEG_32 | SEG_GBYTE;
+	uint addr = (uint)&current_tss;
+
+	set_gdt(6, addr, sizeof(struct w_tss), tmp_access, tmp_gran);
+
 
 	gdt_flush((uint)&g_ptr);
 }
 
 static void idt_init(){
 
-	i_ptr.limit = sizeof(w_idte) * 256 -1;
+	i_ptr.limit = sizeof(struct w_idte) * 256 -1;
 	i_ptr.base  = (uint)&idt_entries;
 
-	zero_mem((uint*)&idt_entries, sizeof(w_idte)*256);
+	zero_mem((uint*)&idt_entries, sizeof(struct w_idte) * 256);
 
-	// Remap the irq table.
+	/* Remap IRQ table */
 	out_byte(0x20, 0x11);
 	out_byte(0xA0, 0x11);
 	out_byte(0x21, 0x20);
@@ -130,10 +195,10 @@ static void idt_init(){
 void init_seg(){
 	seg_init();
 	idt_init();
-	zero_mem((uint*)&interrupt_handlers, sizeof(w_isr)*256);
+	zero_mem((uint*)&interrupt_handlers, sizeof(w_isr) * 256);
 }
 
-// Set the value of one GDT entry.
+/* Set the value of one GDT entry */
 static void set_gdt(int num, uint base, uint limit, uchar access, uchar gran){
 
 	gdt_entries[num].base_low = (base & 0xFFFF);
@@ -159,7 +224,7 @@ static void set_idt(uchar num, uint base, ushort sel, uchar flags){
     idt_entries[num].sel     = sel;
     idt_entries[num].always0 = 0;
 
-    // We must uncomment the OR below when we get to using user-mode.
+    // Must OR below when using user-mode.
     // It sets the interrupt gate's privilege level to 3.
     idt_entries[num].flags   = flags /* | 0x60 */;
 }

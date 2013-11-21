@@ -14,27 +14,26 @@
 
 #include "../core/core.h"
 
-#define PAGE_FAULT 14
+#define INT_PAGEFAULT 	14
+#define INT_PIC		32
+#define IRQ1		33
+#define IRQ2 		34
+#define IRQ3 		35
+#define IRQ4 		36
+#define IRQ5 		37
+#define IRQ6 		38
+#define IRQ7 		39
+#define IRQ8 		40
+#define IRQ9 		41
+#define IRQ10 		42
+#define IRQ11 		43
+#define IRQ12 		44
+#define IRQ13 		45
+#define IRQ14 		46
+#define IRQ15 		47
 
-#define IRQ0 32
-#define IRQ1 33
-#define IRQ2 34
-#define IRQ3 35
-#define IRQ4 36
-#define IRQ5 37
-#define IRQ6 38
-#define IRQ7 39
-#define IRQ8 40
-#define IRQ9 41
-#define IRQ10 42
-#define IRQ11 43
-#define IRQ12 44
-#define IRQ13 45
-#define IRQ14 46
-#define IRQ15 47
-
-#define SEG_KERNEL_CODE	0x08
-#define SEG_KERNEL_DATA	0x10
+#define SEG_KERNEL_CODE		0x08
+#define SEG_KERNEL_DATA		0x10
 #define SEG_USER_CODE		0x18
 #define SEG_USER_DATA		0x20
 #define SEG_USER_TLS		0x28
@@ -43,42 +42,44 @@
 void init_seg();
 void init_idt();
 
-typedef struct gdt_entry_struct{
+struct w_gdte{
 
-    ushort limit_low;           // The lower 16 bits of the limit.
-    ushort base_low;            // The lower 16 bits of the base.
-    uchar  base_middle;         // The next 8 bits of the base.
-    uchar  access;              // Access flags, determine what ring this segment can be used in.
+    ushort limit_low;		// The lower 16 bits of the limit.
+    ushort base_low;    	// The lower 16 bits of the base.
+    uchar  base_middle; 	// The next 8 bits of the base.
+    uchar  access;  		// Access ring
     uchar  granularity;
-    uchar  base_high;           // The last 8 bits of the base.
-} __attribute__((packed)) w_gdte;
+    uchar  base_high;		// The last 8 bits of the base.
+} __attribute__((packed));
 
-// Defines a GDT pointer.
-// Points to beginning of array of GDT_e
-typedef struct gdt_ptr_struct{
+/*
+ * Defines a GDT pointer.
+ * Points to beginning of array of w_gdte
+ */
+struct w_gdtp{
 
-    ushort limit;               // The upper 16 bits of all selector limits.
-    uint base;                // The address of the first gdt_entry struct.
-} __attribute__((packed)) w_gdtp;
+    ushort limit;		// The upper 16 bits of limit
+    uint base;			// The address of the first w_gdte
+} __attribute__((packed));
 
-// A struct describing an interrupt gate.
-typedef struct idt_entry_struct{
+/* A struct describing an interrupt gate */
+struct w_idte{
 
-    ushort base_lo;             // The lower 16 bits of the address to jump to when this interrupt fires.
-    ushort sel;                 // Kernel segment selector.
-    uchar  always0;             // This must always be zero.
-    uchar  flags;               // More flags.
-    ushort base_hi;             // The upper 16 bits of the address to jump to.
-} __attribute__((packed)) w_idte;
+    ushort base_lo;		// The lower 16 of jmp address
+    ushort sel;			// Kernel segment selector.
+    uchar  always0;		// This must always be zero.
+    uchar  flags;		// More flags.
+    ushort base_hi;		// The upper 16 of jmp address
+} __attribute__((packed));
 
-// pointer to an array of interrupt handlers.
-typedef struct idt_ptr_struct{
+/* pointer to an array of interrupt handlers */
+struct w_idtp{
 
     ushort limit;
-    uint base;                // The address of the first element in the idt_entry array.
-} __attribute__((packed)) w_idtp;
+    uint base;			// The address of the first w_idte
+} __attribute__((packed));
 
-// ISR handlers
+/* ISR handlers */
 extern void isr0 ();
 extern void isr1 ();
 extern void isr2 ();
@@ -128,16 +129,24 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
-typedef struct{
+/* Models x86 registers */
+struct w_regs{
 
-    uint ds;                  // Data segment selector
-    uint edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
-    uint int_no, err_code;    // Interrupt number and error code
-    uint eip, cs, eflags, useresp, ss; // Pushed by the processor
-} w_regs;
+	/* Data segment selector */
+	uint ds;
 
-// Generic callback
-typedef void (*w_isr)(w_regs);
+	/* Registers pushed from call to pusha */
+	uint edi, esi, ebp, esp, ebx, edx, ecx, eax;
+
+	/* Interrupt number and error */
+	uint int_no, err_code;
+
+	/* Processor flags */
+	uint eip, cs, eflags, useresp, ss;
+};
+
+/* Generic ISR callback function */
+typedef void (*w_isr)(struct w_regs);
 void register_interrupt_handler(uchar, w_isr);
 
 #endif

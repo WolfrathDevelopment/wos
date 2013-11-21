@@ -25,5 +25,5 @@ SECTIONS
 	}
 
 	end = .;
-	PROVIDE(kern_end = .);
+	PROVIDE(kern_end = . - 0xC0000000);
 }
