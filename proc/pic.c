@@ -19,7 +19,7 @@ static void pic_callback(struct w_regs regs){
 	if( count > 100){
 	    count = 0;
 	    printf("Schedule Hit");
-	    //schedule();
+	    schedule();
 	}
 }
 

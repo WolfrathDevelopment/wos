@@ -23,7 +23,7 @@ extern uint next_page;
 static void mark_frame_used(uint addr){
 
 	//acquire(&mem_lock);
-	
+
 	uint index = ADDR_INDEX(addr);
 	uint offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] |= 0x1 << offset;
@@ -34,11 +34,11 @@ static void mark_frame_used(uint addr){
 static void mark_frame_empty(uint addr){
 
 	//acquire(&mem_lock);
-	
+
 	uint index = ADDR_INDEX(addr);
 	uint offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] &= ~(0x1 << offset);
-	
+
 	//release(&mem_lock);
 }
 
@@ -59,11 +59,14 @@ static uint check_frame(uint addr){
 /* Find an available page frame */
 
 static uint find_frame(uint usr){
-	
+
 	//acquire(&mem_lock);
 
 	uint i, frame, offset, max;
 	int index;
+
+
+    /* Should map more kernel tables here!! */
 
 	if(usr)
 		max = NUM_INDEX;
@@ -89,7 +92,7 @@ static uint find_frame(uint usr){
 	offset = 31;
 
 	for( i = 0x80000000; i > 0; i >>= 1){
-		
+
 		if( i & page_map[index] ){
 			offset--;
 			continue;
@@ -98,11 +101,11 @@ static uint find_frame(uint usr){
 			break;
 		}
 	}
-	
+
 	frame = ( index * 0x20 ) + offset;
 
 	//release(&mem_lock);
-	
+
 	return frame * 0x1000;
 }
 
@@ -129,7 +132,7 @@ void init_alloc(w_multiboot_info* mbt){
 			uint addr = mmap->base_addr_low;
 			if(!PAGE_ALIGNED(addr))
 				PAGE_ALIGN(addr);
-			
+
 			for(i=addr; i<addr + mmap->length_low; i+=0x1000){
 				if(i<(uint)&kern_start || i>=(uint)&kern_end){
 					mark_frame_empty(i);
@@ -139,7 +142,7 @@ void init_alloc(w_multiboot_info* mbt){
 					kern++;
 				}
 			}
-			
+
 		}
 		mmap = (struct w_mmap*)((uint)mmap+mmap->size+sizeof(uint));
 	}
@@ -173,7 +176,7 @@ w_pte alloc_page_frame(uint flags){
 
 	flags &= 0xFFF;
 
-	
+
 	/* Add the flags */
 
 	return addr | flags;

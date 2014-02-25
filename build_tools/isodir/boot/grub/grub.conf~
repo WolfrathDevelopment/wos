@@ -1,0 +1,7 @@
+title=Jimix
+root (fd0)
+kernel /kernel
+
+menuentry "wos" {
+	multiboot /boot/kernel
+}

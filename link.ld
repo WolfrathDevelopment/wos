@@ -1,4 +1,10 @@
-/* Link.ld -- Linker script for the kernel */
+/*
+ * link.ld
+ * Wolfrath/Kriewall, 2013
+ *
+ * Linker file for kernel:
+ * Maps the kernel as a higher half kernel
+ */
 
 OUTPUT_FORMAT("elf32-i386", "elf32-i386", "elf32-i386")
 OUTPUT_ARCH(i386)
@@ -6,7 +12,11 @@ OUTPUT_ARCH(i386)
 ENTRY(start)
 SECTIONS
 {
+    /* Define the start of the kernel binary */
+
 	PROVIDE(kern_start = 0x100000);
+
+
 	. = 0xC0100000;
 
 	.text : AT(ADDR(.text) - 0xC0000000) {
@@ -25,5 +35,9 @@ SECTIONS
 	}
 
 	end = .;
+
+
+	/* Define the end of the kernel binary */
+
 	PROVIDE(kern_end = . - 0xC0000000);
 }

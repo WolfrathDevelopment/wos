@@ -4,38 +4,81 @@
  *
  */
 
-#ifndef TASK_H
-#define TASK_H
+#ifndef PROC_H
+#define PROC_H
 
-/* Models the state of a task at any given time */
-typedef struct{
-	uint prev_tss;
-	uint esp0;
-	uint ss0;
-	uint esp1;
-	uint ss1;
-	uint esp2;
-	uint ss2;
-	uint cr3;
-	uint eip;
-	uint eflags;
-	uint eax;
-	uint ecx;
-	uint edx;
-	uint ebx;
-	uint esp;	
-	uint ebp;
-	uint esi;
-	uint edi;
-	uint es;
-	uint cs;
-	uint ss;
-	uint ds;
-	uint fs;
-	uint gs;
-	uint ldt;
-	ushort trap;
-	ushort iomap_base;
-} __attribute__((packed)) w_tss;
+#include "../mm/mem.h"
+#include "../boot/boot.h"
+#include "../types.h"
+#include "../core/core.h"
+
+
+/* What is the state of the given thread? */
+
+enum thread_state {CREATED, RUNABLE, RUNNING, WAITING, SLEEPING, STOPPED};
+
+
+/* Which system are we running on? */
+
+enum thread_system { LINUX, OSX, WIN };
+
+/*
+struct context {
+    uint edi;
+    uint esi;
+    uint ebx;
+    uint ebp;
+    uint eip;
+};
+*/
+
+/* Defines a process */
+
+struct w_proc{
+
+	uint pid;
+	enum thread_state state;
+	enum thread_system sys;
+	struct w_proc* next;
+	w_pde* pg_dir;
+	uint flags;
+	struct w_regs* regs;
+}__attribute__((packed));
+
+
+/* pic.c */
+
+typedef void (*w_timer_callback)();
+
+void init_pic();
+void reset_pic(uint);
+void register_timer(w_timer_callback, uint);
+
+
+/* proc.c */
+
+void begin_multitasking();
+void context_switch(struct w_proc*);
+int fork(uint);
+int exec();
+
+
+/* thread.c */
+
+//struct w_thread* create_thread(struct w_proc*, uint);
+
+/* schedule.c */
+
+void schedule();
+
+/* stack.c */
+
+uint get_eip();
+inline uint get_esp();
+inline void set_esp(uint);
+inline void* push_regs();
+inline void* copy_stack(uint*,uint*);
+inline void pop_context();
+inline void set_ss(ushort);
 
 #endif

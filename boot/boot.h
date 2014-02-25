@@ -6,7 +6,7 @@
  * 	IDT
  * 	GDT
  *	ISR Functionality
- * 
+ *
  */
 
 #ifndef BOOT_H
@@ -37,10 +37,69 @@
 #define SEG_USER_CODE		0x18
 #define SEG_USER_DATA		0x20
 #define SEG_USER_TLS		0x28
-#define SEG_TSS			0x30
+
+#define REGS_COPY(r1,r2) \
+            (r1)->ds = (r2)->ds; \
+            (r1)->edi = (r2)->edi; \
+            (r1)->esi = (r2)->esi; \
+            (r1)->ebp = (r2)->ebp; \
+            (r1)->esp = (r2)->esp; \
+            (r1)->ebx = (r2)->ebx; \
+            (r1)->edx = (r2)->edx; \
+            (r1)->ecx = (r2)->ecx; \
+            (r1)->eax = (r2)->eax; \
+            (r1)->int_no = (r2)->int_no; \
+            (r1)->err_code = (r2)->err_code; \
+            (r1)->eip = (r2)->eip; \
+            (r1)->cs = (r2)->cs; \
+            (r1)->eflags = (r2)->eflags; \
+            (r1)->useresp = (r2)->useresp; \
+            (r1)->ss = (r2)->ss
 
 void init_seg();
 void init_idt();
+
+/* ASM flush routines */
+
+extern void gdt_flush(uint);
+extern void idt_flush(uint);
+extern void tss_flush();
+
+
+void set_tss(uint);
+
+/* Models the task state segment */
+
+struct w_tss{
+
+	uint prev_tss;
+	uint esp0;
+	uint ss0;
+	uint esp1;
+	uint ss1;
+	uint esp2;
+	uint ss2;
+	uint cr3;
+	uint eip;
+	uint eflags;
+	uint eax;
+	uint ecx;
+	uint edx;
+	uint ebx;
+	uint esp;
+	uint ebp;
+	uint esi;
+	uint edi;
+	uint es;
+	uint cs;
+	uint ss;
+	uint ds;
+	uint fs;
+	uint gs;
+	uint ldt;
+	ushort trap;
+	ushort iomap_base;
+} __attribute__((packed));
 
 struct w_gdte{
 
@@ -80,6 +139,7 @@ struct w_idtp{
 } __attribute__((packed));
 
 /* ISR handlers */
+
 extern void isr0 ();
 extern void isr1 ();
 extern void isr2 ();

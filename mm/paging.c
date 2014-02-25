@@ -60,6 +60,7 @@ static void disable_paging(){
 void set_page_directory(w_pde* dir){
 
 	current_page_directory = dir;
+	enable_paging();
 }
 
 
@@ -142,7 +143,7 @@ void page_fault_handler(struct w_regs regs){
 	asm volatile("mov %%cr2, %0" : "=r" (fault_addr));
 
 	//trace_stack(5);
-	printf("Page fault at 0x%p! debug=%p\n", fault_addr,debug);
+	printf("Page fault at 0x%p! eip=%p\n", fault_addr,regs.eip);
 	PANIC("Unhandled exception!")
 
 	int exist = !(regs.err_code & 0x1);

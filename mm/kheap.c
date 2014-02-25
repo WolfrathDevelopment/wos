@@ -17,6 +17,8 @@ extern w_pde* kernel_page_directory;
 
 extern uint debug;
 
+uint next_alloc_address;
+
 
 #define HEAP_OVERHEAD sizeof(struct w_block)
 
@@ -47,6 +49,8 @@ void init_kheap(){
 		zero_mem(((void*)heap_start + size), PAGE_SIZE);
 		size += 0x1000;
 	}
+
+	next_alloc_address = heap_start + size;
 
 
 	/* Set up initial linked list of available blocks */
@@ -120,8 +124,7 @@ void* kalloc(uint size){
 	if(it == NULL){
 
 		/* Not enough contiguous memory available */
-
-		return NULL;
+        return NULL;
 	}
 
 	/* Remove this node from the free list */
@@ -239,4 +242,8 @@ void kfree(uint va){
 
 	while(merge(heap))
 		;
+}
+
+void brk(struct w_heap* heap){
+
 }

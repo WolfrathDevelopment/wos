@@ -1,6 +1,7 @@
 
 #include "proc.h"
 
+/*
 extern uint next_pid;
 
 struct w_thread* create_thread(struct w_proc* proc, uint flags){
@@ -13,3 +14,4 @@ struct w_thread* create_thread(struct w_proc* proc, uint flags){
 
 	//list_add(proc->threads, thread);
 }
+*/

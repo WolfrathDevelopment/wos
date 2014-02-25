@@ -18,7 +18,7 @@
 extern uint kern_start;
 extern uint kern_end;
 
-/* Ready to get your hands dirty?? */
+/* Deep magic begins here... */
 
 /*
 	USER VIRTUAL MEMORY LAYOUT (ELF)
@@ -179,6 +179,6 @@ struct w_heap{
 void init_kheap();
 void* kalloc(uint);
 void kfree(uint);
-//void brk(struct w_heap*);
+void brk(struct w_heap*);
 
 #endif

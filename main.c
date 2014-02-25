@@ -2,7 +2,7 @@
  * main.c
  * Wolfrath/Kriewall, 2013
  *
- * Kernel entry into C code
+ * Definitions for main C code
  */
 
 #include "core/core.h"
@@ -14,14 +14,10 @@
 extern w_pde* kernel_page_directory;
 extern w_pte init_pgtbl[];
 extern struct w_tss current_tss;
+extern struct w_proc* current_proc;
 
-uint core_stack;
+uint* core_stack;
 uint debug = 0;
-
-static void remap_stack(uint* ebp){
-
-	/* Map the stack to proper virtual address */
-}
 
 int main(uint* ebp, w_multiboot_info* mboot_ptr){
 
@@ -35,18 +31,15 @@ int main(uint* ebp, w_multiboot_info* mboot_ptr){
 
 	kbd_install();
 	init_alloc(mboot_ptr);
-
-    
 	//remap_stack(ebp);
 
 	/* Set stack guard page */
-	unmap_page(kernel_page_directory, ((uint)&ebp) - 0x1000);
+	//unmap_page(kernel_page_directory, ((uint)&ebp) - 0x1000);
+	core_stack = &ebp;
 
-    
 	/* This will unmap the first 4 MiB */
 	init_paging();
 
-    
 	init_kheap();
 
     	/* Heap test allocations */
@@ -65,13 +58,15 @@ int main(uint* ebp, w_multiboot_info* mboot_ptr){
 	//PANIC("END OF MAIN");
 	kfree((uint)n3);
 
-	init_pic(50);
-
 	// Lets cause a page fault!!!
 	//uint *ptr = (uint*)0x00a00000;
    	//uint do_page_fault = *ptr;
 
 	begin_multitasking();
 
-	PANIC("End of Main");
+    	init_pic(50);
+
+    	while(1)
+        	printf("Current pid: %p",current_proc->pid);
+        //PANIC("End of Main");
 }

@@ -19,3 +19,9 @@ STRUCT DECLARATIONS:
 
 
 FUNCTION DECLARATIONS:
+
+	Functions begin with a lowercase letter or underscore.  Words are 
+	separated by underscores.
+
+	e.g. allocate_page_frame()
+	e.g. _debug()

@@ -3,11 +3,11 @@
 # Wolfrath/Kriewall, 2013
 #
 # Kernel start location
-# Uses GRUB as the bootloader
+# Uses GRUB as the bootloader; GRUB calls into this file
 # Sets up paging and starts kernel executing at 0xC0000000
-# 
+#
 
-.globl mboot 
+.globl mboot
 .globl start
 .extern main					# C entrypoint
 .extern init_pgdir				# initial page directory
@@ -18,7 +18,7 @@
 .set MEMINFO,  1 << 1			# Get mmap from GRUB
 .set FLAGS,    ALIGN | MEMINFO
 .set MAGIC,    0x1BADB002
-.set CHECKSUM, -(MAGIC + FLAGS) 
+.set CHECKSUM, -(MAGIC + FLAGS)
 
 .set KERN_VIR_BASE, 0xC0000000	# Address to map kernel to
 
@@ -28,13 +28,13 @@ mboot:
 	.long  MAGIC
 	.long  FLAGS
 	.long  CHECKSUM
-   
+
 	.globl  mboot
 	.globl  code
 	.globl  bss
 	.globl  end
 	.globl start
-	
+
 	start = (init_pg - KERN_VIR_BASE)	# PHYSICAL address to jump to
 
 k_init:
@@ -54,7 +54,7 @@ init_pg:
 	movl %ebx, %ecx			# Save multiboot info in ecx
 
 	movl $(init_pgtbl - KERN_VIR_BASE), %ebx
-	xorl %eax, %eax			
+	xorl %eax, %eax
 
 	.rept 1024
 		orl $3, %eax			# set permissions
@@ -70,7 +70,7 @@ init_pg:
 	movl %ebx, (%eax)
 	addl $0xC00, %eax
 	movl %ebx, (%eax)
-	
+
 #	movl %cr4, %ebx
 #	orl $0x00000010, %ebx
 #	movl %ebx, %cr4			# Set 4MiB pages
