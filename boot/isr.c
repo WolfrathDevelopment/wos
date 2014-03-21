@@ -1,6 +1,6 @@
 /*
  * isr.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Default implementaion of ISR functions
  */
@@ -8,22 +8,36 @@
 #include "boot.h"
 #include "../proc/proc.h"
 
+
+/* THE interrupt table */
+
 w_isr interrupt_handlers[256];
+
+
+/* The current process structure */
+
 extern struct w_proc* current_proc;
 
-void register_interrupt_handler(uchar n, w_isr handler){
+
+/* Add interrupt handler to interrupt table */
+
+void register_interrupt_handler(w_uint8 n, w_isr handler){
 
 	interrupt_handlers[n] = handler;
 }
 
-/* Generic handler called from asm */
+
+/* Generic ISR handler called from asm */
+
 void isr_handler(struct w_regs regs){
 
     if(current_proc != NULL){
         REGS_COPY(current_proc->regs,&regs);
     }
 
+
 	/* Is there a handler registered? */
+
 	if (interrupt_handlers[regs.int_no] != 0){
 
 		w_isr handler = interrupt_handlers[regs.int_no];
@@ -40,12 +54,15 @@ void isr_handler(struct w_regs regs){
 	}
 }
 
-/* Generic handler called from asm */
+
+/* Generic IRQ handler called from asm */
+
 void irq_handler(struct w_regs regs){
 
-    if(current_proc != NULL){
-        REGS_COPY(current_proc->regs,&regs);
-    }
+
+	if(current_proc != NULL){
+		REGS_COPY(current_proc->regs,&regs);
+	}
 
 	/* Send an EOI signal to the PIC */
 
@@ -55,18 +72,20 @@ void irq_handler(struct w_regs regs){
 		out_byte(0xA0, 0x20);
 	}
 
+
 	/* Reset master */
+
 	out_byte(0x20, 0x20);
 
 	if (interrupt_handlers[regs.int_no] != 0){
 
-        if(regs.int_no == INT_PIC){
+		if(regs.int_no == INT_PIC){
 
-            // Context switch
-            if(current_proc != NULL){
-                schedule();
-            }
-        }
+        	/* Context switch! */
+			if(current_proc != NULL){
+				schedule();
+			}
+		}
 
 		w_isr handler = interrupt_handlers[regs.int_no];
 		handler(regs);

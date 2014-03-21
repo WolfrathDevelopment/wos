@@ -1,16 +1,16 @@
 
 #include "proc.h"
 
-#define FREQ_FACTOR 1193180
-#define PIC_INTERVAL 50
+#define FREQ_FACTOR 	1193180
+#define PIC_INTERVAL 	50
 
-static uint count = 0;
+static w_uint32 count = 0;
 
 struct time_node{
 
 	struct time_node* next;
-	uint elapsed;
-	uint stop;
+	w_uint32 elapsed;
+	w_uint32 stop;
 };
 
 static void pic_callback(struct w_regs regs){
@@ -31,13 +31,13 @@ void init_pic(){
 
 void reset_pic(uint freq){
 
-	uint div = FREQ_FACTOR / freq;
+	w_uint32 div = FREQ_FACTOR / freq;
 
 	out_byte(0x43, 0x36);
-	out_byte(0x40, (uchar)(div & 0xFF));
-	out_byte(0x40, (uchar)((div >> 8) & 0xFF));
+	out_byte(0x40, (w_uint8)(div & 0xFF));
+	out_byte(0x40, (w_uint8)((div >> 8) & 0xFF));
 }
 
-void register_timer(w_timer_callback callback, uint milli){
+void register_timer(w_timer_callback callback, w_uint32 milli){
 
 }

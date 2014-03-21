@@ -1,12 +1,11 @@
 /*
  * boot.h
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Functions needed to modify:
  * 	IDT
  * 	GDT
  *	ISR Functionality
- *
  */
 
 #ifndef BOOT_H
@@ -15,28 +14,30 @@
 #include "../core/core.h"
 
 #define INT_PAGEFAULT 	14
-#define INT_PIC		32
-#define IRQ1		33
-#define IRQ2 		34
-#define IRQ3 		35
-#define IRQ4 		36
-#define IRQ5 		37
-#define IRQ6 		38
-#define IRQ7 		39
-#define IRQ8 		40
-#define IRQ9 		41
-#define IRQ10 		42
-#define IRQ11 		43
-#define IRQ12 		44
-#define IRQ13 		45
-#define IRQ14 		46
-#define IRQ15 		47
+#define INT_PIC			32
+#define IRQ1			33
+#define IRQ2	 		34
+#define IRQ3	 		35
+#define IRQ4	 		36
+#define IRQ5	 		37
+#define IRQ6	 		38
+#define IRQ7	 		39
+#define IRQ8	 		40
+#define IRQ9	 		41
+#define IRQ10	 		42
+#define IRQ11	 		43
+#define IRQ12 			44
+#define IRQ13 			45
+#define IRQ14 			46
+#define IRQ15 			47
 
 #define SEG_KERNEL_CODE		0x08
 #define SEG_KERNEL_DATA		0x10
 #define SEG_USER_CODE		0x18
 #define SEG_USER_DATA		0x20
 #define SEG_USER_TLS		0x28
+
+/* Lets skip the overhead for copying a process's registers */
 
 #define REGS_COPY(r1,r2) \
             (r1)->ds = (r2)->ds; \
@@ -72,70 +73,76 @@ void set_tss(uint);
 
 struct w_tss{
 
-	uint prev_tss;
-	uint esp0;
-	uint ss0;
-	uint esp1;
-	uint ss1;
-	uint esp2;
-	uint ss2;
-	uint cr3;
-	uint eip;
-	uint eflags;
-	uint eax;
-	uint ecx;
-	uint edx;
-	uint ebx;
-	uint esp;
-	uint ebp;
-	uint esi;
-	uint edi;
-	uint es;
-	uint cs;
-	uint ss;
-	uint ds;
-	uint fs;
-	uint gs;
-	uint ldt;
-	ushort trap;
-	ushort iomap_base;
+	w_uint32 prev_tss;
+	w_uint32 esp0;
+	w_uint32 ss0;
+	w_uint32 esp1;
+	w_uint32 ss1;
+	w_uint32 esp2;
+	w_uint32 ss2;
+	w_uint32 cr3;
+	w_uint32 eip;
+	w_uint32 eflags;
+	w_uint32 eax;
+	w_uint32 ecx;
+	w_uint32 edx;
+	w_uint32 ebx;
+	w_uint32 esp;
+	w_uint32 ebp;
+	w_uint32 esi;
+	w_uint32 edi;
+	w_uint32 es;
+	w_uint32 cs;
+	w_uint32 ss;
+	w_uint32 ds;
+	w_uint32 fs;
+	w_uint32 gs;
+	w_uint32 ldt;
+	w_uint16 trap;
+	w_uint16 iomap_base;
 } __attribute__((packed));
 
 struct w_gdte{
 
-    ushort limit_low;		// The lower 16 bits of the limit.
-    ushort base_low;    	// The lower 16 bits of the base.
-    uchar  base_middle; 	// The next 8 bits of the base.
-    uchar  access;  		// Access ring
-    uchar  granularity;
-    uchar  base_high;		// The last 8 bits of the base.
+    w_uint16 limit_low;
+    w_uint16 base_low;
+    w_uint8  base_middle;
+    w_uint8  access;
+    w_uint8  granularity;
+    w_uint8  base_high;
 } __attribute__((packed));
+
 
 /*
  * Defines a GDT pointer.
  * Points to beginning of array of w_gdte
  */
+
 struct w_gdtp{
 
-    ushort limit;		// The upper 16 bits of limit
-    uint base;			// The address of the first w_gdte
+    w_uint16 limit;
+    w_uint32 base;			/* Address of the first w_gdte */
 } __attribute__((packed));
+
 
 /* A struct describing an interrupt gate */
+
 struct w_idte{
 
-    ushort base_lo;		// The lower 16 of jmp address
-    ushort sel;			// Kernel segment selector.
-    uchar  always0;		// This must always be zero.
-    uchar  flags;		// More flags.
-    ushort base_hi;		// The upper 16 of jmp address
+    w_uint16 base_lo;		/* lower 16 bits of jmp address */
+    w_uint16 sel;			/* Kernel segment selector */
+    w_uint8  always0;		
+    w_uint8  flags;
+    w_uint16 base_hi;		/* upper 16 bits of jmp address */
 } __attribute__((packed));
 
+
 /* pointer to an array of interrupt handlers */
+
 struct w_idtp{
 
-    ushort limit;
-    uint base;			// The address of the first w_idte
+    w_uint16 limit;
+    w_uint32 base;			/* Address of the first w_idte */
 } __attribute__((packed));
 
 /* ISR handlers */
@@ -189,24 +196,32 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
+
 /* Models x86 registers */
+
 struct w_regs{
 
 	/* Data segment selector */
-	uint ds;
+
+	w_uint32 ds;
 
 	/* Registers pushed from call to pusha */
-	uint edi, esi, ebp, esp, ebx, edx, ecx, eax;
+
+	w_uint32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
 
 	/* Interrupt number and error */
-	uint int_no, err_code;
+
+	w_uint32 int_no, err_code;
 
 	/* Processor flags */
-	uint eip, cs, eflags, useresp, ss;
+
+	w_uint32 eip, cs, eflags, useresp, ss;
 };
 
 /* Generic ISR callback function */
+
 typedef void (*w_isr)(struct w_regs);
-void register_interrupt_handler(uchar, w_isr);
+
+void register_interrupt_handler(w_uint8, w_isr);
 
 #endif

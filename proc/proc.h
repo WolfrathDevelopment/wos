@@ -1,6 +1,6 @@
 /*
- * task.h
- * Wolfrath/Kriewall, 2013
+ * proc.h
+ * Joel Wolfrath, 2013
  *
  */
 
@@ -24,11 +24,11 @@ enum thread_system { LINUX, OSX, WIN };
 
 /*
 struct context {
-    uint edi;
-    uint esi;
-    uint ebx;
-    uint ebp;
-    uint eip;
+    w_uint32 edi;
+    w_uint32 esi;
+    w_uint32 ebx;
+    w_uint32 ebp;
+    w_uint32 eip;
 };
 */
 
@@ -36,12 +36,12 @@ struct context {
 
 struct w_proc{
 
-	uint pid;
+	w_uint32 pid;
 	enum thread_state state;
 	enum thread_system sys;
 	struct w_proc* next;
 	w_pde* pg_dir;
-	uint flags;
+	w_uint32 flags;
 	struct w_regs* regs;
 }__attribute__((packed));
 
@@ -51,15 +51,15 @@ struct w_proc{
 typedef void (*w_timer_callback)();
 
 void init_pic();
-void reset_pic(uint);
-void register_timer(w_timer_callback, uint);
+void reset_pic(w_uint32);
+void register_timer(w_timer_callback, w_uint32);
 
 
 /* proc.c */
 
 void begin_multitasking();
 void context_switch(struct w_proc*);
-int fork(uint);
+int fork(w_uint32);
 int exec();
 
 
@@ -73,12 +73,12 @@ void schedule();
 
 /* stack.c */
 
-uint get_eip();
-inline uint get_esp();
-inline void set_esp(uint);
-inline void* push_regs();
-inline void* copy_stack(uint*,uint*);
+w_uint32 get_eip();
+inline w_uint32 get_esp();
+inline void set_esp(w_uint32);
+inline w_ptr push_regs();
+inline w_ptr copy_stack(w_uint32*, w_uint32*);
 inline void pop_context();
-inline void set_ss(ushort);
+inline void set_ss(w_uint16);
 
 #endif

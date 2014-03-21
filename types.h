@@ -1,6 +1,6 @@
 /*
  * types.h
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Some basic types and definitions used in most
  * OS files.
@@ -22,6 +22,17 @@
 typedef unsigned char uchar;
 typedef unsigned short ushort;
 typedef unsigned int uint;
+
+typedef char w_int8;
+typedef unsigned char w_uint8;
+typedef short w_int16;
+typedef unsigned short w_uint16;
+typedef int w_int32;
+typedef unsigned int w_uint32;
+typedef long long w_int64;
+typedef unsigned long long w_uint64;
+
+typedef void* w_ptr;
 
 
 /*

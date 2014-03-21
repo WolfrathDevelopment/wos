@@ -1,6 +1,6 @@
 /*
  * alloc.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * The allocator.  Functions used for allocating pages
  */
@@ -13,42 +13,42 @@
 
 /* Access to this map must be synchronized!! */
 
-uint page_map[ NUM_INDEX ];
+w_uint32 page_map[ NUM_INDEX ];
 
 
-extern uint kern_start;
-extern uint kern_end;
-extern uint next_page;
+extern w_uint32 kern_start;
+extern w_uint32 kern_end;
+extern w_uint32 next_page;
 
-static void mark_frame_used(uint addr){
+static void mark_frame_used(w_uint32 addr){
 
 	//acquire(&mem_lock);
 
-	uint index = ADDR_INDEX(addr);
-	uint offset = ADDR_OFFSET( (addr/0x1000) );
+	w_uint32 index = ADDR_INDEX(addr);
+	w_uint32 offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] |= 0x1 << offset;
 
 	//release(&mem_lock);
 }
 
-static void mark_frame_empty(uint addr){
+static void mark_frame_empty(w_uint32 addr){
 
 	//acquire(&mem_lock);
 
-	uint index = ADDR_INDEX(addr);
-	uint offset = ADDR_OFFSET( (addr/0x1000) );
+	w_uint32 index = ADDR_INDEX(addr);
+	w_uint32 offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] &= ~(0x1 << offset);
 
 	//release(&mem_lock);
 }
 
-static uint check_frame(uint addr){
+static w_uint32 check_frame(w_uint32 addr){
 
 	//acquire(&mem_lock);
 
-	uint index = ADDR_INDEX(addr);
-	uint offset = ADDR_OFFSET( (addr/0x1000) );
-	uint val = page_map[index] & (0x1 << offset);
+	w_uint32 index = ADDR_INDEX(addr);
+	w_uint32 offset = ADDR_OFFSET( (addr/0x1000) );
+	w_uint32 val = page_map[index] & (0x1 << offset);
 
 	//release(&mem_lock);
 
@@ -58,12 +58,12 @@ static uint check_frame(uint addr){
 
 /* Find an available page frame */
 
-static uint find_frame(uint usr){
+static w_uint32 find_frame(w_uint32 usr){
 
 	//acquire(&mem_lock);
 
-	uint i, frame, offset, max;
-	int index;
+	w_uint32 i, frame, offset, max;
+	w_int32 index;
 
 
     /* Should map more kernel tables here!! */
@@ -112,16 +112,16 @@ static uint find_frame(uint usr){
 
 /* Initialize the page allocator */
 
-void init_alloc(w_multiboot_info* mbt){
+void init_alloc(struct w_multiboot_info* mbt){
 
-	uint i;
+	w_uint32 i;
 	for(i=0; i< NUM_INDEX; i++)
 		page_map[i] = 0xFFFFFFFF;
 
 	struct w_mmap* mmap = mbt->mmap_addr;
 
-	uint count = 0;
-	uint kern = 0;
+	w_uint32 count = 0;
+	w_uint32 kern = 0;
 
 
 	/* Map all available pages to our page_map */
@@ -129,12 +129,14 @@ void init_alloc(w_multiboot_info* mbt){
 	while(mmap < mbt->mmap_addr + mbt->mmap_length) {
 
 		if(mmap->type == 1){
-			uint addr = mmap->base_addr_low;
+
+			w_uint32 addr = mmap->base_addr_low;
 			if(!PAGE_ALIGNED(addr))
 				PAGE_ALIGN(addr);
 
 			for(i=addr; i<addr + mmap->length_low; i+=0x1000){
-				if(i<(uint)&kern_start || i>=(uint)&kern_end){
+
+				if(i<(w_uint32)&kern_start || i>=(w_uint32)&kern_end){
 					mark_frame_empty(i);
 					count++;
 				}
@@ -144,6 +146,7 @@ void init_alloc(w_multiboot_info* mbt){
 			}
 
 		}
+
 		mmap = (struct w_mmap*)((uint)mmap+mmap->size+sizeof(uint));
 	}
 
@@ -157,7 +160,7 @@ void init_alloc(w_multiboot_info* mbt){
 
 /* Allocate an available page */
 
-w_pte alloc_page_frame(uint flags){
+w_pte alloc_page_frame(w_uint32 flags){
 
 	/* Allocate an aligned page. Use uint to avoid pointer arithmetic */
 
@@ -182,6 +185,6 @@ w_pte alloc_page_frame(uint flags){
 	return addr | flags;
 }
 
-void free_page_frame(uint addr){
+void free_page_frame(w_uint32 addr){
 	mark_frame_empty(addr);
 }

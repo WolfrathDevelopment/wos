@@ -1,6 +1,6 @@
 /*
  * console.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Impelentation of console functions
  */
@@ -8,20 +8,18 @@
 #include "core.h"
 #include "../mm/mem.h"
 
-#define COLOR_WHITE 15
-#define COLOR_BLACK 0
+#define COLOR_WHITE 	15
+#define COLOR_BLACK		 0
 
-#define NUM_ROWS 25
-#define NUM_COLS 80
+#define NUM_ROWS 		25
+#define NUM_COLS 		80
 
 static short cursor_x = 0;
 static short cursor_y = 0;
 
-static char command[10];
+w_uint16 *vid_mem = (w_uint16 *) KVIRT(VGA_FRAME_BUF);
 
-ushort *vid_mem = (ushort *) KVIRT(VGA_FRAME_BUF);
-
-void move_cursor(int inc,int x){
+void move_cursor(w_int32 inc, w_int32 x){
 
 	if(x)
 		cursor_x += inc;
@@ -31,7 +29,8 @@ void move_cursor(int inc,int x){
 	update_cursor();
 }
 
-// Scroll one line down
+/* Scroll one line down */
+
 static void scroll(){
 
 	/*
@@ -40,16 +39,21 @@ static void scroll(){
 	 * Here, background is black and
 	 * foreground is white.
 	 */
-   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+
+   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+
    
-	// The attribute byte is the top 8 bits of the short
-	ushort space = ' ' | (attr << 8);
+	/* The attribute byte is the top 8 bits of the short */
+
+	w_uint16 space = ' ' | (attr << 8);
 
 	int i;
 	for (i = 0; i < (NUM_ROWS - 1) * NUM_COLS; i++)
 		vid_mem[i] = vid_mem[i + NUM_COLS];
 
+
 	/* Write a blank bottom line */
+
 	for (i = (NUM_ROWS - 1) * NUM_COLS; i < NUM_ROWS * NUM_COLS; i++)
 		vid_mem[i] = space;
         
@@ -96,7 +100,7 @@ void update_cursor(){
 
 void printf(char* str, ... ){
 
-	uint* argv = (uint*)(void*)(&str + 1);
+	w_uint32* argv = (uint*)(w_ptr)(&str + 1);
 	int i,c;
 	char* s;
 	for(i = 0; (c = str[i] & 0xff) != 0; i++){
@@ -137,7 +141,7 @@ void printf(char* str, ... ){
 
 void put_char(char c){
 
-	uchar bflag = 0;
+	w_uint8 bflag = 0;
 
 	if(c == '\n'){
 		cursor_y++;
@@ -163,12 +167,12 @@ void put_char(char c){
 	 * Here, background is black (0) and
 	 * foreground is white(15).
 	 */
-   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
    
 	// The attribute byte is the top 8 bits of the short
-   	ushort style = attr << 8;
+   	w_uint16 style = attr << 8;
 
-	ushort *location = vid_mem + (cursor_y * NUM_COLS + cursor_x);
+	w_uint16 *location = vid_mem + (cursor_y * NUM_COLS + cursor_x);
        *location = c | style;
 
 	if(!bflag)
@@ -184,7 +188,7 @@ void put_string(char * str){
 }
 
 
-void put_hex(uint n){
+void put_hex(w_uint32 n){
 
 	int tmp,i;
 	//put_string("0x");
@@ -215,11 +219,11 @@ void put_hex(uint n){
 		put_char(tmp+'0');
 }
 
-void put_decimal(uint n){
+void put_decimal(w_uint32 n){
 
 	if (n == 0){
-	put_char('0');
-	return;
+		put_char('0');
+		return;
 	}
 
 	int acc = n;
@@ -245,10 +249,12 @@ void put_decimal(uint n){
 }
 
 void clear_screen(){
-	// Make an attribute byte for the default colours
-   	uchar attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
-	ushort style = attr << 8;
-   	ushort blank = ' ' | style;
+
+	/* Make an attribute byte for the default colors*/
+
+   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+	w_uint16 style = attr << 8;
+   	w_uint16 blank = ' ' | style;
 
    	int i;
    	for (i = 0; i < NUM_ROWS * NUM_COLS; i++)

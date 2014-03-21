@@ -1,13 +1,13 @@
 /*
  * list.c
- * Wolfrath 2013
+ Joel Wolfrath 2013
  *
  * Linked list function implementations
  */
 
 #include "list.h"
 
-extern uint debug;
+extern w_uint32 debug;
 
 /* Add the node to the end of the list */
 

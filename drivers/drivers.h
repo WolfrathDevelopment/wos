@@ -1,6 +1,6 @@
 /*
  * drivers.h
- * Wolfrath/Kriewall, 2013
+ Joel Wolfrath, 2013
  * 
  * Functions associated with device drivers
  */
@@ -12,7 +12,7 @@
 #include "../boot/boot.h"
 
 /* kbd.c */
+
 void kbd_install();
-void register_command_handler(command_handler);
 
 #endif

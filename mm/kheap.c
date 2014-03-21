@@ -1,6 +1,6 @@
 /*
  * kheap.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2014
  *
  * Provides for kernel dynamic memory allocation.
  */
@@ -15,9 +15,9 @@ struct w_heap kern_heap;
 extern w_pde init_pgdir[];
 extern w_pde* kernel_page_directory;
 
-extern uint debug;
+extern w_uint32 debug;
 
-uint next_alloc_address;
+w_uint32 next_alloc_address;
 
 
 #define HEAP_OVERHEAD sizeof(struct w_block)
@@ -30,16 +30,16 @@ void init_kheap(){
 	/* Allocate first heap page at end of kernel binary */
 
 	w_pte phys_page = alloc_page_frame( PTE_P | PTE_W );
-	uint end = ((uint)&kern_end);
+	w_uint32 end = ((w_uint32)&kern_end);
 
 	if(!PAGE_ALIGNED(end))
 		PAGE_ALIGN(end);
 
-	uint heap_start = KVIRT( end );
+	w_uint32 heap_start = KVIRT( end );
 
 	map_page( kernel_page_directory, heap_start, phys_page );
 	zero_mem((void*)heap_start, PAGE_SIZE);
-	uint size = 0x1000;
+	w_uint32 size = 0x1000;
 
 
 	/* Allocate 3 more pages for inital heap */
@@ -81,7 +81,7 @@ static void heap_dump(struct w_heap* heap){
 
 	struct w_listnode* it = FIRST_NODE(heap->block_list_head);
 
-	uint count = 0;
+	w_uint32 count = 0;
 
 	while(it){
 
@@ -104,7 +104,7 @@ void* kalloc(uint size){
 	 * This will allow us to add to free list once freed
 	 */
 
-	uint eff_size = size + HEAP_OVERHEAD;
+	w_uint32 eff_size = size + HEAP_OVERHEAD;
 
 
 	while( it != NULL){
@@ -124,6 +124,7 @@ void* kalloc(uint size){
 	if(it == NULL){
 
 		/* Not enough contiguous memory available */
+
         return NULL;
 	}
 
@@ -131,7 +132,7 @@ void* kalloc(uint size){
 
 	struct w_listnode* alloc_node = list_remove( &heap->block_list_head, it);
 
-	uint start = blk->start;
+	w_uint32 start = blk->start;
 	blk->start += eff_size;
 
 	/* First initizlize the block */
@@ -145,7 +146,8 @@ void* kalloc(uint size){
 	//struct w_listnode temp = nblock->block_node;
 	//nblock->block_node = *alloc_node;
 	//*alloc_node = temp;
-	uint t1,t2;
+
+	w_uint32 t1,t2;
 	t1 = nblock->start;
 	t2 = nblock->end;
 
@@ -172,7 +174,7 @@ void* kalloc(uint size){
 
 static int merge(struct w_heap* heap){
 
-	uint brk = 0;
+	w_uint32 brk = 0;
 	struct w_listnode* it1 = FIRST_NODE(heap->block_list_head);
 	struct w_listnode* it2 = it1;
 
@@ -235,7 +237,7 @@ void kfree(uint va){
 	struct w_heap* heap = &kern_heap;
 	struct w_block* blk = (struct w_block*)(va - HEAP_OVERHEAD);
 
-	uint size = blk->end - blk->start;
+	w_uint32 size = blk->end - blk->start;
 	zero_mem((void*)blk->start, size);
 
 	list_add( &heap->block_list_head, &blk->block_node);

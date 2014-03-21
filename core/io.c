@@ -1,6 +1,6 @@
 /*
  * io.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Impelentation of basic io functions on x86
  */
@@ -17,39 +17,39 @@
  *        );
  */
 
-void zero_mem(void* addr, uint many){
+void zero_mem(w_ptr addr, w_uint32 many){
 	
-	many /= 4;
-	uint* it = addr;
+	many /= sizeof(w_uint32);
+	w_uint32* it = addr;
 
 	while(many-- > 0)
 		*it++ = 0;
 }
 
 /* Write a byte to the specified port */
-void out_byte(ushort port, uchar val){
+void out_byte(w_uint16 port, w_uint8 val){
 
 	asm volatile("out %1, %0" : : "dN" (port), "a" (val));
 }
 
 /* Read a byte from the specified port */
-uchar in_byte(ushort port){
+w_uint8 in_byte(w_uint16 port){
 
-    uchar val;
+    w_uint8 val;
     asm volatile("in %1, %0" : "=a" (val) : "dN" (port));
     return val;
 }
 
 /* Read two bytes from the specified port */
-ushort in_short(ushort port){
+w_uint16 in_short(w_uint16 port){
 
-    ushort val;
+    w_uint16 val;
     asm volatile("in %1, %0" : "=a" (val) : "dN" (port));
     return val;
 }
 
-inline uint read_eflags(void){
-	uint eflags;
+inline w_uint32 read_eflags(void){
+	w_uint32 eflags;
 	asm volatile("pushfl; popl %0" : "=r" (eflags));
 	return eflags;
 }

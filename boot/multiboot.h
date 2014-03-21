@@ -1,6 +1,6 @@
 /*
  * multiboot.h
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Multiboot header file
  */	
@@ -100,112 +100,113 @@
      
 #ifndef ASM_FILE
      
-typedef struct{
+struct w_multiboot_header{
 
 	/* Must be MULTIBOOT_MAGIC - see above. */
-	uint magic;
+	w_uint32 magic;
      
 	/* Feature flags. */
-	uint flags;
+	w_uint32 flags;
      
 	/* The above fields plus this one must equal 0 mod 2^32. */
-	uint checksum;
+	w_uint32 checksum;
      
 	/* These are only valid if MULTIBOOT_AOUT_KLUDGE is set. */
-	uint header_addr;
-	uint load_addr;
-	uint load_end_addr;
-	uint bss_end_addr;
-	uint entry_addr;
+	w_uint32 header_addr;
+	w_uint32 load_addr;
+	w_uint32 load_end_addr;
+	w_uint32 bss_end_addr;
+	w_uint32 entry_addr;
      
 	/* These are only valid if MULTIBOOT_VIDEO_MODE is set. */
-	uint mode_type;
-	uint width;
-	uint height;
-	uint depth;
-}  w_multiboot_header;
+	w_uint32 mode_type;
+	w_uint32 width;
+	w_uint32 height;
+	w_uint32 depth;
+
+};
      
 /* The symbol table for a.out. */
-typedef struct{
+struct w_multiboot_aout_symbol_table{
 
-	uint tabsize;
-	uint strsize;
-	uint addr;
-	uint reserved;
-}w_multiboot_aout_symbol_table;
+	w_uint32 tabsize;
+	w_uint32 strsize;
+	w_uint32 addr;
+	w_uint32 reserved;
+};
      
 /* The section header table for ELF. */
-typedef struct{
+struct w_multiboot_elf_section_header_table{
 
 	uint num;
 	uint size;
 	uint addr;
 	uint shndx;
-} w_multiboot_elf_section_header_table;
+};
      
-typedef struct{
+struct w_multiboot_info{
 
 	/* Multiboot info version number */
-	uint flags;
+	w_uint32 flags;
     
 	/* Available memory from BIOS */
-	uint mem_lower;
-	uint mem_upper;
+	w_uint32 mem_lower;
+	w_uint32 mem_upper;
      
 	/* "root" partition */
-	uint boot_device;
+	w_uint32 boot_device;
     
 	/* Kernel command line */
-	uint cmdline;
+	w_uint32 cmdline;
      
 	/* Boot-Module list */
-	uint mods_count;
-	uint mods_addr;
+	w_uint32 mods_count;
+	w_uint32 mods_addr;
     
 	union{
 
-		w_multiboot_aout_symbol_table aout_sym;
-		w_multiboot_elf_section_header_table elf_sec;
+		struct w_multiboot_aout_symbol_table aout_sym;
+		struct w_multiboot_elf_section_header_table elf_sec;
 	} u;
      
 	/* Memory Mapping buffer */
-	uint mmap_length;
-	uint mmap_addr;
+	w_uint32 mmap_length;
+	w_uint32 mmap_addr;
      
 	/* Drive Info buffer */
-	uint drives_length;
-	uint drives_addr;
+	w_uint32 drives_length;
+	w_uint32 drives_addr;
      
 	/* ROM configuration table */
-	uint config_table;
+	w_uint32 config_table;
      
 	/* Boot Loader Name */
-	uint boot_loader_name;
+	w_uint32 boot_loader_name;
      
 	/* APM table */
-	uint apm_table;
+	w_uint32 apm_table;
      
 	/* Video */
-	uint vbe_control_info;
-	uint vbe_mode_info;
-	ushort vbe_mode;
-	ushort vbe_interface_seg;
-	ushort vbe_interface_off;
-	ushort vbe_interface_len;
-} w_multiboot_info;
+	w_uint32 vbe_control_info;
+	w_uint32 vbe_mode_info;
+	w_uint16 vbe_mode;
+	w_uint16 vbe_interface_seg;
+	w_uint16 vbe_interface_off;
+	w_uint16 vbe_interface_len;
+};
      
-typedef struct{
+struct w_multiboot_mod{
 
 	/* the memory used goes from bytes 'mod_start' to 'mod_end-1' inclusive */
-	uint mod_start;
-	uint mod_end;
+	w_uint32 mod_start;
+	w_uint32 mod_end;
      
 	/* Module command line */
-	uint cmdline;
+	w_uint32 cmdline;
     
 	/* padding to take it to 16 bytes (must be zero) */
-	uint pad;
-} w_multiboot_mod;
+	w_uint32 pad;
+};
      
 #endif /* ! ASM_FILE */
      

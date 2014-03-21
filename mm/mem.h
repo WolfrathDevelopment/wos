@@ -1,10 +1,10 @@
 /*
-* mem.h
-* Wolfrath/Kriewall, 2013
-*
-* Defs for the x86 MMU
-* Management for physical memory
-*/
+ * mem.h
+ * Joel Wolfrath, 2013
+ *
+ * Defs for the x86 MMU
+ * Management for physical memory
+ */
 
 #ifndef MEM_H
 #define MEM_H
@@ -15,8 +15,8 @@
 #include "../util/debug.h"
 #include "../lib/list.h"
 
-extern uint kern_start;
-extern uint kern_end;
+extern w_uint32 kern_start;
+extern w_uint32 kern_end;
 
 /* Deep magic begins here... */
 
@@ -75,7 +75,7 @@ extern uint kern_end;
 
 #define KMAP_START			0xC0000000
 #define KSTACK_BASE			0xFE000000
-#define KSTACK_GRD			KSTACK_BASE - 0x4000
+#define KSTACK_GRD			(KSTACK_BASE - 0x4000)
 
 
 /* Kernel mapping macros */
@@ -99,15 +99,15 @@ extern uint kern_end;
 
 /* Page table/directory flags */
 
-#define PTE_P				0x001		// present
-#define PTE_W				0x002 		// writeable
-#define PTE_U				0x004 		// user
-#define PTE_PWT				0x008 		// write-Through
-#define PTE_PCD				0x010 		// cache-disabled
-#define PTE_A				0x020 		// page accessed
-#define PTE_D				0x040 		//page dirty
-#define PTE_PS				0x080 		// Page Size
-#define PTE_MBZ				0x180 		// Bits must be zero
+#define PTE_P				0x001		/* present */
+#define PTE_W				0x002 		/* writeable */
+#define PTE_U				0x004 		/* user */
+#define PTE_PWT				0x008 		/* write-Through */
+#define PTE_PCD				0x010 		/* cache-disabled */
+#define PTE_A				0x020 		/* page accessed */
+#define PTE_D				0x040 		/* page dirty */
+#define PTE_PS				0x080 		/* Page Size */
+#define PTE_MBZ				0x180 		/* Bits must be zero */
 
 
 /* Get address/flags out of page table or directory */
@@ -129,33 +129,33 @@ DEFINE_SPINLOCK(mem_lock)
 /* mmap.c*/
 
 struct w_mmap{
-	uint size;
-	uint base_addr_low,base_addr_high;
-	uint length_low,length_high;
-	uint type;
+	w_uint32 size;
+	w_uint32 base_addr_low,base_addr_high;
+	w_uint32 length_low,length_high;
+	w_uint32 type;
 };
 
-struct w_mmap * read_mmap(w_multiboot_info* mbt);
+struct w_mmap* read_mmap(struct w_multiboot_info* mbt);
 void print_mmap_entry(struct w_mmap*);
 void map_kernel();
-uint* kmalloc(uint size, int align);
+w_ptr kmalloc(w_uint32 size, w_int32 align);
 
 
 /* paging.c */
 
 void set_page_directory(w_pde*);
 void page_fault_handler(struct w_regs);
-void map_page(w_pde*,uint,w_pte);
-void unmap_page(w_pde*,uint);
+void map_page(w_pde*,w_uint32,w_pte);
+void unmap_page(w_pde*,w_uint32);
 void init_paging();
-void invalidate_page(uint);
+void invalidate_page(w_uint32);
 
 
 /* alloc.c */
 
-void init_alloc(w_multiboot_info*);
-w_pte alloc_page_frame(uint);
-void free_page_frame(uint);
+void init_alloc(struct w_multiboot_info*);
+w_pte alloc_page_frame(w_uint32);
+void free_page_frame(w_uint32);
 
 
 /* kheap.c */
@@ -164,21 +164,21 @@ void free_page_frame(uint);
 
 struct w_block{
 
-	uint start;
-	uint end;
+	w_uint32 start;
+	w_uint32 end;
 	LINKED_LIST_MEMBER(block_node);
 };
 
 struct w_heap{
 
-	uint start_addr;
-	uint size;
+	w_uint32 start_addr;
+	w_uint32 size;
 	LINKED_LIST(block_list_head);
 };
 
 void init_kheap();
-void* kalloc(uint);
-void kfree(uint);
+void* kalloc(w_uint32);
+void kfree(w_uint32);
 void brk(struct w_heap*);
 
 #endif

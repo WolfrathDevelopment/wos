@@ -1,6 +1,6 @@
 /*
  * mmap.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Implementation of functions that handle the
  * GRUB memory map
@@ -8,47 +8,60 @@
 
 #include "mem.h"
 
-#define INTS_TO_LONG(x,y) ((((ulong)x) << 32 ) | y);
 
-static w_multiboot_info* mboot;
+/* Macro to combine two 32 bit numbers into 64 bits */
 
-struct w_mmap * read_mmap(w_multiboot_info* mbt){
+#define INTS_TO_LONG(x,y) ((((w_uint64)x) << 32 ) | y)
+
+
+/* Macro to get next entry in mmap */
+
+#define MMAP_NEXT(x) ((w_uint32)x + x->size + sizeof(w_uint32))
+
+static struct w_multiboot_info* mboot;
+
+struct w_mmap* read_mmap(struct w_multiboot_info* mbt){
 
 	mboot = mbt;
-	struct w_mmap* mmap = mbt->mmap_addr;
+	struct w_mmap* mmap = (struct w_mmap*) mbt->mmap_addr;
 
-	while(mmap < mbt->mmap_addr + mbt->mmap_length) {
+
+	/* Iterate over mmap and print out entries */
+
+	while((w_uint32)mmap < mbt->mmap_addr + mbt->mmap_length) {
 
 		print_mmap_entry(mmap);
-		mmap = (struct w_mmap*) ((uint)mmap + mmap->size + sizeof(uint));
+		mmap = (struct w_mmap*) (w_uint32)mmap + mmap->size + sizeof(w_uint32);
 	}
 
-	return mbt->mmap_addr;
+	return (struct w_mmap*) mbt->mmap_addr;
 }
 
 void map_kernel(){
 
-	struct w_mmap* mmap = mboot->mmap_addr;
+	struct w_mmap* mmap = (struct w_mmap*) mboot->mmap_addr;
 	struct w_mmap* entry = NULL;
 
-	while(mmap < mboot->mmap_addr + mboot->mmap_length) {
+	while((w_uint32)mmap < mboot->mmap_addr + mboot->mmap_length) {
 
 		printf("map: 0x%p and kern: 0x%p\n", mmap->base_addr_low, &kern_start);
-		if(mmap->base_addr_low == ((uint)&kern_start)){
+		if(mmap->base_addr_low == ((w_uint32)&kern_start)){
 			entry = mmap;
 			break;
 		}
-		mmap = (struct w_mmap*) ((uint)mmap + mmap->size + sizeof(uint));
+		mmap = (struct w_mmap*) ((w_uint32)mmap + mmap->size + sizeof(w_uint32));
 	}
 
 	if(entry){
 
-		uint length = ((uint)&kern_end) - ((uint)&kern_start);
+		w_uint32 length = ((w_uint32)&kern_end) - ((w_uint32)&kern_start);
+
 
 		/* Lets remove this memory from the memory map */
-		ulong new_addr =  entry->base_addr_low + length;
+
+		w_uint64 new_addr =  entry->base_addr_low + length;
 		entry->base_addr_high = 0;
-		entry->base_addr_low = (uint)new_addr;
+		entry->base_addr_low = (w_uint32)new_addr;
 		entry->length_low-=length;
 	}
 	else{
@@ -59,27 +72,30 @@ void map_kernel(){
 
 /* A allocation function whose memory will never be freed! */
 
-uint* kmalloc(uint size, int align){
+w_ptr kmalloc(w_uint32 size, int align){
 
 	//acquire(&mem_lock);
 
-	uint addr = NULL;
-	struct w_mmap* mmap = mboot->mmap_addr;
-	ulong length = (ulong)size;
+	w_uint32 addr = (w_uint32) NULL;
+	struct w_mmap* mmap = (struct w_mmap*) mboot->mmap_addr;
+	w_uint64 length = (w_uint64)size;
 
 	/* Iterate over the memory map */
-	while(mmap < mboot->mmap_addr + mboot->mmap_length) {
+
+	while((w_uint32)mmap < mboot->mmap_addr + mboot->mmap_length) {
 
 		/* How long is this section of memory? */
-		ulong mem_length = INTS_TO_LONG(mmap->length_high, mmap->length_low);
+
+		w_uint64 mem_length = INTS_TO_LONG(mmap->length_high, mmap->length_low);
 
 		/* Is it long enough for this allocation? */
+
 		if(length <= mem_length && mmap->type == 0x1){
 
 			/* We found enough memory! */
+
 			addr = mmap->base_addr_low;
 
-			/* Page alignment */
 			if(align && (!PAGE_ALIGNED(addr))){
 
 				PAGE_ALIGN(addr);
@@ -92,22 +108,24 @@ uint* kmalloc(uint size, int align){
 			}
 
 			/* Lets remove this memory from the memory map */
-			ulong new_addr =  addr + length;
+
+			w_uint64 new_addr =  addr + length;
 			mmap->base_addr_high = 0;
-			mmap->base_addr_low = (uint)new_addr;
+			mmap->base_addr_low = (w_uint32)new_addr;
 			mem_length -= length;
-			mmap->length_high = (uint)(mem_length >> 32);
-			mmap->length_low = (uint)(mem_length & 0xFFFFFFFF);
+			mmap->length_high = (w_uint32)(mem_length >> 32);
+			mmap->length_low = (w_uint32)(mem_length & 0xFFFFFFFF);
 
 			break;
 
 		}
-		mmap = (struct w_mmap*) ((uint)mmap + mmap->size + sizeof(uint));
+
+		mmap = (struct w_mmap*) ((w_uint32)mmap + mmap->size + sizeof(w_uint32));
 	}
 
 	//release(&mem_lock);
 
-	return (uint*) addr;
+	return (w_uint32*) addr;
 }
 
 void print_mmap_entry(struct w_mmap* entry){

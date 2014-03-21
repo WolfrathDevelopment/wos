@@ -1,7 +1,9 @@
+;
 ; gdt.s
-; Wolfrath/Kriewall, 2013
+; Joel Wolfrath, 2013
 ;
 ; Global descriptor table and interrupt descriptor table
+;
 
 [GLOBAL gdt_flush]
 

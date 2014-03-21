@@ -1,6 +1,6 @@
 /*
  * list.h
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Generic linked list header
  */

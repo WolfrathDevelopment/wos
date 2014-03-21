@@ -1,6 +1,6 @@
 /*
  * spinlock.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Impelentation of spinlock functions
  */
@@ -40,7 +40,7 @@ void release(struct w_spinlock* lk){
 	pop_cli();
 }
 
-uint is_held(struct w_spinlock* lk){
+w_uint32 is_held(struct w_spinlock* lk){
 
 	return atomic_read(&lk->locked);
 	//make sure the running cpu is the one holding the lock

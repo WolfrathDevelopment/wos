@@ -1,6 +1,6 @@
 /*
  * syscall.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  * 
  * Implementation of syscall functions
  */

@@ -1,22 +1,36 @@
 -----------------------------------------------------------------------------
-OS CODING CONVENTIONS
+	OS CODING CONVENTIONS
 -----------------------------------------------------------------------------
+
+ALL FILES:
+	FOR THE LOVE OF GOD, PLEASE KEEP LINES <= 80 CHARACTERS
+
 
 MACRO DECLARATIONS :
 
-	C-style macros should be named using all uppercase letters.
+	C-style macros should be named using all uppercase letters. Definitions
+	that involve arithmetic operations should be wrapped in parentheses 
+	to avoid unintended, incorrect arithmetic evaluation.
+
 	e.g. #define ARRAYSIZE(x) (sizeof(x)/sizeof((x)[0]))
 
 
 STRUCT DECLARATIONS:
 
-	Capitalize first letter of struct.  Use typedef to avoid repeating
-	the struct keyword.
-	
-	e.g. typedef struct{
-			
-		}Node;
+	Structs should be declared with a w_ prefix and should contain only
+	lowercase letters and underscores. DO NOT TYPEDEF STRUCTS. I find
+	value in knowing whether a variable is a struct or primitive
 
+	e.g. struct w_node{
+				/* variable declarations */
+		 };
+
+TYPEDEFS:
+
+	Typedefs should only be used for assigning new names for primitive
+	variables. These should also be prefixed with w_
+
+	e.g. typedef unsigned int w_uint32;
 
 FUNCTION DECLARATIONS:
 
@@ -25,3 +39,12 @@ FUNCTION DECLARATIONS:
 
 	e.g. allocate_page_frame()
 	e.g. _debug()
+
+COMMENTS:
+
+	Comments should be c-style. Do not use double forward slash comments.
+	Use comments to explain WHY not HOW. Humor is encouraged.
+
+	e.g. /* Sometimes, I feel like the compiler ignores all my comments... */
+
+

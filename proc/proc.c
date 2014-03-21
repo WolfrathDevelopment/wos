@@ -1,6 +1,6 @@
 /*
  * task.c
- * Wolfrath/Kriewall, 2013
+ * Joel Wolfrath, 2013
  *
  * Implements task functions
  */
@@ -13,14 +13,14 @@ struct w_proc proc1;
 
 extern struct w_tss current_tss;
 extern w_pde* kernel_page_directory;
-extern uint next_alloc_address;
-extern uint* core_stack;
+extern w_uint32 next_alloc_address;
+extern w_uint32* core_stack;
 
 //extern void perform_context_switch(uint,uint);
 
 
 // access to this int must be synchronized!
-uint next_pid = 1;
+w_uint32 next_pid = 1;
 
 void context_switch(struct w_proc* next){
 
@@ -131,15 +131,16 @@ void begin_multitasking(){
     //while(1)
        // printf("PROC 1");
 
-    uint eip = get_eip();
+    w_uint32 eip = get_eip();
 
-    printf("EIP = %p\n",eip);
+    printf("EIP = %p\n", eip);
+    printf("&EIP = %p\n", &eip);
     while(1);
 
     fork(eip);
 }
 
-int fork(uint next_eip){
+int fork(w_uint32 next_eip){
 
     /* Alright, lets allocate a new process */
     struct w_proc* pcopy = kalloc(sizeof(struct w_proc));
@@ -176,7 +177,7 @@ int fork(uint next_eip){
     pcopy->pg_dir = new_pgdir;
 
     /* Alloc stack */
-    uint* new_stack;
+    w_uint32* new_stack;
 
     page = alloc_page_frame(PTE_W | PTE_P);
     map_page(kernel_page_directory, next_alloc_address, page);
@@ -186,8 +187,8 @@ int fork(uint next_eip){
 
     /* Copy Stack */
 
-    uint nesp = (uint)copy_stack(new_stack, core_stack);
-    uint oesp = get_esp();
+    w_uint32 nesp = (w_uint32)copy_stack(new_stack, core_stack);
+    w_uint32 oesp = get_esp();
 
     set_esp(nesp);
 

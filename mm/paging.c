@@ -1,6 +1,6 @@
 /*
  * paging.c
- * Wolfrath/Kriewall, 2013
+ Joel Wolfrath, 2013
  *
  * Implementation of paging functions
  */
@@ -24,7 +24,7 @@ w_pde init_pgdir[NUM_PDE];
 /* Initial stack */
 
 __attribute__((__aligned__(PAGE_SIZE)))
-uint init_stack[2048];
+w_uint32 init_stack[2048];
 
 
 w_pde* current_page_directory;
@@ -32,7 +32,7 @@ w_pde* kernel_page_directory;
 
 static void enable_paging(){
 
-	uint cr0;
+	w_uint32 cr0;
 
 	// Give cr3 the address of this page directory
 	asm volatile("mov %0, %%cr3":: "r"(current_page_directory));
@@ -51,7 +51,7 @@ static void enable_paging(){
 
 static void disable_paging(){
 
-	uint cr0;
+	w_uint32 cr0;
 	asm volatile("mov %%cr0, %0": "=r"(cr0));
 	cr0 &= 0x7FFFFFFF;
 	asm volatile("mov %0, %%cr0":: "r"(cr0));
@@ -86,7 +86,7 @@ void map_page(w_pde* dir, uint va, w_pte page){
 
 /* Unmap the page at the given virtual address */
 
-void unmap_page(w_pde* dir, uint va){
+void unmap_page(w_pde* dir, w_uint32 va){
 
 	w_pte* table;
 	w_pde pde = dir[ PD_INDEX(va) ];
@@ -120,7 +120,7 @@ void init_paging(){
 	//for(; i < 1024; i++)
 	//	invalidate_page( i * 0x1000 );
 
-	uint cr3 = (uint)kernel_page_directory;
+	w_uint32 cr3 = (w_uint32)kernel_page_directory;
 
 	asm volatile("mov %0, %%cr3":: "r"(KPHYS(cr3)));
 }
@@ -132,11 +132,11 @@ void invalidate_page(uint va){
 	asm volatile("invlpg (%0)" ::"r" (va) : "memory");
 }
 
-extern uint debug;
+extern w_uint32 debug;
 
 void page_fault_handler(struct w_regs regs){
 
-	uint fault_addr;
+	w_uint32 fault_addr;
 
 	/* cr2 holds fault address */
 
