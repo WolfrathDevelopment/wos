@@ -24,7 +24,7 @@ void trace_stack(w_uint32 frames){
 
 		/* Go back one more frame */
 
-		ebp = (uint*)ebp[0];
+		ebp = (w_uint32*)ebp[0];
 		w_uint32* args = &ebp[2];
 		printf("  0x%p\n", eip);
 	}

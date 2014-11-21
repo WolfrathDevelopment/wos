@@ -135,7 +135,7 @@ struct w_mmap{
 	w_uint32 type;
 };
 
-struct w_mmap* read_mmap(struct w_multiboot_info* mbt);
+w_ptr read_mmap(struct w_multiboot_info* mbt);
 void print_mmap_entry(struct w_mmap*);
 void map_kernel();
 w_ptr kmalloc(w_uint32 size, w_int32 align);
@@ -146,6 +146,7 @@ w_ptr kmalloc(w_uint32 size, w_int32 align);
 void set_page_directory(w_pde*);
 void page_fault_handler(struct w_regs);
 void map_page(w_pde*,w_uint32,w_pte);
+int is_mapped(w_pde*, w_uint32);
 void unmap_page(w_pde*,w_uint32);
 void init_paging();
 void invalidate_page(w_uint32);

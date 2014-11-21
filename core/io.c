@@ -19,10 +19,9 @@
 
 void zero_mem(w_ptr addr, w_uint32 many){
 	
-	many /= sizeof(w_uint32);
-	w_uint32* it = addr;
+	w_uint8* it = addr;
 
-	while(many-- > 0)
+	while(many--)
 		*it++ = 0;
 }
 

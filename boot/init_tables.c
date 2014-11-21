@@ -52,9 +52,9 @@ extern w_isr interrupt_handlers[];
 void set_tss(w_uint32 esp){
 
     current_tss.esp0 = esp;
-    current_tss.cs   = 0x0b;
-    current_tss.ss = current_tss.ds = current_tss.es = 0x13; 
-	current_tss.fs = current_tss.gs = 0x13;
+    current_tss.cs   = 0x08; // 0x0b for user mode
+    current_tss.ss = current_tss.ds = current_tss.es = 0x10; 
+	current_tss.fs = current_tss.gs = 0x10; // 0x13 for user mode ^
 }
 
 /* Initialize segments */
@@ -116,9 +116,7 @@ static void seg_init(){
 	set_gdt(6, addr, sizeof(struct w_tss), tmp_access, tmp_gran);
 
 
-	//tss_flush();
 	gdt_flush(&g_ptr);
-
 }
 
 static void idt_init(){
@@ -198,6 +196,7 @@ void init_seg(){
 	seg_init();
 	idt_init();
 	zero_mem(&interrupt_handlers, sizeof(w_isr) * 256);
+	//tss_flush();
 }
 
 /* Set the value of one GDT entry */

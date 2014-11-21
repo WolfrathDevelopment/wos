@@ -10,6 +10,6 @@
 
 #define NUM_SYSCALLS 	1
 
-init_syscalls();
+void init_syscalls();
 
 #endif

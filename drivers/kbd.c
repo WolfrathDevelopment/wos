@@ -26,7 +26,7 @@ static w_uint16 c_lock = 0;
 
 /* standard scancodes */
 
-static uchar kbdus[128] ={
+static w_uint8 kbdus[128] ={
 
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
 
@@ -100,7 +100,7 @@ static uchar kbdus[128] ={
 
 /* shift scancodes */
 
-static uchar skbdus[128] ={
+static w_uint8 skbdus[128] ={
 
     0,  27, '!', '@', '#', '$', '%', '^', '&', '*',	/* 9 */
 

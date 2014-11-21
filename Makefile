@@ -1,19 +1,58 @@
+#
+# Joel Wolfrath, 2014
 # Makefile for the kernel
+#
 
-SOURCES= bootstrap.o boot/interrupt.o boot/isr.o boot/gdt.o  boot/init_tables.o  core/console.o core/io.o core/string.o core/spinlock.o mm/mmap.o mm/paging.o mm/alloc.o mm/kheap.o lib/list.o util/debug.o core/atomic.o drivers/kbd.o proc/pic.o proc/proc.o proc/scheduler.o proc/stack.o main.o
-CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector
-LDFLAGS=-Tlink.ld
-ASFLAGS=-felf
+ifeq ($(MAKE),)
+MAKE= make
+endif
 
-all: $(SOURCES) link
+ifeq ($(RM),)
+RM= rm
+endif
+
+CC= gcc
+CFLAGS= -c -O2 \
+		-nostdlib -nostdinc -fno-builtin -fno-stack-protector
+
+LDFLAGS= -Tlink.ld
+
+NASM= nasm
+ASMFLAGS= -felf
+
+SOURCES= $(shell find * -type f -name '*.[cSs]')
+OBJECTS= $(patsubst %.c,%.o, \
+			$(patsubst %.s,%.o, \
+				$(patsubst %.S, %.o,$(SOURCES))))
+
+OUTPUT= kernel
+OUTFILE= build_dump
+
+.PHONY: all clean
+
+all: $(SOURCES) $(OUTPUT)
+	@echo "Done."
+
+# -M to linker for printout
+
+$(OUTPUT): $(OBJECTS)
+	@echo "Linking..."
+	@ld -M $(LDFLAGS) -o $@ $(OBJECTS) >> $(OUTFILE) 2>&1
+	@- $(RM) $(OBJECTS)
+
+.c.o:
+	@echo "CC $<"
+	@$(CC) $(CFLAGS) $< -o $@ >> $(OUTFILE) 2>&1
+
+.S.o:
+	@echo "CC $<"
+	@$(CC) -c $< >> $(OUTFILE) 2>&1
+
+.s.o:
+	@echo "NASM $<"
+	@$(NASM) $(ASMFLAGS) $< >> $(OUTFILE) 2>&1
 
 clean:
-	rm kernel
-	find . -type f -name "*.o" -print0 | xargs -0 rm -rf
-
-link:
-	ld -M $(LDFLAGS) -o kernel $(SOURCES)
-.S.o:
-	gcc -c $<
-.s.o:
-	nasm $(ASFLAGS) $<
+	@- $(RM) $(OBJECTS)
+	@- $(RM) $(OUTPUT)
+	@- $(RM) $(OUTFILE)

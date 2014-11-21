@@ -59,7 +59,7 @@ void register_timer(w_timer_callback, w_uint32);
 
 void begin_multitasking();
 void context_switch(struct w_proc*);
-int fork(w_uint32);
+int fork();
 int exec();
 
 
@@ -73,11 +73,11 @@ void schedule();
 
 /* stack.c */
 
-w_uint32 get_eip();
+w_ptr get_eip();
 inline w_uint32 get_esp();
 inline void set_esp(w_uint32);
 inline w_ptr push_regs();
-inline w_ptr copy_stack(w_uint32*, w_uint32*);
+w_ptr copy_stack(w_uint32*, w_uint32*,w_uint32);
 inline void pop_context();
 inline void set_ss(w_uint16);
 

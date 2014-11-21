@@ -60,14 +60,7 @@
 void init_seg();
 void init_idt();
 
-/* ASM flush routines */
-
-extern void gdt_flush(uint);
-extern void idt_flush(uint);
-extern void tss_flush();
-
-
-void set_tss(uint);
+void set_tss(w_uint32);
 
 /* Models the task state segment */
 
@@ -144,6 +137,12 @@ struct w_idtp{
     w_uint16 limit;
     w_uint32 base;			/* Address of the first w_idte */
 } __attribute__((packed));
+
+/* ASM flush routines */
+
+extern void gdt_flush(struct w_gdtp*);
+extern void idt_flush(struct w_idtp*);
+extern void tss_flush();
 
 /* ISR handlers */
 

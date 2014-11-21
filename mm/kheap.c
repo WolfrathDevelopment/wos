@@ -94,7 +94,7 @@ static void heap_dump(struct w_heap* heap){
 
 /* Dynamic allocation function for kernel */
 
-void* kalloc(uint size){
+void* kalloc(w_uint32 size){
 
 	struct w_heap* heap = &kern_heap;
 	struct w_listnode* it = FIRST_NODE(heap->block_list_head);
@@ -232,7 +232,7 @@ static int merge(struct w_heap* heap){
 
 /* Free dynamic allocation beginning at va */
 
-void kfree(uint va){
+void kfree(w_uint32 va){
 
 	struct w_heap* heap = &kern_heap;
 	struct w_block* blk = (struct w_block*)(va - HEAP_OVERHEAD);

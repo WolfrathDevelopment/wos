@@ -9,7 +9,7 @@
 
 #define ADDR_INDEX(x)			( x / 0x20000 )
 #define ADDR_OFFSET(x)			( x % 0x20 )
-#define NUM_INDEX			32768
+#define NUM_INDEX				(32768)
 
 /* Access to this map must be synchronized!! */
 
@@ -87,7 +87,7 @@ static w_uint32 find_frame(w_uint32 usr){
 	}
 
 	if(index == -1)
-		return NULL;
+		return 0;
 
 	offset = 31;
 
@@ -118,7 +118,7 @@ void init_alloc(struct w_multiboot_info* mbt){
 	for(i=0; i< NUM_INDEX; i++)
 		page_map[i] = 0xFFFFFFFF;
 
-	struct w_mmap* mmap = mbt->mmap_addr;
+	struct w_mmap* mmap = (struct w_mmap*)mbt->mmap_addr;
 
 	w_uint32 count = 0;
 	w_uint32 kern = 0;
@@ -126,7 +126,7 @@ void init_alloc(struct w_multiboot_info* mbt){
 
 	/* Map all available pages to our page_map */
 
-	while(mmap < mbt->mmap_addr + mbt->mmap_length) {
+	while((w_uint32)mmap < mbt->mmap_addr + mbt->mmap_length) {
 
 		if(mmap->type == 1){
 
@@ -147,14 +147,15 @@ void init_alloc(struct w_multiboot_info* mbt){
 
 		}
 
-		mmap = (struct w_mmap*)((uint)mmap+mmap->size+sizeof(uint));
+		mmap = (struct w_mmap*)((w_uint32)mmap+mmap->size+sizeof(w_uint32));
 	}
 
 	/* Map Null frame used */
 
 	mark_frame_used(0);
 
-	printf("%d kernel pages and %d free pages!\n", kern, count);
+	printf("%d kernel pages totaling %d bytes\n",kern,kern*PAGE_SIZE);
+	printf("%d free pages totaling %d bytes\n", count, count*PAGE_SIZE);
 }
 
 
@@ -167,7 +168,7 @@ w_pte alloc_page_frame(w_uint32 flags){
 	w_pte addr = (w_pte) find_frame( flags & 0xFFFFFFFB );
 
 
-	if(addr == NULL)
+	if((w_ptr)addr == NULL)
 		return addr;
 
 	mark_frame_used(addr);

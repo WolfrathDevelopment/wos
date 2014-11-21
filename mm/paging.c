@@ -9,7 +9,7 @@
 #include "../core/core.h"
 #include "../util/debug.h"
 
-/* Initial page table */
+/* Initial page table(s) */
 
 __attribute__((__aligned__(PAGE_SIZE)))
 w_pte init_pgtbl[NUM_PTE];
@@ -24,7 +24,7 @@ w_pde init_pgdir[NUM_PDE];
 /* Initial stack */
 
 __attribute__((__aligned__(PAGE_SIZE)))
-w_uint32 init_stack[2048];
+w_uint32 init_stack[0x800];
 
 
 w_pde* current_page_directory;
@@ -63,10 +63,26 @@ void set_page_directory(w_pde* dir){
 	enable_paging();
 }
 
+int is_mapped(w_pde* dir, w_uint32 va){
+
+	w_pde pde = dir[ PD_INDEX(va) ];
+
+	if(pde & PTE_P){
+
+		w_pte* tbl = (w_pte*) KVIRT( PTE_ADDR(pde) );
+		w_pte page = tbl[ PT_INDEX(va) ];
+		
+		if(page & PTE_P)
+			return 1;
+	}
+
+	return 0;
+}
+
 
 /* Map a page to the virtual address in the given page directory */
 
-void map_page(w_pde* dir, uint va, w_pte page){
+void map_page(w_pde* dir, w_uint32 va, w_pte page){
 
 	w_pte* table;
 	w_pde pde = dir[ PD_INDEX(va) ];
@@ -128,7 +144,7 @@ void init_paging(){
 
 /* Flushes this page from the TLB */
 
-void invalidate_page(uint va){
+void invalidate_page(w_uint32 va){
 	asm volatile("invlpg (%0)" ::"r" (va) : "memory");
 }
 

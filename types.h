@@ -6,6 +6,9 @@
  * OS files.
  */
 
+#ifndef __OS_TYPES_H
+#define __OS_TYPES_H
+
 
 /* Null is a useful definition to have */
 
@@ -19,9 +22,9 @@
 
 /* Shortened unsigned types */
 
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
+//typedef unsigned char uchar;
+//typedef unsigned short ushort;
+//typedef unsigned int uint;
 
 typedef char w_int8;
 typedef unsigned char w_uint8;
@@ -40,14 +43,23 @@ typedef void* w_ptr;
  * These should always be 64 bits
  */
 
-typedef unsigned long long ulong;
+//typedef unsigned long long ulong;
 
 
 /* A page directory entry */
 
-typedef uint w_pde;
+typedef w_uint32 w_pde;
 
 
 /* A page table entry */
 
-typedef uint w_pte;
+typedef w_uint32 w_pte;
+
+
+/* Helpful branch predictors */
+
+#define likely(x)		(__builtin_expect(!!(x),1))
+#define unlikely(x)		(__builtin_expect(!!(x),0))
+
+#endif /* __OS_TYPES_H */
+

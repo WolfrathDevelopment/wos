@@ -9,13 +9,13 @@
 
 /* Copy length bytes from src to dest */
 
-void memcpy(w_uint8 *dest, const w_uint8 *src, w_uint32 length){
+void memcpy(w_uint8 *dest, const w_uint8 *src, w_uint32 len){
 
-    	const w_uint8 *sp = (const w_uint8 *)src;
-    	w_uint8 *dp = (w_uint8 *)dest;
+	const w_uint8 *sp = (const w_uint8 *)src;
+	w_uint8 *dp = (w_uint8 *)dest;
 
-    	for(; length != 0; length--)
-			*dp++ = *sp++;
+	while(len--)
+		*dp++ = *sp++;
 }
 
 /* Write many copies of val to dest */
@@ -23,8 +23,22 @@ void memcpy(w_uint8 *dest, const w_uint8 *src, w_uint32 length){
 void memset(w_uint8 *dest, w_uint8 val, w_uint32 many){
 
 	w_uint8 *temp = (w_uint8 *)dest;
-	for ( ; many != 0; many--)
+	while(many--)
 		*temp++ = val;
+}
+
+int memcmp(w_uint8* one, w_uint8* two,w_uint32 len){
+	
+	int i=0;
+	while(i < len){
+		
+		if(one[i] != two[i])
+			return 1;
+
+		i++;
+	}
+
+	return 0;
 }
 
 /* Compare two strings. Returns 0 if equal, else 1 */

@@ -1,6 +1,6 @@
 /*
  * link.ld
- Joel Wolfrath, 2013
+ * Joel Wolfrath, 2013
  *
  * Linker file for kernel:
  * Maps the kernel as a higher half kernel

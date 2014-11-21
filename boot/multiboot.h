@@ -138,10 +138,10 @@ struct w_multiboot_aout_symbol_table{
 /* The section header table for ELF. */
 struct w_multiboot_elf_section_header_table{
 
-	uint num;
-	uint size;
-	uint addr;
-	uint shndx;
+	w_uint32 num;
+	w_uint32 size;
+	w_uint32 addr;
+	w_uint32 shndx;
 };
      
 struct w_multiboot_info{

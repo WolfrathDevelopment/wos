@@ -83,7 +83,7 @@ void update_cursor(){
 		scroll();
 
 	/* The screen is 80 characters wide */
-	ushort loc = (cursor_y * NUM_COLS) + cursor_x;
+	w_uint16 loc = (cursor_y * NUM_COLS) + cursor_x;
 	
 	/* Signal VGA high byte */
 	out_byte(CRTPORT, 14);
@@ -100,7 +100,7 @@ void update_cursor(){
 
 void printf(char* str, ... ){
 
-	w_uint32* argv = (uint*)(w_ptr)(&str + 1);
+	w_uint32* argv = (w_uint32*)(w_ptr)(&str + 1);
 	int i,c;
 	char* s;
 	for(i = 0; (c = str[i] & 0xff) != 0; i++){

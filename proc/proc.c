@@ -10,14 +10,13 @@
 
 struct w_proc* current_proc = NULL;
 struct w_proc proc1;
+struct w_regs init_regs;
 
 extern struct w_tss current_tss;
 extern w_pde* kernel_page_directory;
 extern w_uint32 next_alloc_address;
 extern w_uint32* core_stack;
-
-//extern void perform_context_switch(uint,uint);
-
+extern w_uint32* init_stack;
 
 // access to this int must be synchronized!
 w_uint32 next_pid = 1;
@@ -45,28 +44,13 @@ void context_switch(struct w_proc* next){
      */
 
     next->state = RUNNING;
-
-    //set_page_directory(next->pg_dir);
-
-    //printf("esp: 0x%p\n", next->esp);
-
-    //current_proc = next;
+    set_page_directory(next->pg_dir);
+    current_proc = next;
 
     //set tss
 
-    //perform_context_switch(next->esp,0);
-
     asm volatile("mov %0, %%esp" : : "r" (next->regs->esp));
-
-    asm volatile("popl %ebx");
-    asm volatile("mov %bx,%ds");
-    asm volatile("mov %bx,%es");
-    asm volatile("mov %bx,%fs");
-    asm volatile("mov %bx,%gs");
-    asm volatile("popa");
-    asm volatile("addl $0x8, %esp");
-    asm volatile("sti");
-    asm volatile("iret");
+	pop_context();
 }
 
 void begin_multitasking(){
@@ -79,78 +63,19 @@ void begin_multitasking(){
     proc1.flags = 0;
     proc1.state = CREATED;
     proc1.next = &proc1;
+	proc1.regs = &init_regs;
     current_proc = &proc1;
-
-    //proc2.sys = LINUX;
-    //proc2.pg_dir = kernel_page_directory;
-    //proc2.pid = next_pid++;
-    //proc2.flags = 0;
-    //proc2.state = CREATED;
-
-    //char* nstack = kalloc(0x1000);
-    //uint* nesp;
-    //uint* nebp;
-
-    //printf("\nStack alloc: 0x%p\n");
-
-    //nstack += 0xFFF;
-
-    //printf("\nNEW STACK START: 0x%p\n",nstack);
-
-    // we need to build current stack for an iret into new process.
-
-    //asm volatile("mov %0, %%esp" : : "r" (nstack));
-    //asm volatile("mov %0, %%ebp" : : "r" (nstack));
-    //asm volatile("jmp *%0" : : "r" (&dummy_execution));
-
-    //current_proc = &proc1;
-    //perform_context_switch(nstack,(uint)&dummy_execution);
-
-    //nebp = (uint*)nstack;
-    //nesp = nebp;
-
-    //*nesp++ = 0x10;
-    //*nesp++ = read_eflags();
-    //*nesp++ = nebp;
-    //*nesp++ = 0x8;
-    //*nesp = &dummy_execution;
-
-    //uint esp;
-
-    //asm volatile("movl %%esp, %0" : "=r"(esp));
-    //asm volatile("pushl $0x10");
-    //asm volatile("pushfl");
-    //asm volatile("pushl %0" : : "r" (nstack));
-    //asm volatile("pushl $0x8");
-    //asm volatile("pushl %0" : : "r" (&dummy_execution));
-
-    //asm volatile("sti");
-    //asm volatile("iret");
-
-    //perform_context_switch(&current_proc);
-    //while(1)
-       // printf("PROC 1");
-
-    w_uint32 eip = get_eip();
-
-    printf("EIP = %p\n", eip);
-    printf("&EIP = %p\n", &eip);
-    while(1);
-
-    fork(eip);
 }
 
-int fork(w_uint32 next_eip){
+int fork(){
 
     /* Alright, lets allocate a new process */
+
     struct w_proc* pcopy = kalloc(sizeof(struct w_proc));
 
     pcopy->next = current_proc;
     current_proc->next = pcopy;
-
     pcopy->pid = next_pid++;
-    //pcopy->thread_state = CREATED;
-    //pcopy->thread_system = current_proc->thread_system;
     pcopy->flags = current_proc->flags;
     pcopy->regs = NULL;
 
@@ -160,57 +85,105 @@ int fork(w_uint32 next_eip){
     /* Alloc new page directory */
 
     w_pde* new_pgdir;
+	w_pte pdpage, nspage, ptpage;
 
-    w_pte page = alloc_page_frame(PTE_W | PTE_P);
-    map_page(kernel_page_directory, next_alloc_address, page);
+    pdpage = alloc_page_frame(PTE_W | PTE_P);
+    map_page(kernel_page_directory, next_alloc_address, pdpage);
 
     new_pgdir = (w_pde*)next_alloc_address;
     next_alloc_address += 0x1000;
-
-    /* Copy Page Directory */
-
-    int i;
-    for(i = 0; i < 0x400; i++){
-        new_pgdir[i] = kernel_page_directory[i];
-    }
-
     pcopy->pg_dir = new_pgdir;
 
-    /* Alloc stack */
+    /* Allocate a stack */
+
     w_uint32* new_stack;
+    nspage = alloc_page_frame(PTE_W | PTE_P);
 
-    page = alloc_page_frame(PTE_W | PTE_P);
-    map_page(kernel_page_directory, next_alloc_address, page);
+	/* TEMPORARY MAP */
+    map_page(kernel_page_directory, next_alloc_address, nspage);
 
-    new_stack = (uint*)(next_alloc_address);
-    next_alloc_address += 0x1000;
+    new_stack = (w_uint32*)(next_alloc_address);
+	next_alloc_address += 0x1000;
 
     /* Copy Stack */
 
-    w_uint32 nesp = (w_uint32)copy_stack(new_stack, core_stack);
-    w_uint32 oesp = get_esp();
+	w_uint32 csaddr = (w_uint32)(&init_stack + 0x400);
+	w_uint32 oesp = get_esp();
 
-    set_esp(nesp);
+	/* We are going to need 1 additional page table... */
 
-    //new stack
-    asm volatile("movl %0, %%esp" : : "r" (nesp));
-    asm volatile("push %ss");
-    asm volatile("pushl %esp");
-    asm volatile("pushfl");
-    asm volatile("push %cs");
-    asm volatile("pushl %0" : : "r" (next_eip));
-    asm volatile("pushl $0");
-    asm volatile("pushl $0");
-    asm volatile("pusha");
-    asm volatile("push %ds");
+	w_pte* new_pgtbl;
+	ptpage = alloc_page_frame(PTE_W | PTE_P);
+	new_pgtbl = (w_pte*)next_alloc_address;
 
-    //go back to current stack
-    //asm volatile("movl %0, %%esp" : : "r" (esp));
+	/* TEMPORARY MAP */
+	map_page(kernel_page_directory, next_alloc_address,ptpage);
+	next_alloc_address += 0x1000;
 
-    //set 0 return value
-    asm volatile("movl %0, %%eax" : : "r" (0));
+	/* Page table for original stack */
 
-    return pcopy->pid;
+	w_pte* old_pgtbl;
+	w_pde opde = kernel_page_directory[ PD_INDEX(csaddr) ];
+
+	old_pgtbl = (w_pte*) KVIRT( PTE_ADDR(opde) );
+
+	/* Now let's copy page directory, stack, and page table */
+
+	int i;
+	for(i=0;i<0x400;i++){
+		new_pgdir[i] = kernel_page_directory[i];
+	}
+
+	memcpy((w_int8*)new_pgtbl,(w_uint8*)old_pgtbl, PAGE_SIZE);
+    copy_stack(new_stack, &init_stack + 0x400, oesp);
+	
+	/* Alright, NOW remap the stack */
+
+	new_pgdir[ PD_INDEX(csaddr) ] = (w_pde)(ptpage | PTE_A);
+	
+	map_page(new_pgdir, csaddr, nspage);
+
+	w_uint32 eip = (w_uint32)&&forkret;
+	oesp = get_esp();
+
+//	for(;;)
+//		;
+
+    copy_stack(new_stack, &init_stack + 0x400, oesp);
+	
+	/* UNMAP NEW STACK AND PAGE TABLE */
+
+	//unmap_page(kernel_page_directory, (w_uint32) new_pgtbl);
+	//unmap_page(kernel_page_directory, (w_uint32) new_stack);
+
+	cli();
+
+	set_page_directory(new_pgdir);
+
+	/* SAVE OUR CURRENT STACK! */
+
+	asm volatile("pushfl");
+	asm volatile("push %cs");
+	asm volatile("pushl %0" : "=r" (eip));
+	asm volatile("pushl $0");
+	asm volatile("pushl $0");
+	asm volatile("pushal");
+	asm volatile("push %ds");
+
+	set_page_directory(kernel_page_directory);
+	set_esp(oesp);
+
+	sti();
+
+	/* This is the parent */
+
+	return pcopy->pid;
+
+forkret:
+
+	/* Only the child will get this far */
+
+	return 0;
 }
 
 

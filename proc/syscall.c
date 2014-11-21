@@ -10,8 +10,8 @@
 static void sys_handler(struct w_regs* regs){
 
 	/* Sanity check */
-	if(regs->eax >= NUM_SYSCALLS)
-		return;
+//	if(regs->eax >= NUM_SYSCALLS)
+//		return;
 
 }
 

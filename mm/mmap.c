@@ -20,8 +20,9 @@
 
 static struct w_multiboot_info* mboot;
 
-struct w_mmap* read_mmap(struct w_multiboot_info* mbt){
+w_ptr read_mmap(struct w_multiboot_info* mbt){
 
+	w_ptr ret;
 	mboot = mbt;
 	struct w_mmap* mmap = (struct w_mmap*) mbt->mmap_addr;
 
@@ -31,10 +32,14 @@ struct w_mmap* read_mmap(struct w_multiboot_info* mbt){
 	while((w_uint32)mmap < mbt->mmap_addr + mbt->mmap_length) {
 
 		print_mmap_entry(mmap);
-		mmap = (struct w_mmap*) (w_uint32)mmap + mmap->size + sizeof(w_uint32);
+
+		if(mmap->type == 0x3)
+			ret = (w_ptr)mmap->base_addr_low;
+
+		mmap = (struct w_mmap*)((w_uint32)mmap + mmap->size + sizeof(w_uint32));
 	}
 
-	return (struct w_mmap*) mbt->mmap_addr;
+	return ret;
 }
 
 void map_kernel(){

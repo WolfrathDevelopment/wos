@@ -29,7 +29,7 @@ void init_pic(){
 	reset_pic(PIC_INTERVAL);
 }
 
-void reset_pic(uint freq){
+void reset_pic(w_uint32 freq){
 
 	w_uint32 div = FREQ_FACTOR / freq;
 

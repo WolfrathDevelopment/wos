@@ -58,6 +58,7 @@ void clear_screen();
 
 void memcpy(w_uint8 *, const w_uint8 *, w_uint32);
 void memset(w_uint8 *, w_uint8, w_uint32);
+int memcmp(w_uint8*, w_uint8*,w_uint32);
 w_int32 strcmp(char *, char *);
 void strcpy(char *, const char *);
 char *strcat(char *, const char *);
