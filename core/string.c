@@ -9,10 +9,10 @@
 
 /* Copy length bytes from src to dest */
 
-void memcpy(w_uint8 *dest, const w_uint8 *src, w_uint32 len){
+void memcpy(uint8 *dest, const uint8 *src, size_t len){
 
-	const w_uint8 *sp = (const w_uint8 *)src;
-	w_uint8 *dp = (w_uint8 *)dest;
+	const uint8 *sp = (const uint8 *)src;
+	uint8 *dp = (uint8 *)dest;
 
 	while(len--)
 		*dp++ = *sp++;
@@ -20,14 +20,21 @@ void memcpy(w_uint8 *dest, const w_uint8 *src, w_uint32 len){
 
 /* Write many copies of val to dest */
 
-void memset(w_uint8 *dest, w_uint8 val, w_uint32 many){
+void memset(uint8 *dest, uint8 val, size_t many){
 
-	w_uint8 *temp = (w_uint8 *)dest;
+	uint8 *temp = (uint8 *)dest;
 	while(many--)
 		*temp++ = val;
 }
 
-int memcmp(w_uint8* one, w_uint8* two,w_uint32 len){
+void memset32(uint32 *dest, uint32 val, size_t cnt){
+
+	uint32 *temp = (uint32 *)dest;
+	while(cnt--)
+		*temp++ = val;
+}
+
+int memcmp(uint8* one, uint8* two, size_t len){
 	
 	int i=0;
 	while(i < len){

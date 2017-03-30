@@ -7,18 +7,19 @@
 
 #include "acpi.h"
 #include "../mm/mem.h"
+#include "../mm/paging.h"
 #include "../core/core.h"
 
-extern w_uint32 next_alloc_address;
-extern w_pde* kernel_page_directory;
+extern uint32 next_alloc_address;
+extern PageDirectoryEntry* kernel_page_directory;
 
-w_uint8 chkptr(w_int8* start, w_uint32 size){
+uint8 validateChecksum(int8* start, uint32 size){
 
-	w_uint8* ptr = (w_uint8*)start;
+	uint8* ptr = (uint8*)start;
+	uint8 chksm=0;
 	int i;
-	w_uint8 chksm=0;
 
-	for(i=0;i<size;i++)
+	for(i=0; i<size; i++)
 		chksm += *ptr++;
 
 	return chksm;
@@ -28,11 +29,12 @@ void init_acpi(){
 
 	/* We need to find the RSDP... */
 
-	struct w_rsdp* rsdp_ptr = NULL;
-	struct w_rsdt* rsdt_ptr = NULL;
+	RootSystemDescPointer*	rsdp_ptr = NULL;
+	RootSystemDescTable*	rsdt_ptr = NULL;
 
-	w_int8* start = (w_int8*)0x000E0000;
-	w_int8* end = (w_int8*)0x000FFFFF;
+	int8* start = (int8*) 0x000E0000;
+	int8* end = (int8*) 0x000FFFFF;
+
 	start = KVIRT(start);
 	end = KVIRT(end);
 
@@ -44,13 +46,13 @@ void init_acpi(){
 
 		if(!memcmp(RSDP_SIG,start,8)){
 
-			if(!chkptr(start,sizeof(struct w_rsdp))){
+			if(!validateChecksum(start, sizeof(RootSystemDescPointer))){
 
-				rsdp_ptr = (struct w_rsdp*)start;
+				rsdp_ptr = (RootSystemDescPointer*) start;
        			printf("sig: %s\n", rsdp_ptr->signature);
-        		printf("checksum: %p\n", (w_uint32)rsdp_ptr->checksum);
+        		printf("checksum: %p\n", (uint32)rsdp_ptr->checksum);
        			printf("oemid: %s\n", rsdp_ptr->oemid);
-        		printf("rev: %p\n", (w_uint32)rsdp_ptr->rev);
+        		printf("rev: %p\n", (uint32)rsdp_ptr->rev);
         		printf("rsdt_addr: 0x%p\n", rsdp_ptr->rsdt_addr);
 
 			}
@@ -65,36 +67,36 @@ void init_acpi(){
 	}
 
 	rsdt_ptr = KVIRT(rsdp_ptr->rsdt_addr);
-	w_uint32 rsdt = (w_uint32)rsdt;
+	uint32 rsdt = (uint32)rsdt;
 
 	if(!is_mapped(kernel_page_directory, rsdt)){
 
 		printf("Not mapped\n");
 
-		if(!(kernel_page_directory[ PD_INDEX(rsdt) ] & PTE_P)){
+		if( ! isPtePresent(kernel_page_directory[ PD_INDEX(rsdt) ])){
 
 			printf("Need pgtbl\n");
 
 			/* Oh god, we need a page table too */
 
-			w_pte page = alloc_page_frame(PTE_W | PTE_P);
+			PageTableEntry page = alloc_page_frame(PTE_Present | PTE_Writable);
 			map_page(kernel_page_directory,next_alloc_address,page);
 			kernel_page_directory[PD_INDEX(rsdt)] = page;
-			zero_mem(next_alloc_address, 0x1000);
+			zero(next_alloc_address, 0x1000);
 			next_alloc_address+=0x1000;
 		}
-		
+
 		printf("Need page\n");
 
 		/* Hell, let's just assume its page aligned */
 
-		map_page(kernel_page_directory,KVIRT(rsdt),rsdt | PTE_W | PTE_P);
+		map_page(kernel_page_directory,KVIRT(rsdt),rsdt | PTE_Writable | PTE_Present);
 	}
 
 	printf("sig: %s\n", rsdt_ptr->signature);
-	printf("checksum: %p\n", (w_uint32)rsdt_ptr->checksum);
+	printf("checksum: %p\n", (uint32)rsdt_ptr->checksum);
 	printf("oemid: %s\n", rsdt_ptr->oemid);
-	printf("rev: %p\n", (w_uint32)rsdt_ptr->rev);
+	printf("rev: %p\n", (uint32)rsdt_ptr->rev);
 	printf("length: 0x%p\n", rsdt_ptr->length);
 
 }

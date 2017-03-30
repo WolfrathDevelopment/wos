@@ -12,7 +12,9 @@
 
 /* Null is a useful definition to have */
 
-#define NULL ((void*)0)
+#define NULL    ((void*)0)
+#define TRUE    (0x01)
+#define FALSE   (0x00)
 
 
 /* Macro to calculate the number of elements in an array */
@@ -22,39 +24,16 @@
 
 /* Shortened unsigned types */
 
-//typedef unsigned char uchar;
-//typedef unsigned short ushort;
-//typedef unsigned int uint;
+typedef char				int8;
+typedef unsigned char		uint8;
+typedef short				int16;
+typedef unsigned short		uint16;
+typedef int					int32;
+typedef unsigned int		uint32;
+typedef long long			int64;
+typedef unsigned long long	uint64;
 
-typedef char w_int8;
-typedef unsigned char w_uint8;
-typedef short w_int16;
-typedef unsigned short w_uint16;
-typedef int w_int32;
-typedef unsigned int w_uint32;
-typedef long long w_int64;
-typedef unsigned long long w_uint64;
-
-typedef void* w_ptr;
-
-
-/*
- * WARNING: ulong is defined as long long
- * These should always be 64 bits
- */
-
-//typedef unsigned long long ulong;
-
-
-/* A page directory entry */
-
-typedef w_uint32 w_pde;
-
-
-/* A page table entry */
-
-typedef w_uint32 w_pte;
-
+typedef uint32	size_t;
 
 /* Helpful branch predictors */
 

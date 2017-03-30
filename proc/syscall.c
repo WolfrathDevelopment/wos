@@ -6,8 +6,9 @@
  */
 
 #include "syscall.h"
+#include "../boot/boot.h"
 
-static void sys_handler(struct w_regs* regs){
+static void sys_handler(Registers* regs){
 
 	/* Sanity check */
 //	if(regs->eax >= NUM_SYSCALLS)

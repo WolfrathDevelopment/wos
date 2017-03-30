@@ -3,56 +3,51 @@
 # Makefile for the kernel
 #
 
-ifeq ($(MAKE),)
-MAKE= make
-endif
-
-ifeq ($(RM),)
-RM= rm
-endif
-
 CC= gcc
-CFLAGS= -c -O2 \
-		-nostdlib -nostdinc -fno-builtin -fno-stack-protector
 
-LDFLAGS= -Tlink.ld
+SOURCES= 	bootstrap.o \
+			boot/acpi.o \
+			boot/interrupt.o \
+			boot/isr.o \
+			boot/gdt.o \
+			boot/init_tables.o \
+			core/console.o \
+			core/io.o \
+			core/string.o \
+			mm/mmap.o \
+			mm/paging.o \
+			mm/alloc.o \
+			mm/kheap.o \
+			mm/ppa.o \
+			lib/list.o \
+			util/debug.o \
+			drivers/kbd.o \
+			proc/pic.o \
+			proc/proc.o \
+			proc/scheduler.o \
+			proc/stack.o \
+			main.o
 
-NASM= nasm
-ASMFLAGS= -felf
+CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector
 
-SOURCES= $(shell find * -type f -name '*.[cSs]')
-OBJECTS= $(patsubst %.c,%.o, \
-			$(patsubst %.s,%.o, \
-				$(patsubst %.S, %.o,$(SOURCES))))
+LDFLAGS=-Tlink.ld
 
-OUTPUT= kernel
-OUTFILE= build_dump
+ASFLAGS=-felf
 
-.PHONY: all clean
+all: $(SOURCES) link
 
-all: $(SOURCES) $(OUTPUT)
-	@echo "Done."
+clean:
+	find . -type f -name "*.o" -print0 | xargs -0 rm -rf
+	rm kernel
 
 # -M to linker for printout
 
-$(OUTPUT): $(OBJECTS)
-	@echo "Linking..."
-	@ld -M $(LDFLAGS) -o $@ $(OBJECTS) >> $(OUTFILE) 2>&1
-	@- $(RM) $(OBJECTS)
-
-.c.o:
-	@echo "CC $<"
-	@$(CC) $(CFLAGS) $< -o $@ >> $(OUTFILE) 2>&1
+link:
+	ld -M $(LDFLAGS) -o kernel $(SOURCES) > linker.out
 
 .S.o:
-	@echo "CC $<"
-	@$(CC) -c $< >> $(OUTFILE) 2>&1
+	$(CC) -c $<
 
 .s.o:
-	@echo "NASM $<"
-	@$(NASM) $(ASMFLAGS) $< >> $(OUTFILE) 2>&1
+	nasm $(ASFLAGS) $<
 
-clean:
-	@- $(RM) $(OBJECTS)
-	@- $(RM) $(OUTPUT)
-	@- $(RM) $(OUTFILE)

@@ -17,9 +17,9 @@
 static short cursor_x = 0;
 static short cursor_y = 0;
 
-w_uint16 *vid_mem = (w_uint16 *) KVIRT(VGA_FRAME_BUF);
+uint16 *vid_mem = (uint16 *) KVIRT(VGA_FRAME_BUF);
 
-void move_cursor(w_int32 inc, w_int32 x){
+void move_cursor(int32 inc, int32 x){
 
 	if(x)
 		cursor_x += inc;
@@ -40,12 +40,12 @@ static void scroll(){
 	 * foreground is white.
 	 */
 
-   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+   	uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
 
    
 	/* The attribute byte is the top 8 bits of the short */
 
-	w_uint16 space = ' ' | (attr << 8);
+	uint16 space = ' ' | (attr << 8);
 
 	int i;
 	for (i = 0; i < (NUM_ROWS - 1) * NUM_COLS; i++)
@@ -83,7 +83,7 @@ void update_cursor(){
 		scroll();
 
 	/* The screen is 80 characters wide */
-	w_uint16 loc = (cursor_y * NUM_COLS) + cursor_x;
+	uint16 loc = (cursor_y * NUM_COLS) + cursor_x;
 	
 	/* Signal VGA high byte */
 	out_byte(CRTPORT, 14);
@@ -100,7 +100,7 @@ void update_cursor(){
 
 void printf(char* str, ... ){
 
-	w_uint32* argv = (w_uint32*)(w_ptr)(&str + 1);
+	uint32* argv = (uint32*)(void*)(&str + 1);
 	int i,c;
 	char* s;
 	for(i = 0; (c = str[i] & 0xff) != 0; i++){
@@ -141,7 +141,7 @@ void printf(char* str, ... ){
 
 void put_char(char c){
 
-	w_uint8 bflag = 0;
+	uint8 bflag = 0;
 
 	if(c == '\n'){
 		cursor_y++;
@@ -167,12 +167,12 @@ void put_char(char c){
 	 * Here, background is black (0) and
 	 * foreground is white(15).
 	 */
-   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+   	uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
    
 	// The attribute byte is the top 8 bits of the short
-   	w_uint16 style = attr << 8;
+   	uint16 style = attr << 8;
 
-	w_uint16 *location = vid_mem + (cursor_y * NUM_COLS + cursor_x);
+	uint16 *location = vid_mem + (cursor_y * NUM_COLS + cursor_x);
        *location = c | style;
 
 	if(!bflag)
@@ -188,7 +188,7 @@ void put_string(char * str){
 }
 
 
-void put_hex(w_uint32 n){
+void put_hex(uint32 n){
 
 	int tmp,i;
 	//put_string("0x");
@@ -219,7 +219,7 @@ void put_hex(w_uint32 n){
 		put_char(tmp+'0');
 }
 
-void put_decimal(w_uint32 n){
+void put_decimal(uint32 n){
 
 	if (n == 0){
 		put_char('0');
@@ -252,9 +252,9 @@ void clear_screen(){
 
 	/* Make an attribute byte for the default colors*/
 
-   	w_uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
-	w_uint16 style = attr << 8;
-   	w_uint16 blank = ' ' | style;
+   	uint8 attr = (COLOR_BLACK << 4) | (COLOR_WHITE & 0x0F);
+	uint16 style = attr << 8;
+   	uint16 blank = ' ' | style;
 
    	int i;
    	for (i = 0; i < NUM_ROWS * NUM_COLS; i++)

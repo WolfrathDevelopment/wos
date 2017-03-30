@@ -100,113 +100,126 @@
      
 #ifndef ASM_FILE
      
-struct w_multiboot_header{
+typedef struct {
 
 	/* Must be MULTIBOOT_MAGIC - see above. */
-	w_uint32 magic;
+	uint32 magic;
      
 	/* Feature flags. */
-	w_uint32 flags;
+	uint32 flags;
      
 	/* The above fields plus this one must equal 0 mod 2^32. */
-	w_uint32 checksum;
+	uint32 checksum;
      
 	/* These are only valid if MULTIBOOT_AOUT_KLUDGE is set. */
-	w_uint32 header_addr;
-	w_uint32 load_addr;
-	w_uint32 load_end_addr;
-	w_uint32 bss_end_addr;
-	w_uint32 entry_addr;
+	uint32 header_addr;
+	uint32 load_addr;
+	uint32 load_end_addr;
+	uint32 bss_end_addr;
+	uint32 entry_addr;
      
 	/* These are only valid if MULTIBOOT_VIDEO_MODE is set. */
-	w_uint32 mode_type;
-	w_uint32 width;
-	w_uint32 height;
-	w_uint32 depth;
+	uint32 mode_type;
+	uint32 width;
+	uint32 height;
+	uint32 depth;
 
-};
+} GrubMultibootHeader;
      
 /* The symbol table for a.out. */
-struct w_multiboot_aout_symbol_table{
 
-	w_uint32 tabsize;
-	w_uint32 strsize;
-	w_uint32 addr;
-	w_uint32 reserved;
-};
+typedef struct {
+
+	uint32 tabsize;
+	uint32 strsize;
+	uint32 addr;
+	uint32 reserved;
+
+} GrubMultibootAoutSymbolTable;
      
 /* The section header table for ELF. */
-struct w_multiboot_elf_section_header_table{
 
-	w_uint32 num;
-	w_uint32 size;
-	w_uint32 addr;
-	w_uint32 shndx;
-};
-     
-struct w_multiboot_info{
+typedef struct {
+
+	uint32 num;
+	uint32 size;
+	uint32 addr;
+	uint32 shndx;
+
+} GrubMultibootElfSectionHeaderTable;
+    
+/* Define memory map valid values */
+#define GRUB_MMAP_AVAILABLE		(1)
+#define GRUB_MMAP_RESERVED		(2)
+#define GRUB_MMAP_ACPI_RECLAIM	(3)
+#define GRUB_MMAP_ACPI_NVS		(4)
+
+ 
+typedef struct {
 
 	/* Multiboot info version number */
-	w_uint32 flags;
+	uint32 flags;
     
 	/* Available memory from BIOS */
-	w_uint32 mem_lower;
-	w_uint32 mem_upper;
+	uint32 mem_lower;
+	uint32 mem_upper;
      
 	/* "root" partition */
-	w_uint32 boot_device;
+	uint32 boot_device;
     
 	/* Kernel command line */
-	w_uint32 cmdline;
+	uint32 cmdline;
      
 	/* Boot-Module list */
-	w_uint32 mods_count;
-	w_uint32 mods_addr;
+	uint32 mods_count;
+	uint32 mods_addr;
     
 	union{
 
-		struct w_multiboot_aout_symbol_table aout_sym;
-		struct w_multiboot_elf_section_header_table elf_sec;
+		GrubMultibootAoutSymbolTable		aout_sym;
+		GrubMultibootElfSectionHeaderTable	elf_sec;
 	} u;
      
 	/* Memory Mapping buffer */
-	w_uint32 mmap_length;
-	w_uint32 mmap_addr;
+	uint32 mmap_length;
+	uint32 mmap_addr;
      
 	/* Drive Info buffer */
-	w_uint32 drives_length;
-	w_uint32 drives_addr;
+	uint32 drives_length;
+	uint32 drives_addr;
      
 	/* ROM configuration table */
-	w_uint32 config_table;
+	uint32 config_table;
      
 	/* Boot Loader Name */
-	w_uint32 boot_loader_name;
+	uint32 boot_loader_name;
      
 	/* APM table */
-	w_uint32 apm_table;
+	uint32 apm_table;
      
 	/* Video */
-	w_uint32 vbe_control_info;
-	w_uint32 vbe_mode_info;
-	w_uint16 vbe_mode;
-	w_uint16 vbe_interface_seg;
-	w_uint16 vbe_interface_off;
-	w_uint16 vbe_interface_len;
-};
-     
-struct w_multiboot_mod{
+	uint32 vbe_control_info;
+	uint32 vbe_mode_info;
+	uint16 vbe_mode;
+	uint16 vbe_interface_seg;
+	uint16 vbe_interface_off;
+	uint16 vbe_interface_len;
+
+} GrubMultibootInfo;
+
+typedef struct {
 
 	/* the memory used goes from bytes 'mod_start' to 'mod_end-1' inclusive */
-	w_uint32 mod_start;
-	w_uint32 mod_end;
+	uint32 mod_start;
+	uint32 mod_end;
      
 	/* Module command line */
-	w_uint32 cmdline;
+	uint32 cmdline;
     
 	/* padding to take it to 16 bytes (must be zero) */
-	w_uint32 pad;
-};
+	uint32 pad;
+
+} GrubMultibootModule;
      
 #endif /* ! ASM_FILE */
      

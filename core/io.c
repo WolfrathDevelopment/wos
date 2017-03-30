@@ -17,38 +17,38 @@
  *        );
  */
 
-void zero_mem(w_ptr addr, w_uint32 many){
+void zero(void* addr, size_t size){
 	
-	w_uint8* it = addr;
+	uint8* it = addr;
 
-	while(many--)
+	while(size--)
 		*it++ = 0;
 }
 
 /* Write a byte to the specified port */
-void out_byte(w_uint16 port, w_uint8 val){
+void out_byte(uint16 port, uint8 val){
 
 	asm volatile("out %1, %0" : : "dN" (port), "a" (val));
 }
 
 /* Read a byte from the specified port */
-w_uint8 in_byte(w_uint16 port){
+uint8 in_byte(uint16 port){
 
-    w_uint8 val;
+    uint8 val;
     asm volatile("in %1, %0" : "=a" (val) : "dN" (port));
     return val;
 }
 
 /* Read two bytes from the specified port */
-w_uint16 in_short(w_uint16 port){
+uint16 in_short(uint16 port){
 
-    w_uint16 val;
+    uint16 val;
     asm volatile("in %1, %0" : "=a" (val) : "dN" (port));
     return val;
 }
 
-inline w_uint32 read_eflags(void){
-	w_uint32 eflags;
+inline uint32 read_eflags(void){
+	uint32 eflags;
 	asm volatile("pushfl; popl %0" : "=r" (eflags));
 	return eflags;
 }

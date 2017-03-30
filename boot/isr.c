@@ -11,7 +11,7 @@
 
 /* THE interrupt table */
 
-w_isr interrupt_handlers[256];
+InterruptServiceRoutine	interrupt_handlers[256];
 
 
 /* The current process structure */
@@ -21,7 +21,7 @@ extern struct w_proc* current_proc;
 
 /* Add interrupt handler to interrupt table */
 
-void register_interrupt_handler(w_uint8 n, w_isr handler){
+void register_interrupt_handler(uint8 n, InterruptServiceRoutine handler){
 
 	interrupt_handlers[n] = handler;
 }
@@ -29,7 +29,7 @@ void register_interrupt_handler(w_uint8 n, w_isr handler){
 
 /* Generic ISR handler called from asm */
 
-void isr_handler(struct w_regs regs){
+void isr_handler(Registers regs){
 
     if(current_proc != NULL){
         REGS_COPY(current_proc->regs,&regs);
@@ -40,7 +40,7 @@ void isr_handler(struct w_regs regs){
 
 	if (interrupt_handlers[regs.int_no] != 0){
 
-		w_isr handler = interrupt_handlers[regs.int_no];
+		InterruptServiceRoutine handler = interrupt_handlers[regs.int_no];
 		//printf("\nRecieved Interrupt 0x%p\n", regs.int_no);
 		//printf("Instruction Pointer: 0x%p\n", regs.eip);
 		//PANIC("UNHANDLED INTERRUPT");
@@ -57,7 +57,7 @@ void isr_handler(struct w_regs regs){
 
 /* Generic IRQ handler called from asm */
 
-void irq_handler(struct w_regs regs){
+void irq_handler(Registers regs){
 
 
 	if(current_proc != NULL){
@@ -87,7 +87,7 @@ void irq_handler(struct w_regs regs){
 			}
 		}
 
-		w_isr handler = interrupt_handlers[regs.int_no];
+		InterruptServiceRoutine handler = interrupt_handlers[regs.int_no];
 		handler(regs);
 	}
 }

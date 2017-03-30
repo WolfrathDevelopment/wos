@@ -21,12 +21,12 @@
 #define X_DIR 			1
 #define Y_DIR 			0
 
-static w_uint16 _shift=0;
-static w_uint16 c_lock = 0;
+static uint16 _shift=0;
+static uint16 c_lock = 0;
 
 /* standard scancodes */
 
-static w_uint8 kbdus[128] ={
+static uint8 kbdus[128] ={
 
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
 
@@ -100,7 +100,7 @@ static w_uint8 kbdus[128] ={
 
 /* shift scancodes */
 
-static w_uint8 skbdus[128] ={
+static uint8 skbdus[128] ={
 
     0,  27, '!', '@', '#', '$', '%', '^', '&', '*',	/* 9 */
 
@@ -176,9 +176,9 @@ static w_uint8 skbdus[128] ={
 };
 
 
-static void kbd_callback(struct w_regs regs){
+static void kbd_callback(Registers regs){
 
-	w_uint8 scancode = in_byte(0x60);
+	uint8 scancode = in_byte(0x60);
 
 	if(scancode < 0)
 		return;

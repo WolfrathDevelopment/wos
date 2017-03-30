@@ -10,16 +10,16 @@
 
 struct w_proc* current_proc = NULL;
 struct w_proc proc1;
-struct w_regs init_regs;
+Registers init_regs;
 
 extern struct w_tss current_tss;
-extern w_pde* kernel_page_directory;
-extern w_uint32 next_alloc_address;
-extern w_uint32* core_stack;
-extern w_uint32* init_stack;
+extern PageDirectoryEntry* kernel_page_directory;
+extern uint32 next_alloc_address;
+extern uint32* core_stack;
+extern uint32* init_stack;
 
 // access to this int must be synchronized!
-w_uint32 next_pid = 1;
+uint32 next_pid = 1;
 
 void context_switch(struct w_proc* next){
 
@@ -79,42 +79,41 @@ int fork(){
     pcopy->flags = current_proc->flags;
     pcopy->regs = NULL;
 
-    if( ! PAGE_ALIGNED(next_alloc_address))
-        PAGE_ALIGN(next_alloc_address);
+    next_alloc_address = (uint32)alignAddress(next_alloc_address, PAGE_SIZE);
 
     /* Alloc new page directory */
 
-    w_pde* new_pgdir;
-	w_pte pdpage, nspage, ptpage;
+    PageDirectoryEntry* new_pgdir;
+	PageTableEntry pdpage, nspage, ptpage;
 
-    pdpage = alloc_page_frame(PTE_W | PTE_P);
+    pdpage = alloc_page_frame(PTE_Writable | PTE_Present);
     map_page(kernel_page_directory, next_alloc_address, pdpage);
 
-    new_pgdir = (w_pde*)next_alloc_address;
+    new_pgdir = (PageDirectoryEntry*)next_alloc_address;
     next_alloc_address += 0x1000;
     pcopy->pg_dir = new_pgdir;
 
     /* Allocate a stack */
 
-    w_uint32* new_stack;
-    nspage = alloc_page_frame(PTE_W | PTE_P);
+    uint32* new_stack;
+    nspage = alloc_page_frame(PTE_Writable | PTE_Present);
 
 	/* TEMPORARY MAP */
     map_page(kernel_page_directory, next_alloc_address, nspage);
 
-    new_stack = (w_uint32*)(next_alloc_address);
+    new_stack = (uint32*)(next_alloc_address);
 	next_alloc_address += 0x1000;
 
     /* Copy Stack */
 
-	w_uint32 csaddr = (w_uint32)(&init_stack + 0x400);
-	w_uint32 oesp = get_esp();
+	uint32 csaddr = (uint32)(&init_stack + 0x400);
+	uint32 oesp = get_esp();
 
 	/* We are going to need 1 additional page table... */
 
-	w_pte* new_pgtbl;
-	ptpage = alloc_page_frame(PTE_W | PTE_P);
-	new_pgtbl = (w_pte*)next_alloc_address;
+	PageTableEntry* new_pgtbl;
+	ptpage = alloc_page_frame(PTE_Writable | PTE_Present);
+	new_pgtbl = (PageTableEntry*)next_alloc_address;
 
 	/* TEMPORARY MAP */
 	map_page(kernel_page_directory, next_alloc_address,ptpage);
@@ -122,10 +121,10 @@ int fork(){
 
 	/* Page table for original stack */
 
-	w_pte* old_pgtbl;
-	w_pde opde = kernel_page_directory[ PD_INDEX(csaddr) ];
+	PageTableEntry* old_pgtbl;
+	PageDirectoryEntry opde = kernel_page_directory[ PD_INDEX(csaddr) ];
 
-	old_pgtbl = (w_pte*) KVIRT( PTE_ADDR(opde) );
+	old_pgtbl = (PageTableEntry*) KVIRT( PTE_ADDR(opde) );
 
 	/* Now let's copy page directory, stack, and page table */
 
@@ -134,27 +133,27 @@ int fork(){
 		new_pgdir[i] = kernel_page_directory[i];
 	}
 
-	memcpy((w_int8*)new_pgtbl,(w_uint8*)old_pgtbl, PAGE_SIZE);
-    copy_stack(new_stack, &init_stack + 0x400, oesp);
-	
+	memcpy((uint8*)new_pgtbl,(uint8*)old_pgtbl, PAGE_SIZE);
+    copy_stack(new_stack, (uint32*)(&init_stack + 0x400), oesp);
+
 	/* Alright, NOW remap the stack */
 
-	new_pgdir[ PD_INDEX(csaddr) ] = (w_pde)(ptpage | PTE_A);
-	
+	new_pgdir[ PD_INDEX(csaddr) ] = (PageDirectoryEntry)(ptpage | PTE_Accessed);
+
 	map_page(new_pgdir, csaddr, nspage);
 
-	w_uint32 eip = (w_uint32)&&forkret;
+	uint32 eip = (uint32)&&forkret;
 	oesp = get_esp();
 
 //	for(;;)
 //		;
 
-    copy_stack(new_stack, &init_stack + 0x400, oesp);
-	
+    copy_stack(new_stack, (uint32*)(&init_stack + 0x400), oesp);
+
 	/* UNMAP NEW STACK AND PAGE TABLE */
 
-	//unmap_page(kernel_page_directory, (w_uint32) new_pgtbl);
-	//unmap_page(kernel_page_directory, (w_uint32) new_stack);
+	//unmap_page(kernel_page_directory, (uint32) new_pgtbl);
+	//unmap_page(kernel_page_directory, (uint32) new_stack);
 
 	cli();
 

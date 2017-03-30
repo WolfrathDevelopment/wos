@@ -13,29 +13,29 @@
 
 #include "../core/core.h"
 
-#define INT_PAGEFAULT 	14
-#define INT_PIC			32
-#define IRQ1			33
-#define IRQ2	 		34
-#define IRQ3	 		35
-#define IRQ4	 		36
-#define IRQ5	 		37
-#define IRQ6	 		38
-#define IRQ7	 		39
-#define IRQ8	 		40
-#define IRQ9	 		41
-#define IRQ10	 		42
-#define IRQ11	 		43
-#define IRQ12 			44
-#define IRQ13 			45
-#define IRQ14 			46
-#define IRQ15 			47
+#define INT_PAGEFAULT 	(14)
+#define INT_PIC			(32)
+#define IRQ1			(33)
+#define IRQ2	 		(34)
+#define IRQ3	 		(35)
+#define IRQ4	 		(36)
+#define IRQ5	 		(37)
+#define IRQ6	 		(38)
+#define IRQ7	 		(39)
+#define IRQ8	 		(40)
+#define IRQ9	 		(41)
+#define IRQ10	 		(42)
+#define IRQ11	 		(43)
+#define IRQ12 			(44)
+#define IRQ13 			(45)
+#define IRQ14 			(46)
+#define IRQ15 			(47)
 
-#define SEG_KERNEL_CODE		0x08
-#define SEG_KERNEL_DATA		0x10
-#define SEG_USER_CODE		0x18
-#define SEG_USER_DATA		0x20
-#define SEG_USER_TLS		0x28
+#define SEG_KERNEL_CODE		(0x08)
+#define SEG_KERNEL_DATA		(0x10)
+#define SEG_USER_CODE		(0x18)
+#define SEG_USER_DATA		(0x20)
+#define SEG_USER_TLS		(0x28)
 
 /* Lets skip the overhead for copying a process's registers */
 
@@ -60,50 +60,52 @@
 void init_seg();
 void init_idt();
 
-void set_tss(w_uint32);
+void set_tss(uint32);
 
 /* Models the task state segment */
 
-struct w_tss{
+typedef struct {
 
-	w_uint32 prev_tss;
-	w_uint32 esp0;
-	w_uint32 ss0;
-	w_uint32 esp1;
-	w_uint32 ss1;
-	w_uint32 esp2;
-	w_uint32 ss2;
-	w_uint32 cr3;
-	w_uint32 eip;
-	w_uint32 eflags;
-	w_uint32 eax;
-	w_uint32 ecx;
-	w_uint32 edx;
-	w_uint32 ebx;
-	w_uint32 esp;
-	w_uint32 ebp;
-	w_uint32 esi;
-	w_uint32 edi;
-	w_uint32 es;
-	w_uint32 cs;
-	w_uint32 ss;
-	w_uint32 ds;
-	w_uint32 fs;
-	w_uint32 gs;
-	w_uint32 ldt;
-	w_uint16 trap;
-	w_uint16 iomap_base;
-} __attribute__((packed));
+	uint32 prev_tss;
+	uint32 esp0;
+	uint32 ss0;
+	uint32 esp1;
+	uint32 ss1;
+	uint32 esp2;
+	uint32 ss2;
+	uint32 cr3;
+	uint32 eip;
+	uint32 eflags;
+	uint32 eax;
+	uint32 ecx;
+	uint32 edx;
+	uint32 ebx;
+	uint32 esp;
+	uint32 ebp;
+	uint32 esi;
+	uint32 edi;
+	uint32 es;
+	uint32 cs;
+	uint32 ss;
+	uint32 ds;
+	uint32 fs;
+	uint32 gs;
+	uint32 ldt;
+	uint16 trap;
+	uint16 iomap_base;
 
-struct w_gdte{
+} __attribute__((packed)) TaskStateSegment;
 
-    w_uint16 limit_low;
-    w_uint16 base_low;
-    w_uint8  base_middle;
-    w_uint8  access;
-    w_uint8  granularity;
-    w_uint8  base_high;
-} __attribute__((packed));
+typedef struct {
+
+    uint16 limit_low;
+    uint16 base_low;
+    uint8  base_middle;
+    uint8  access;
+    uint8  granularity;
+    uint8  base_high;
+
+} __attribute__((packed)) GlobalDescTableEntry;
 
 
 /*
@@ -111,37 +113,40 @@ struct w_gdte{
  * Points to beginning of array of w_gdte
  */
 
-struct w_gdtp{
+typedef struct {
 
-    w_uint16 limit;
-    w_uint32 base;			/* Address of the first w_gdte */
-} __attribute__((packed));
+    uint16 limit;
+    uint32 base;			/* Address of the first w_gdte */
+
+} __attribute__((packed)) GlobalDescTablePointer;
 
 
 /* A struct describing an interrupt gate */
 
-struct w_idte{
+typedef struct {
 
-    w_uint16 base_lo;		/* lower 16 bits of jmp address */
-    w_uint16 sel;			/* Kernel segment selector */
-    w_uint8  always0;		
-    w_uint8  flags;
-    w_uint16 base_hi;		/* upper 16 bits of jmp address */
-} __attribute__((packed));
+    uint16 base_lo;		/* lower 16 bits of jmp address */
+    uint16 sel;			/* Kernel segment selector */
+    uint8  always0;		
+    uint8  flags;
+    uint16 base_hi;		/* upper 16 bits of jmp address */
+
+} __attribute__((packed)) InterruptDescTableEntry;
 
 
 /* pointer to an array of interrupt handlers */
 
-struct w_idtp{
+typedef struct {
 
-    w_uint16 limit;
-    w_uint32 base;			/* Address of the first w_idte */
-} __attribute__((packed));
+    uint16 limit;
+    uint32 base;			/* Address of the first w_idte */
+
+} __attribute__((packed)) InterruptDescTablePointer;
 
 /* ASM flush routines */
 
-extern void gdt_flush(struct w_gdtp*);
-extern void idt_flush(struct w_idtp*);
+extern void gdt_flush(GlobalDescTablePointer*) ;
+extern void idt_flush(InterruptDescTablePointer*);
 extern void tss_flush();
 
 /* ISR handlers */
@@ -198,29 +203,30 @@ extern void irq15();
 
 /* Models x86 registers */
 
-struct w_regs{
+typedef struct {
 
 	/* Data segment selector */
 
-	w_uint32 ds;
+	uint32 ds;
 
 	/* Registers pushed from call to pusha */
 
-	w_uint32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
+	uint32 edi, esi, ebp, esp, ebx, edx, ecx, eax;
 
 	/* Interrupt number and error */
 
-	w_uint32 int_no, err_code;
+	uint32 int_no, err_code;
 
 	/* Processor flags */
 
-	w_uint32 eip, cs, eflags, useresp, ss;
-};
+	uint32 eip, cs, eflags, useresp, ss;
+
+} Registers;
 
 /* Generic ISR callback function */
 
-typedef void (*w_isr)(struct w_regs);
+typedef void (*InterruptServiceRoutine)(Registers);
 
-void register_interrupt_handler(w_uint8, w_isr);
+void register_interrupt_handler(uint8, InterruptServiceRoutine);
 
 #endif

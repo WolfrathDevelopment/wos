@@ -6,33 +6,34 @@
  */
 
 #include "mem.h"
+#include "paging.h"
 #include "../core/core.h"
 #include "../util/debug.h"
 
 /* Initial page table(s) */
 
 __attribute__((__aligned__(PAGE_SIZE)))
-w_pte init_pgtbl[NUM_PTE];
+PageTableEntry init_pgtbl[PTE_MAX_ENTRIES];
 
 
 /* Initial page directory */
 
 __attribute__((__aligned__(PAGE_SIZE)))
-w_pde init_pgdir[NUM_PDE];
+PageDirectoryEntry init_pgdir[PDE_MAX_ENTRIES];
 
 
 /* Initial stack */
 
 __attribute__((__aligned__(PAGE_SIZE)))
-w_uint32 init_stack[0x800];
+uint32 init_stack[0x800];
 
 
-w_pde* current_page_directory;
-w_pde* kernel_page_directory;
+PageDirectoryEntry* current_page_directory;
+PageDirectoryEntry* kernel_page_directory;
 
 static void enable_paging(){
 
-	w_uint32 cr0;
+	uint32 cr0;
 
 	// Give cr3 the address of this page directory
 	asm volatile("mov %0, %%cr3":: "r"(current_page_directory));
@@ -51,61 +52,62 @@ static void enable_paging(){
 
 static void disable_paging(){
 
-	w_uint32 cr0;
+	uint32 cr0;
 	asm volatile("mov %%cr0, %0": "=r"(cr0));
 	cr0 &= 0x7FFFFFFF;
 	asm volatile("mov %0, %%cr0":: "r"(cr0));
 }
 
-void set_page_directory(w_pde* dir){
+void set_page_directory(PageDirectoryEntry* dir){
 
 	current_page_directory = dir;
 	enable_paging();
 }
 
-int is_mapped(w_pde* dir, w_uint32 va){
+int is_mapped(PageDirectoryEntry* dir, uint32 va){
 
-	w_pde pde = dir[ PD_INDEX(va) ];
+	int pageDirIndex = getPDEIndex(va);
+	int pageTblIndex = getPTEIndex(va);
 
-	if(pde & PTE_P){
+	PageDirectoryEntry pde = dir[pageDirIndex];
 
-		w_pte* tbl = (w_pte*) KVIRT( PTE_ADDR(pde) );
-		w_pte page = tbl[ PT_INDEX(va) ];
-		
-		if(page & PTE_P)
-			return 1;
+	if(isPtePresent(pde)){
+
+		PageTableEntry* tbl = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
+		PageTableEntry pte = tbl[pageTblIndex];
+
+		return isPagePresent(pte);
 	}
 
-	return 0;
+	return FALSE;
 }
 
 
 /* Map a page to the virtual address in the given page directory */
 
-void map_page(w_pde* dir, w_uint32 va, w_pte page){
+void map_page(PageDirectoryEntry* dir, uint32 va, PageTableEntry page){
 
-	w_pte* table;
-	w_pde pde = dir[ PD_INDEX(va) ];
+	PageTableEntry* table;
+	PageDirectoryEntry pde = dir[ getPDEIndex(va) ];
 
 	if(!pde){
-		PANIC("NO PAGE TABLE");
+		PANIC("NO PAGE TABLE");     // punting for now... need to allocate table
 	}
 
-	table = (w_pte*) KVIRT( PTE_ADDR(pde) );
-
+	table = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
 
 	/* Write the physical page to the page table */
 
-	table[ PT_INDEX(va) ] = page;
+	table[ getPTEIndex(va) ] = page;
 }
 
 
 /* Unmap the page at the given virtual address */
 
-void unmap_page(w_pde* dir, w_uint32 va){
+void unmap_page(PageDirectoryEntry* dir, uint32 va){
 
-	w_pte* table;
-	w_pde pde = dir[ PD_INDEX(va) ];
+	PageTableEntry* table;
+	PageDirectoryEntry pde = dir[ getPDEIndex(va) ];
 
 	if(!pde){
 
@@ -113,17 +115,15 @@ void unmap_page(w_pde* dir, w_uint32 va){
 		return;
 	}
 
-	table = (w_pte*) KVIRT( PTE_ADDR(pde) );
-
+	table = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
 
 	/* Remove the entry in this page table */
 
-	table[ PT_INDEX(va) ] = 0;
+	table[ getPTEIndex(va) ] = 0;
 }
 
 void init_paging(){
 
-	init_lock(&mem_lock);
 	register_interrupt_handler(INT_PAGEFAULT, page_fault_handler);
 
 	kernel_page_directory = init_pgdir;
@@ -136,7 +136,7 @@ void init_paging(){
 	//for(; i < 1024; i++)
 	//	invalidate_page( i * 0x1000 );
 
-	w_uint32 cr3 = (w_uint32)kernel_page_directory;
+	uint32 cr3 = (uint32)kernel_page_directory;
 
 	asm volatile("mov %0, %%cr3":: "r"(KPHYS(cr3)));
 }
@@ -144,15 +144,15 @@ void init_paging(){
 
 /* Flushes this page from the TLB */
 
-void invalidate_page(w_uint32 va){
+void invalidate_page(uint32 va){
 	asm volatile("invlpg (%0)" ::"r" (va) : "memory");
 }
 
-extern w_uint32 debug;
+extern uint32 debug;
 
-void page_fault_handler(struct w_regs regs){
+void page_fault_handler(Registers regs){
 
-	w_uint32 fault_addr;
+	uint32 fault_addr;
 
 	/* cr2 holds fault address */
 

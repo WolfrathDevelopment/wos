@@ -4,16 +4,16 @@
 #define FREQ_FACTOR 	1193180
 #define PIC_INTERVAL 	50
 
-static w_uint32 count = 0;
+static uint32 count = 0;
 
 struct time_node{
 
 	struct time_node* next;
-	w_uint32 elapsed;
-	w_uint32 stop;
+	uint32 elapsed;
+	uint32 stop;
 };
 
-static void pic_callback(struct w_regs regs){
+static void pic_callback(Registers regs){
 
 	count++;
 	if( count > 100){
@@ -29,15 +29,15 @@ void init_pic(){
 	reset_pic(PIC_INTERVAL);
 }
 
-void reset_pic(w_uint32 freq){
+void reset_pic(uint32 freq){
 
-	w_uint32 div = FREQ_FACTOR / freq;
+	uint32 div = FREQ_FACTOR / freq;
 
 	out_byte(0x43, 0x36);
-	out_byte(0x40, (w_uint8)(div & 0xFF));
-	out_byte(0x40, (w_uint8)((div >> 8) & 0xFF));
+	out_byte(0x40, (uint8)(div & 0xFF));
+	out_byte(0x40, (uint8)((div >> 8) & 0xFF));
 }
 
-void register_timer(w_timer_callback callback, w_uint32 milli){
+void register_timer(w_timer_callback callback, uint32 milli){
 
 }

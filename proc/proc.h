@@ -24,11 +24,11 @@ enum thread_system { LINUX, OSX, WIN };
 
 /*
 struct context {
-    w_uint32 edi;
-    w_uint32 esi;
-    w_uint32 ebx;
-    w_uint32 ebp;
-    w_uint32 eip;
+    uint32 edi;
+    uint32 esi;
+    uint32 ebx;
+    uint32 ebp;
+    uint32 eip;
 };
 */
 
@@ -36,13 +36,13 @@ struct context {
 
 struct w_proc{
 
-	w_uint32 pid;
+	uint32 pid;
 	enum thread_state state;
 	enum thread_system sys;
 	struct w_proc* next;
-	w_pde* pg_dir;
-	w_uint32 flags;
-	struct w_regs* regs;
+	PageDirectoryEntry* pg_dir;
+	uint32 flags;
+	Registers* regs;
 }__attribute__((packed));
 
 
@@ -51,8 +51,8 @@ struct w_proc{
 typedef void (*w_timer_callback)();
 
 void init_pic();
-void reset_pic(w_uint32);
-void register_timer(w_timer_callback, w_uint32);
+void reset_pic(uint32);
+void register_timer(w_timer_callback, uint32);
 
 
 /* proc.c */
@@ -73,12 +73,12 @@ void schedule();
 
 /* stack.c */
 
-w_ptr get_eip();
-inline w_uint32 get_esp();
-inline void set_esp(w_uint32);
-inline w_ptr push_regs();
-w_ptr copy_stack(w_uint32*, w_uint32*,w_uint32);
+void* get_eip();
+inline uint32 get_esp();
+inline void set_esp(uint32);
+inline void* push_regs();
+void* copy_stack(uint32*, uint32*,uint32);
 inline void pop_context();
-inline void set_ss(w_uint16);
+inline void set_ss(uint16);
 
 #endif
