@@ -47,16 +47,16 @@ uint16 in_short(uint16 port){
     return val;
 }
 
-inline uint32 read_eflags(void){
+uint32 read_eflags(void){
 	uint32 eflags;
 	asm volatile("pushfl; popl %0" : "=r" (eflags));
 	return eflags;
 }
 
-inline void cli(void){
+void cli(void){
 	asm volatile("cli");
 }
 
-inline void sti(void){
+void sti(void){
 	asm volatile("sti");
 }

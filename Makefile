@@ -28,11 +28,11 @@ SOURCES= 	bootstrap.o \
 			proc/stack.o \
 			main.o
 
-CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector
+CFLAGS=-nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
 
-LDFLAGS=-Tlink.ld
+LDFLAGS=-m elf_i386 -Tlink.ld
 
-ASFLAGS=-felf
+ASFLAGS=-felf32
 
 all: $(SOURCES) link
 
@@ -46,7 +46,7 @@ link:
 	ld -M $(LDFLAGS) -o kernel $(SOURCES) > linker.out
 
 .S.o:
-	$(CC) -c $<
+	$(CC) -c -m32 $<
 
 .s.o:
 	nasm $(ASFLAGS) $<
