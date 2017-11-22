@@ -8,7 +8,7 @@
 #include "core/core.h"
 #include "mm/mem.h"
 #include "drivers/drivers.h"
-#include "util/debug.h"
+#include "debug.h"
 #include "proc/proc.h"
 #include "boot/acpi.h"
 

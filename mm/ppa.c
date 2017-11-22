@@ -9,7 +9,7 @@ PhysicalPageAllocator PPAInstance;
 
 void ppa_init(GrubMultibootInfo * info)
 {
-	ASSERT(info, "Bad pointer ppa_init()");
+	ASSERT(info); // Who gave us NULL?
 
 	// Mark all pages as available initially
 	memset32(PPAInstance.bitmap, 0xFFFFFFFF, MAX_PPA_ENTRIES);
@@ -97,9 +97,8 @@ void free_page(Page currentPage)
 	uint32 map_index = PPA_INDEX(currentPage.frame);
 	uint32 map_offset = PPA_OFFSET(currentPage.frame);
 
-	ASSERT(map_index < MAX_PPA_ENTRIES, "Bad ppa free() address");
-	ASSERT(	! IS_BIT_SET(PPAInstance.bitmap[map_index], map_offset),
-			"Why are we freeing a page never allocated?");
+	ASSERT(map_index < MAX_PPA_ENTRIES);
+	ASSERT(	! IS_BIT_SET(PPAInstance.bitmap[map_index], map_offset)); // Page never allocated?
 
 	CLR_BIT(PPAInstance.bitmap[ map_index ], map_offset);
 }

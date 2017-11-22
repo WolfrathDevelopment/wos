@@ -8,7 +8,7 @@
 #include "mem.h"
 #include "paging.h"
 #include "../core/core.h"
-#include "../util/debug.h"
+#include "debug.h"
 
 /* Initial page table(s) */
 

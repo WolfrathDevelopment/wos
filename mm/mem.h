@@ -12,7 +12,7 @@
 #include "../boot/boot.h"
 #include "../boot/multiboot.h"
 #include "../core/core.h"
-#include "../util/debug.h"
+#include "debug.h"
 #include "../lib/list.h"
 #include "paging.h"
 

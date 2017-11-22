@@ -8,10 +8,10 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "../types.h"
+#include "types.h"
 
-#define CRTPORT 			(0x3D4)
-#define VGA_FRAME_BUF 		(0xB8000)
+#define CRTPORT			(0x000003D4)
+#define VGA_FRAME_BUF 		(0x000B8000)
 
 static inline void * alignAddress(void * addr, uint32 len) {
 

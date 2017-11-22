@@ -9,7 +9,7 @@
 
 #include "../mm/mem.h"
 #include "../boot/boot.h"
-#include "../types.h"
+#include "types.h"
 #include "../core/core.h"
 
 

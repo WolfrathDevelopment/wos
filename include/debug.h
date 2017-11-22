@@ -1,6 +1,6 @@
 /*
  * debug.h
- Joel Wolfrath, 2013
+ * Joel Wolfrath, 2013
  *
  * Standard debugging functions
  */
@@ -18,6 +18,5 @@ void trace_stack(uint32);
 #define DEBUG(x) _debug(x, __FILE__, __LINE__);
 #define PANIC(x) _panic(x, __FILE__, __LINE__);
 #define ASSERT(x) _assert(x, __FILE__, __LINE__);
-#define ASSERT(x,y) _assert(((int32)x), __FILE__, __LINE__);
 
 #endif

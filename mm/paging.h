@@ -2,14 +2,14 @@
 #define __WOS_PAGING_H
 
 #include "mem.h"
-#include "../types.h"
+#include "types.h"
 #include "../core/core.h"
 
 /* Paging sizes */
 
 #define PDE_MAX_ENTRIES		(0x400)
 #define PTE_MAX_ENTRIES		(0x400)
-#define PAGE_SIZE			(0x1000)
+#define PAGE_SIZE		(0x1000)
 #define MAX_MEM_SIZE		(0x2000000) // 32 MB for now
 
 /* Page directory and table index */

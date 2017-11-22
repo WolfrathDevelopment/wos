@@ -38,13 +38,11 @@ void _debug(char* msg, char* f, uint32 ln){
 void _panic(char* msg, char* f, uint32 ln){
 
 	printf("\nPANIC (%s at line %d)> %s", f, ln, msg);
-	for(;;)
-		;
+	for(;;);
 }
 
 void _assert(int32 exp, char* f, uint32 ln){
 
-	if(!exp)
-		_panic("Assertion Failed",f,ln);
+	if(!exp) _panic("Assertion Failed",f,ln);
 }
 

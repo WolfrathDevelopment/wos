@@ -1,2 +1,3 @@
 *.o
+compile.out
 linker.out
