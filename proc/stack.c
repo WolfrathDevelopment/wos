@@ -5,7 +5,7 @@
  * Implementation of stack operations
  */
 
-#include "proc.h"
+#include <proc/proc.h>
 
 void* get_eip(){
 
@@ -21,7 +21,7 @@ void* get_eip(){
  * If we want the current esp, we better not have
  * stack overhead from a function call...
  */
-
+/*
 __attribute__((always_inline)) uint32 get_esp(){
 
     uint32 esp;
@@ -49,7 +49,7 @@ __attribute__((always_inline)) void* push_regs(){
     asm volatile("pusha");
     asm volatile("push %ds");
 }
-
+*/
 void* copy_stack(uint32* ns, uint32* cs, uint32 esp){
 
     int i;
@@ -59,7 +59,7 @@ void* copy_stack(uint32* ns, uint32* cs, uint32 esp){
 
     return (void*)(((uint32)ns) + (esp - ((uint32)cs)));
 }
-
+/*
 __attribute__((always_inline)) void pop_context(){
 
     asm volatile("popl %ebx");
@@ -72,3 +72,4 @@ __attribute__((always_inline)) void pop_context(){
     asm volatile("sti");
     asm volatile("iret");
 }
+*/

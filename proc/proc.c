@@ -5,8 +5,9 @@
  * Implements task functions
  */
 
-#include "proc.h"
-#include "../core/core.h"
+#include <proc/proc.h>
+#include <lib/core.h>
+#include <lib/string.h>
 
 struct w_proc* current_proc = NULL;
 struct w_proc proc1;

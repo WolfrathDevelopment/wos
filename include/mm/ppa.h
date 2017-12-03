@@ -1,10 +1,10 @@
 #ifndef WOS_PPA_H
 #define WOS_PPA_H
 
-#include "../boot/multiboot.h"
-#include "debug.h"
-#include "mem.h"
-#include "paging.h"
+#include <boot/multiboot.h>
+#include <lib/debug.h>
+#include <mm/mem.h>
+#include <mm/paging.h>
 
 /* This will come out evenly provied sane values of MAX_MEM_SIZE */
 #define MAX_PPA_ENTRIES ((MAX_MEM_SIZE / PAGE_SIZE) / 32)

@@ -8,7 +8,7 @@
  *	ISR/IRQ Handlers
  */
 
-#include "boot.h"
+#include <boot/boot.h>
 
 static void set_gdt(int, uint32, uint32, uint8, uint8);
 static void set_idt(uint8, uint32, uint16, uint8);
@@ -34,14 +34,14 @@ extern InterruptServiceRoutine	interrupt_handlers[];
 
 /* Segment flags */
 
-#define SEG_P     	(0x80)		/* Is Present? 			*/
-#define SEG_TSS		(0x01)		/* Is TSS? 				*/
-#define SEG_SEG		(0x10)		/* Is Segment? 			*/
-#define SEG_X		(0x08)		/* Executable? 			*/
-#define SEG_W		(0x02)		/* Writable? 			*/
+#define SEG_P     	(0x80)		/* Is Present? 		*/
+#define SEG_TSS		(0x01)		/* Is TSS? 		*/
+#define SEG_SEG		(0x10)		/* Is Segment? 		*/
+#define SEG_X		(0x08)		/* Executable? 		*/
+#define SEG_W		(0x02)		/* Writable? 		*/
 	
-#define SEG_AVAIL	(0x10)		/* Is Available? 		*/
-#define SEG_32		(0x40)		/* Is 32 bit? 			*/
+#define SEG_AVAIL	(0x10)		/* Is Available? 	*/
+#define SEG_32		(0x40)		/* Is 32 bit? 		*/
 #define SEG_GBYTE	(0x00)		/* Granularity byte?	*/
 #define SEG_GPAGE	(0x80)		/* Granularity page?	*/
 

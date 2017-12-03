@@ -1,6 +1,6 @@
-#include "ppa.h"
-#include "../core/core.h"
-#include "../util/bitmap.h"
+#include <mm/ppa.h>
+#include <lib/core.h>
+#include <lib/bitmap.h>
 
 #define PPA_INDEX(pa)	((pa / PAGE_SIZE) / 32)
 #define PPA_OFFSET(pa)	((pa / PAGE_SIZE) % 32)

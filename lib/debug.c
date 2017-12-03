@@ -5,7 +5,7 @@
  * Implementation of debug functions
  */
 
-#include "debug.h"
+#include <lib/debug.h>
 
 void trace_stack(uint32 frames){
 

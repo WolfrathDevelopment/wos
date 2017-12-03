@@ -5,7 +5,7 @@
  * Linked list function implementations
  */
 
-#include "list.h"
+#include <lib/list.h>
 
 extern uint32 debug;
 

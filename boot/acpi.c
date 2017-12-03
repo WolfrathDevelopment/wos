@@ -5,10 +5,10 @@
  * Implementation of ACPI functions
  */
 
-#include "acpi.h"
-#include "../mm/mem.h"
-#include "../mm/paging.h"
-#include "../core/core.h"
+#include <boot/acpi.h>
+#include <mm/mem.h>
+#include <mm/paging.h>
+#include <lib/core.h>
 
 extern uint32 next_alloc_address;
 extern PageDirectoryEntry* kernel_page_directory;

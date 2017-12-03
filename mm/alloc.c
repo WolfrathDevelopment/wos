@@ -5,7 +5,7 @@
  * The allocator.  Functions used for allocating pages
  */
 
-#include "mem.h"
+#include <mm/mem.h>
 
 #define ADDR_INDEX(x)			( x / 0x20000 )
 #define ADDR_OFFSET(x)			( x % 0x20 )

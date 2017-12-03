@@ -5,21 +5,26 @@
  * Definitions for main C code
  */
 
-#include "core/core.h"
-#include "mm/mem.h"
-#include "drivers/drivers.h"
-#include "debug.h"
-#include "proc/proc.h"
-#include "boot/acpi.h"
+#include <lib/core.h>
+#include <mm/mem.h>
+#include <drivers/drivers.h>
+#include <lib/debug.h>
+#include <proc/proc.h>
+#include <boot/acpi.h>
 
 extern PageDirectoryEntry*	kernel_page_directory;
 extern PageTableEntry		init_pgtbl[];
-extern struct w_tss			current_tss;
+extern struct w_tss		current_tss;
 extern struct w_proc*		current_proc;
 
 uint32* core_stack;
 
 int main(uint32* ebp, GrubMultibootInfo* mboot_ptr){
+
+	/* Set up segments */
+	init_seg();
+	init_idt();
+	sti();
 
 	clear_screen();
 	void* addr = read_mmap(mboot_ptr);
@@ -33,10 +38,6 @@ int main(uint32* ebp, GrubMultibootInfo* mboot_ptr){
 
 	//init_acpi();
 
-	/* Set up segments */
-	init_seg();
-	init_idt();
-	sti();
 
 	kbd_install();
 

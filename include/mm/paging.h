@@ -1,9 +1,9 @@
 #ifndef __WOS_PAGING_H
 #define __WOS_PAGING_H
 
-#include "mem.h"
-#include "types.h"
-#include "../core/core.h"
+#include <mm/mem.h>
+#include <types.h>
+#include <lib/core.h>
 
 /* Paging sizes */
 
@@ -24,11 +24,11 @@ static inline int getPTEIndex(void * virtualAddress){
 
 /* Get address/flags out of page table or directory */
 
-#define PTE_ADDR(pte)			(pte & ~0xFFF)
-#define PTE_FLAGS(pte)			(pte & 0xFFF)
+#define PTE_ADDR(pte)	(pte & ~0xFFF)
+#define PTE_FLAGS(pte)	(pte & 0xFFF)
 
-#define FLAG_ALIGN			    (0x1)
-#define FLAG_NOALIGN			(0x0)
+#define FLAG_ALIGN	(0x1)
+#define FLAG_NOALIGN	(0x0)
 
 typedef uint32	PageDirectoryEntry;
 typedef uint32	PageTableEntry;
@@ -39,7 +39,7 @@ typedef union
 	{
 		uint32 present	: 1;	// Is the page physically there?
 		uint32 writable	: 1;	// Can we write to the page?
-		uint32 user		: 1;	// Can user level code access the page?
+		uint32 user	: 1;	// Can user level code access the page?
 		uint32 accessed	: 1;	// Has the page been accessed recently?
 		uint32 dirty	: 1;	// Has the page been written to recently?
 		uint32 unused	: 7;	//

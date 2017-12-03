@@ -5,7 +5,7 @@
  * Impelentation of basic io functions on x86
  */
 
-#include "core.h"
+#include <lib/core.h>
 
 /*
  * Here is a use of inline assembly.  Syntax is as follows:
@@ -16,14 +16,6 @@
  *         : list of clobbered registers     
  *        );
  */
-
-void zero(void* addr, size_t size){
-	
-	uint8* it = addr;
-
-	while(size--)
-		*it++ = 0;
-}
 
 /* Write a byte to the specified port */
 void out_byte(uint16 port, uint8 val){
@@ -47,16 +39,3 @@ uint16 in_short(uint16 port){
     return val;
 }
 
-uint32 read_eflags(void){
-	uint32 eflags;
-	asm volatile("pushfl; popl %0" : "=r" (eflags));
-	return eflags;
-}
-
-void cli(void){
-	asm volatile("cli");
-}
-
-void sti(void){
-	asm volatile("sti");
-}

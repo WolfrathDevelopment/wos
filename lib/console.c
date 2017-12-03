@@ -5,14 +5,14 @@
  * Impelentation of console functions
  */
 
-#include "core.h"
-#include "../mm/mem.h"
+#include <lib/core.h>
+#include <mm/mem.h>
 
 #define COLOR_WHITE 	15
-#define COLOR_BLACK		 0
+#define COLOR_BLACK	 0
 
-#define NUM_ROWS 		25
-#define NUM_COLS 		80
+#define NUM_ROWS 	25
+#define NUM_COLS 	80
 
 static short cursor_x = 0;
 static short cursor_y = 0;

@@ -9,12 +9,12 @@
 #ifndef MEM_H
 #define MEM_H
 
-#include "../boot/boot.h"
-#include "../boot/multiboot.h"
-#include "../core/core.h"
-#include "debug.h"
-#include "../lib/list.h"
-#include "paging.h"
+#include <boot/boot.h>
+#include <boot/multiboot.h>
+#include <lib/core.h>
+#include <lib/debug.h>
+#include <lib/list.h>
+#include <mm/paging.h>
 
 extern uint32 kern_start;
 extern uint32 kern_end;

@@ -5,7 +5,7 @@
  * Implementation of keyboard functions
  */
 
-#include "drivers.h"
+#include <drivers/drivers.h>
 
 #define CAPS_LOCK 		58
 #define BACKSPACE 		14

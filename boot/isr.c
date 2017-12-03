@@ -5,8 +5,8 @@
  * Default implementaion of ISR functions
  */
 
-#include "boot.h"
-#include "../proc/proc.h"
+#include <boot/boot.h>
+#include <proc/proc.h>
 
 
 /* THE interrupt table */

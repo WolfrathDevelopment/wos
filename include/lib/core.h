@@ -8,7 +8,7 @@
 #ifndef CORE_H
 #define CORE_H
 
-#include "types.h"
+#include <types.h>
 
 #define CRTPORT			(0x000003D4)
 #define VGA_FRAME_BUF 		(0x000B8000)
@@ -27,13 +27,26 @@ static inline void * alignAddress(void * addr, uint32 len) {
 
 /* io.c */
 
-void zero(void*, size_t);
 void out_byte(uint16 port, uint8 val);
 uint8 in_byte(uint16 port);
 uint16 in_short(uint16 port);
-inline uint32 read_eflags(void);
-inline void cli(void);
-inline void sti(void);
+
+inline uint32 read_eflags(void)
+{
+	uint32 eflags;
+	asm volatile("pushfl; popl %0" : "=r" (eflags));
+	return eflags;	
+}
+
+static inline void cli(void)
+{
+	asm volatile("cli");
+}
+
+static inline void sti(void)
+{
+	asm volatile("sti");
+}
 
 /* console.c */
 
@@ -45,16 +58,5 @@ void put_string(char *);
 void put_hex(uint32);
 void put_decimal(uint32);
 void clear_screen();
-
-
-/* string.c */
-
-void memcpy(uint8 *, const uint8 *, size_t);
-void memset(uint8 *, uint8, size_t);
-void memset32(uint32 *, uint32, size_t);
-int memcmp(uint8*, uint8*, size_t);
-int32 strcmp(char *, char *);
-void strcpy(char *, const char *);
-char *strcat(char *, const char *);
 
 #endif

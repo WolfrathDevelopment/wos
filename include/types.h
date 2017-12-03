@@ -9,7 +9,6 @@
 #ifndef __OS_TYPES_H
 #define __OS_TYPES_H
 
-
 /* Null is a useful definition to have */
 
 #define NULL    ((void*)0)
@@ -24,13 +23,13 @@
 
 /* Shortened unsigned types */
 
-typedef char				int8;
+typedef char			int8;
 typedef unsigned char		uint8;
-typedef short				int16;
+typedef short			int16;
 typedef unsigned short		uint16;
-typedef int					int32;
+typedef int			int32;
 typedef unsigned int		uint32;
-typedef long long			int64;
+typedef long long		int64;
 typedef unsigned long long	uint64;
 
 typedef uint32	size_t;

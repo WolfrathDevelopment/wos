@@ -1,5 +1,5 @@
 
-#include "proc.h"
+#include <proc/proc.h>
 
 /*
 extern uint32 next_pid;

@@ -1,5 +1,5 @@
 
-#include "proc.h"
+#include <proc/proc.h>
 
 #define FREQ_FACTOR 	1193180
 #define PIC_INTERVAL 	50

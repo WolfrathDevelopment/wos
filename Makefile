@@ -3,58 +3,53 @@
 # Makefile for the kernel
 #
 
-ifeq ($(MAKE),)
-MAKE= make
-endif
-
-ifeq ($(RM),)
-RM= rm
-endif
-
 CC= gcc
-CFLAGS= -c -I include/ -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
 
-LD= ld
-LDFLAGS=-T link.ld -m elf_i386
+SOURCES= 	bootstrap.o \
+		boot/acpi.o \
+		boot/interrupt.o \
+		boot/isr.o \
+		boot/gdt.o \
+		boot/init_tables.o \
+		lib/console.o \
+		lib/io.o \
+		lib/string.o \
+		mm/mmap.o \
+		mm/paging.o \
+		mm/alloc.o \
+		mm/kheap.o \
+		mm/ppa.o \
+		lib/list.o \
+		lib/debug.o \
+		drivers/kbd.o \
+		proc/pic.o \
+		proc/proc.o \
+		proc/syscall.o \
+		proc/scheduler.o \
+		proc/stack.o \
+		proc/thread.o \
+		main.o
 
-NASM= nasm
-ASMFLAGS= -felf32
+CFLAGS=-I include/ -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
 
-SOURCES= $(shell find * -type f -name '*.[cSs]')
-OBJECTS= $(patsubst %.c,%.o, \
-			$(patsubst %.s,%.o, \
-				$(patsubst %.S, %.o,$(SOURCES))))
+LDFLAGS=-m elf_i386 -Tlink.ld
 
-OUTPUT= kernel
-OUTFILE=compile.out
-LINKEROUT=linker.out
+ASFLAGS=-felf32
 
-.PHONY: all clean
+all: $(SOURCES) link
 
-all: $(SOURCES) $(OUTPUT)
-	@echo "Done."
+clean:
+	find . -type f -name "*.o" -print0 | xargs -0 rm -rf
+	rm kernel 
 
 # -M to linker for printout
 
-$(OUTPUT): $(OBJECTS)
-	@echo "Linking..."
-	$(LD) $(LDFLAGS) -M -o $@ $(OBJECTS) >> $(LINKEROUT) 2>&1
-	@- $(RM) $(OBJECTS)
-
-.c.o:
-	@echo "CC $<"
-	@$(CC) $(CFLAGS) $< -o $@ >> $(OUTFILE) 2>&1
+link:
+	ld -M $(LDFLAGS) -o kernel $(SOURCES) > linker.out
 
 .S.o:
-	@echo "CC $<"
-	@$(CC) -c -m32 $< >> $(OUTFILE) 2>&1
+	$(CC) -c -m32 $<
 
 .s.o:
-	@echo "NASM $<"
-	@$(NASM) $(ASMFLAGS) $< >> $(OUTFILE) 2>&1
+	nasm $(ASFLAGS) $<
 
-clean:
-	@- $(RM) $(OBJECTS)
-	@- $(RM) $(OUTPUT)
-	@- $(RM) $(OUTFILE)
-	@- $(RM) $(LINKEROUT)

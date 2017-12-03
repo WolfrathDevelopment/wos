@@ -5,10 +5,10 @@
  * Implementation of paging functions
  */
 
-#include "mem.h"
-#include "paging.h"
-#include "../core/core.h"
-#include "debug.h"
+#include <mm/mem.h>
+#include <mm/paging.h>
+#include <lib/core.h>
+#include <lib/debug.h>
 
 /* Initial page table(s) */
 

@@ -5,8 +5,8 @@
  * Implementation of syscall functions
  */
 
-#include "syscall.h"
-#include "../boot/boot.h"
+#include <proc/syscall.h>
+#include <boot/boot.h>
 
 static void sys_handler(Registers* regs){
 
@@ -18,5 +18,5 @@ static void sys_handler(Registers* regs){
 
 void init_syscalls(){
 
-	register_interrupt_handler(0x80,&sys_handler);
+//	register_interrupt_handler(0x80,&sys_handler);
 }

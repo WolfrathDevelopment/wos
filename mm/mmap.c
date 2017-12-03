@@ -6,7 +6,7 @@
  * GRUB memory map
  */
 
-#include "mem.h"
+#include <mm/mem.h>
 
 /* Macro to combine two 32 bit numbers into 64 bits */
 

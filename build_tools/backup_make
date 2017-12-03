@@ -1,0 +1,58 @@
+#
+# Joel Wolfrath, 2014
+# Makefile for the kernel
+#
+
+ifeq ($(MAKE),)
+MAKE= make
+endif
+
+ifeq ($(RM),)
+RM= rm
+endif
+
+CC= gcc
+CFLAGS= -c -I include/ -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
+
+LD= ld
+LDFLAGS=-T link.ld -m elf_i386
+
+NASM= nasm
+ASMFLAGS= -felf32
+
+SOURCES= $(shell find * -type f -name '*.[cSs]')
+OBJECTS= $(patsubst %.c,%.o, \
+			$(patsubst %.s,%.o, \
+				$(patsubst %.S, %.o,$(SOURCES))))
+
+OUTPUT= kernel
+OUTFILE=compile.out
+LINKEROUT=linker.out
+
+.PHONY: all clean
+
+all: $(SOURCES) $(OUTPUT)
+	@echo "Done."
+
+$(OUTPUT): $(OBJECTS)
+	@echo "Linking..."
+	$(LD) $(LDFLAGS) -M -o $@ $(OBJECTS) >> $(LINKEROUT) 2>&1
+	@- $(RM) $(OBJECTS)
+
+.c.o:
+	@echo "CC $<"
+	@$(CC) $(CFLAGS) $< -o $@ >> $(OUTFILE) 2>&1
+
+.S.o:
+	@echo "CC $<"
+	@$(CC) -c -m32 $< >> $(OUTFILE) 2>&1
+
+.s.o:
+	@echo "NASM $<"
+	@$(NASM) $(ASMFLAGS) $< >> $(OUTFILE) 2>&1
+
+clean:
+	@- $(RM) $(OBJECTS)
+	@- $(RM) $(OUTPUT)
+	@- $(RM) $(OUTFILE)
+	@- $(RM) $(LINKEROUT)

@@ -11,9 +11,10 @@
 #ifndef BOOT_H
 #define BOOT_H
 
-#include "../core/core.h"
+#include <lib/core.h>
+#include <lib/string.h>
 
-#define INT_PAGEFAULT 	(14)
+#define INT_PAGEFAULT 		(14)
 #define INT_PIC			(32)
 #define IRQ1			(33)
 #define IRQ2	 		(34)
@@ -116,7 +117,7 @@ typedef struct {
 typedef struct {
 
     uint16 limit;
-    uint32 base;			/* Address of the first w_gdte */
+    uint32 base;		/* Address of the first w_gdte */
 
 } __attribute__((packed)) GlobalDescTablePointer;
 
@@ -139,7 +140,7 @@ typedef struct {
 typedef struct {
 
     uint16 limit;
-    uint32 base;			/* Address of the first w_idte */
+    uint32 base;		/* Address of the first w_idte */
 
 } __attribute__((packed)) InterruptDescTablePointer;
 

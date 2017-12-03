@@ -1,5 +1,5 @@
 
-#include "proc.h"
+#include <proc/proc.h>
 
 extern struct w_proc* current_proc;
 

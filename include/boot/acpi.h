@@ -8,7 +8,7 @@
 #ifndef ACPI_H
 #define ACPI_H
 
-#include "types.h"
+#include <types.h>
 
 
 /* Signatures for ACPI descriptor tables */

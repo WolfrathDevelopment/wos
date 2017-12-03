@@ -5,9 +5,8 @@
  * Impelentation of basic string functions
  */
 
-#include "core.h"
-
-/* Copy length bytes from src to dest */
+#include <lib/string.h>
+#include <lib/debug.h>
 
 void memcpy(uint8 *dest, const uint8 *src, size_t len){
 
@@ -18,20 +17,25 @@ void memcpy(uint8 *dest, const uint8 *src, size_t len){
 		*dp++ = *sp++;
 }
 
-/* Write many copies of val to dest */
+void memset(uint8 *dst, uint8 val, size_t len)
+{
+	ASSERT(dst);
 
-void memset(uint8 *dest, uint8 val, size_t many){
-
-	uint8 *temp = (uint8 *)dest;
-	while(many--)
+	uint8 *temp = (uint8 *)dst;
+	while(len--)
 		*temp++ = val;
 }
 
-void memset32(uint32 *dest, uint32 val, size_t cnt){
+void memset32(uint32 *dst, uint32 val, size_t len)
+{
+	ASSERT(dst);
 
-	uint32 *temp = (uint32 *)dest;
-	while(cnt--)
+	uint32 *temp = (uint32 *)dst;
+	do
+	{
 		*temp++ = val;
+		len -= sizeof(uint32);
+	} while(len);
 }
 
 int memcmp(uint8* one, uint8* two, size_t len){
@@ -47,8 +51,6 @@ int memcmp(uint8* one, uint8* two, size_t len){
 
 	return 0;
 }
-
-/* Compare two strings. Returns 0 if equal, else 1 */
 
 int strcmp(char *str1, char *str2){
 
@@ -68,16 +70,12 @@ int strcmp(char *str1, char *str2){
 	return 0;
 }
 
-/* Copy the NULL-terminated string src to dest */
-
 void strcpy(char *dest, const char *src){
 
 	do{
 		*dest++ = *src++;
 	}while (*src != 0);
 }
-
-/* Concatenate src to the end of dest */
 
 char *strcat(char *dest, const char *src){
 
@@ -91,3 +89,20 @@ char *strcat(char *dest, const char *src){
 
     return dest;
 }
+
+
+void zero(void* addr, size_t size)
+{
+	ASSERT( addr );
+
+	if(size % sizeof(uint32))
+	{
+		memset(addr, 0, size);
+	}
+	else
+	{
+		memset32(addr, 0, size);
+	}
+	
+}
+

@@ -6,7 +6,7 @@
  */
 
 
-#include "mem.h"
+#include <mm/mem.h>
 
 /* Initial kernel heap */
 

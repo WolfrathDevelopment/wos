@@ -8,8 +8,8 @@
 #ifndef DRIVERS_H
 #define DRIVERS_H
 
-#include "../core/core.h"
-#include "../boot/boot.h"
+#include <lib/core.h>
+#include <boot/boot.h>
 
 /* kbd.c */
 
