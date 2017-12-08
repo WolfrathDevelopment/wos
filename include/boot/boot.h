@@ -228,6 +228,6 @@ typedef struct {
 
 typedef void (*InterruptServiceRoutine)(Registers);
 
-void register_interrupt_handler(uint8, InterruptServiceRoutine);
+void register_isr(uint8 index, InterruptServiceRoutine routine);
 
 #endif

@@ -51,9 +51,9 @@ extern InterruptServiceRoutine	interrupt_handlers[];
 
 void set_tss(uint32 esp){
 
-    current_tss.esp0 = esp;
-    current_tss.cs   = 0x08; // 0x0b for user mode
-    current_tss.ss = current_tss.ds = current_tss.es = 0x10; 
+	current_tss.esp0 = esp;
+	current_tss.cs   = 0x08; // 0x0b for user mode
+	current_tss.ss = current_tss.ds = current_tss.es = 0x10; 
 	current_tss.fs = current_tss.gs = 0x10; // 0x13 for user mode ^
 }
 

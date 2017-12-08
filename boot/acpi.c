@@ -29,8 +29,8 @@ void init_acpi(){
 
 	/* We need to find the RSDP... */
 
-	RootSystemDescPointer*	rsdp_ptr = NULL;
-	RootSystemDescTable*	rsdt_ptr = NULL;
+	RootSystemDescPointer * rsdp_ptr = NULL;
+	RootSystemDescTable * rsdt_ptr = NULL;
 
 	int8* start = (int8*) 0x000E0000;
 	int8* end = (int8*) 0x000FFFFF;
@@ -49,11 +49,11 @@ void init_acpi(){
 			if(!validateChecksum(start, sizeof(RootSystemDescPointer))){
 
 				rsdp_ptr = (RootSystemDescPointer*) start;
-       			printf("sig: %s\n", rsdp_ptr->signature);
-        		printf("checksum: %p\n", (uint32)rsdp_ptr->checksum);
-       			printf("oemid: %s\n", rsdp_ptr->oemid);
-        		printf("rev: %p\n", (uint32)rsdp_ptr->rev);
-        		printf("rsdt_addr: 0x%p\n", rsdp_ptr->rsdt_addr);
+       				printf("sig: %s\n", rsdp_ptr->signature);
+        			printf("checksum: %p\n", (uint32)rsdp_ptr->checksum);
+       				printf("oemid: %s\n", rsdp_ptr->oemid);
+        			printf("rev: %p\n", (uint32)rsdp_ptr->rev);
+        			printf("rsdt_addr: 0x%p\n", rsdp_ptr->rsdt_addr);
 
 			}
 		}
@@ -66,7 +66,7 @@ void init_acpi(){
 		return;
 	}
 
-	rsdt_ptr = KVIRT(rsdp_ptr->rsdt_addr);
+	rsdt_ptr = (RootSystemDescTable *) KVIRT(rsdp_ptr->rsdt_addr);
 	uint32 rsdt = (uint32)rsdt;
 
 	if(!is_mapped(kernel_page_directory, rsdt)){
@@ -82,7 +82,7 @@ void init_acpi(){
 			PageTableEntry page = alloc_page_frame(PTE_Present | PTE_Writable);
 			map_page(kernel_page_directory,next_alloc_address,page);
 			kernel_page_directory[PD_INDEX(rsdt)] = page;
-			zero(next_alloc_address, 0x1000);
+			zero((void*)next_alloc_address, 0x1000);
 			next_alloc_address+=0x1000;
 		}
 

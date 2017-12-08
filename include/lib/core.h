@@ -13,17 +13,8 @@
 #define CRTPORT			(0x000003D4)
 #define VGA_FRAME_BUF 		(0x000B8000)
 
-static inline void * alignAddress(void * addr, uint32 len) {
-
-    uint32 alignedAddr = (uint32) addr;
-    uint32 mod = alignedAddr % len;
-
-    if(mod){
-        alignedAddr = (alignedAddr - mod) + len;
-    }
-
-    return (void *) alignedAddr;
-}
+# define ALIGN(value, boundary) \
+	( (typeof(value)) ((((uint32)value) + (boundary-1)) & ~(boundary-1)))
 
 /* io.c */
 

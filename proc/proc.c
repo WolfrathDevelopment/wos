@@ -80,7 +80,7 @@ int fork(){
     pcopy->flags = current_proc->flags;
     pcopy->regs = NULL;
 
-    next_alloc_address = (uint32)alignAddress(next_alloc_address, PAGE_SIZE);
+    next_alloc_address = (uint32) ALIGN(next_alloc_address, PAGE_SIZE);
 
     /* Alloc new page directory */
 

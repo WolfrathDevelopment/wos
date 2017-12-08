@@ -66,8 +66,8 @@ void set_page_directory(PageDirectoryEntry* dir){
 
 int is_mapped(PageDirectoryEntry* dir, uint32 va){
 
-	int pageDirIndex = getPDEIndex(va);
-	int pageTblIndex = getPTEIndex(va);
+	int pageDirIndex = PDE_INDEX(va);
+	int pageTblIndex = PTE_INDEX(va);
 
 	PageDirectoryEntry pde = dir[pageDirIndex];
 
@@ -88,7 +88,7 @@ int is_mapped(PageDirectoryEntry* dir, uint32 va){
 void map_page(PageDirectoryEntry* dir, uint32 va, PageTableEntry page){
 
 	PageTableEntry* table;
-	PageDirectoryEntry pde = dir[ getPDEIndex(va) ];
+	PageDirectoryEntry pde = dir[ PDE_INDEX(va) ];
 
 	if(!pde){
 		PANIC("NO PAGE TABLE");     // punting for now... need to allocate table
@@ -98,7 +98,7 @@ void map_page(PageDirectoryEntry* dir, uint32 va, PageTableEntry page){
 
 	/* Write the physical page to the page table */
 
-	table[ getPTEIndex(va) ] = page;
+	table[ PTE_INDEX(va) ] = page;
 }
 
 
@@ -107,7 +107,7 @@ void map_page(PageDirectoryEntry* dir, uint32 va, PageTableEntry page){
 void unmap_page(PageDirectoryEntry* dir, uint32 va){
 
 	PageTableEntry* table;
-	PageDirectoryEntry pde = dir[ getPDEIndex(va) ];
+	PageDirectoryEntry pde = dir[ PDE_INDEX(va) ];
 
 	if(!pde){
 
@@ -119,12 +119,12 @@ void unmap_page(PageDirectoryEntry* dir, uint32 va){
 
 	/* Remove the entry in this page table */
 
-	table[ getPTEIndex(va) ] = 0;
+	table[ PTE_INDEX(va) ] = 0;
 }
 
 void init_paging(){
 
-	register_interrupt_handler(INT_PAGEFAULT, page_fault_handler);
+	register_isr(INT_PAGEFAULT, page_fault_handler);
 
 	kernel_page_directory = init_pgdir;
 

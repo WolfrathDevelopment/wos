@@ -250,5 +250,5 @@ static void kbd_callback(Registers regs){
 
 void kbd_install(){
 
-	register_interrupt_handler(IRQ1, &kbd_callback);
+	register_isr(IRQ1, &kbd_callback);
 }

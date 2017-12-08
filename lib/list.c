@@ -30,7 +30,7 @@ struct w_listnode* list_remove(struct w_listnode* head, struct w_listnode* node)
 	/* Sanity check */
 
 	if(del == NULL)
-		return;
+		return NULL;
 
     if(del == node){
 

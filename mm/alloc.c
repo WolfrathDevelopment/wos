@@ -112,7 +112,7 @@ void init_alloc(GrubMultibootInfo* mbt){
 		if(mmap->type == 1){
 
 			uint32 addr = mmap->base_addr_low;
-			addr = alignAddress(addr, PAGE_SIZE);
+			addr = ALIGN(addr, PAGE_SIZE);
 
 			for(i=addr; i<addr + mmap->length_low; i+=0x1000){
 

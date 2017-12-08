@@ -25,7 +25,7 @@ static void pic_callback(Registers regs){
 
 void init_pic(){
 
-	register_interrupt_handler(INT_PIC, &pic_callback);
+	register_isr(INT_PIC, &pic_callback);
 	reset_pic(PIC_INTERVAL);
 }
 

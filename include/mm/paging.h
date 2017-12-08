@@ -14,13 +14,8 @@
 
 /* Page directory and table index */
 
-static inline int getPDEIndex(void * virtualAddress){
-	return ((uint32)virtualAddress) >> 22;
-}
-
-static inline int getPTEIndex(void * virtualAddress){
-	return (((uint32)virtualAddress) >> 22) & 0x3FF;
-}
+#define PDE_INDEX(va) ((typeof(va)) (((uint32)va) >> 22))
+#define PTE_INDEX(va) ((typeof(va)) ((((uint32)va) >> 22) & 0x3FF))
 
 /* Get address/flags out of page table or directory */
 

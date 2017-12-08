@@ -55,22 +55,22 @@ int main(uint32* ebp, GrubMultibootInfo* mboot_ptr){
 	init_kheap();
 
     	/* Heap test allocations */
-	//uint32* n1, *n2, *n3;
-	//n1 = kalloc(sizeof(uint32));
-	//n2 = kalloc(sizeof(uint32));
-	//n3 = kalloc(sizeof(uint32));
+	uint32* n1, *n2, *n3;
+	n1 = kalloc(sizeof(uint32));
+	n2 = kalloc(sizeof(uint32));
+	n3 = kalloc(sizeof(uint32));
 
-	//*n1 = *n2 = *n3 = 256;
+	*n1 = *n2 = *n3 = 256;
 
-	//printf("New int value: 0x%p at addr: 0x%p\n",*n1, n1);
+	printf("New int value: 0x%p at addr: 0x%p\n",*n1, n1);
 
-	//kfree((uint32)n1);
-	//kfree((uint32)n2);
-	//kfree((uint32)n3);
+	kfree((uint32)n1);
+	kfree((uint32)n2);
+	kfree((uint32)n3);
 
 	// Lets cause a page fault!!!
-	//uint *ptr = (uint*)0x00a00000;
-   	//uint do_page_fault = *ptr;
+	uint32 *ptr = (uint32*)0x00a00000;
+   	uint32 do_page_fault = *ptr;
 
 //	begin_multitasking();
 	//init_pic(50);

@@ -30,7 +30,7 @@ void init_kheap(){
 	/* Allocate first heap page at end of kernel binary */
 
 	PageTableEntry phys_page = alloc_page_frame( PTE_Present | PTE_Writable );
-	uint32 end = (uint32) alignAddress(&kern_end, PAGE_SIZE);
+	uint32 end = (uint32) ALIGN(&kern_end, PAGE_SIZE);
 
 	uint32 heap_start = KVIRT( end );
 

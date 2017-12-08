@@ -24,7 +24,7 @@ void ppa_init(GrubMultibootInfo * info)
 		if(mmap->type == GRUB_MMAP_AVAILABLE)
 		{
 			uint32 base_addr = mmap->base_addr_low;
-			base_addr = alignAddress(base_addr, PAGE_SIZE);
+			base_addr = ALIGN(base_addr, PAGE_SIZE);
 
 			// TODO Use pointer arithmetic
 			uint32 max_addr = base_addr + mmap->length_low;

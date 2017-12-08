@@ -21,9 +21,9 @@ extern struct w_proc* current_proc;
 
 /* Add interrupt handler to interrupt table */
 
-void register_interrupt_handler(uint8 n, InterruptServiceRoutine handler){
-
-	interrupt_handlers[n] = handler;
+void register_isr(uint8 index, InterruptServiceRoutine handler)
+{
+	interrupt_handlers[index] = handler;
 }
 
 

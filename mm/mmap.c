@@ -100,7 +100,7 @@ void* kmalloc(uint32 size, int align){
 
 			if(align){
 
-                addr = alignAddress(addr, PAGE_SIZE);
+				addr = ALIGN(addr, PAGE_SIZE);
 
 				if(addr + length > mem_length)
 					continue;
