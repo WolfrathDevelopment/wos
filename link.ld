@@ -12,32 +12,31 @@ OUTPUT_ARCH(i386)
 ENTRY(start)
 SECTIONS
 {
-    /* Define the start of the kernel binary */
+  /* Define the start of the kernel binary */
 
-	PROVIDE(kern_start = 0x100000);
+  PROVIDE(kern_start = 0x100000);
+
+  . = 0xC0100000;
+
+  .text : AT(ADDR(.text) - 0xC0000000) {
+    code = .;
+    *(.text)
+    *(.rodata*)
+  }
+
+  .data ALIGN (0x1000) : AT(ADDR(.data) - 0xC0000000) {
+    *(.data)
+  }
+
+  .bss : AT(ADDR(.bss) - 0xC0000000) {
+    bss = .;
+    *(.bss)
+  }
+
+  end = .;
 
 
-	. = 0xC0100000;
+  /* Define the end of the kernel binary */
 
-	.text : AT(ADDR(.text) - 0xC0000000) {
-		code = .;
-		*(.text)
-		*(.rodata*)
-	}
-
-	.data ALIGN (0x1000) : AT(ADDR(.data) - 0xC0000000) {
-		*(.data)
-	}
-
-	.bss : AT(ADDR(.bss) - 0xC0000000) {
-		bss = .;
-		*(.bss)
-	}
-
-	end = .;
-
-
-	/* Define the end of the kernel binary */
-
-	PROVIDE(kern_end = . - 0xC0000000);
+  PROVIDE(kern_end = . - 0xC0000000);
 }

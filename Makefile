@@ -28,6 +28,8 @@ SOURCES= 	bootstrap.o \
 		proc/scheduler.o \
 		proc/stack.o \
 		proc/thread.o \
+    io/bus.o \
+    io/mmio.o \
 		main.o
 
 CFLAGS=-I include/ -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
