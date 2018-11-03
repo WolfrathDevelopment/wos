@@ -1,3 +1,5 @@
+#include <lib/string.h>
+
 #ifndef __OS_MMIO_H
 #define __OS_MMIO_H
 
@@ -9,6 +11,6 @@ typedef enum {
 
 } MmioDevice;
 
-int write_device_bytes(MmioDevice device, uint8* data, uint32 offset, uint32 length);
+OsRc write_device_bytes(MmioDevice device, uint8* data, uint32 offset, uint32 length);
 
 #endif /* __OS_MMIO_H */

@@ -1,28 +1,20 @@
 /*
  * kbd.c
- Joel Wolfrath, 2013
+ * Joel Wolfrath, 2013
  *
  * Implementation of keyboard functions
  */
 
+#include <arch/regs.h>
+#include <boot/isr.h>
 #include <drivers/drivers.h>
-
-#define CAPS_LOCK 		58
-#define BACKSPACE 		14
-#define LEFT_SHIFT		42
-#define RIGHT_SHIFT 	54
-#define LEFT_ARROW 		75
-#define RIGHT_ARROW 	77
-#define UP_ARROW 		72
-#define DOWN_ARROW 		80
-#define DELETE_KEY 		83
-#define ENTER_KEY 		28
+#include <io/bus.h>
 
 #define X_DIR 			1
 #define Y_DIR 			0
 
-static uint16 _shift=0;
-static uint16 c_lock = 0;
+static uint32 SHIFT_ENABLED = 0;
+static uint32 CAPS_LOCK_PRESS_COUNT = 0;
 
 /* standard scancodes */
 
@@ -175,77 +167,82 @@ static uint8 skbdus[128] ={
     0,	/* All other keys are undefined */
 };
 
-
 static void kbd_callback(Registers regs){
 
-	uint8 scancode = in_byte(0x60);
+  uint8_t scancode = read_io_bus(IO_BUS_KBD_SCANCODE_REG);
 
-	if(scancode < 0)
-		return;
+  if(scancode & KBD_KEY_RELEASE_MASK) {
 
-	if(scancode & 0x80){
+    /* key was released, get original value */
+    scancode &= ~KBD_KEY_RELEASE_MASK;
 
-		/* key was released, adjust scancode */
+    if(scancode == KBD_SC_LEFT_SHIFT ||
+       scancode == KBD_SC_RIGHT_SHIFT) {
 
-		scancode -= 0x80;
+      SHIFT_ENABLED = FALSE;
+    }
+    else if(scancode == KBD_SC_CAPS_LOCK && 
+            CAPS_LOCK_PRESS_COUNT == 2) {
 
-		if(scancode == LEFT_SHIFT || scancode == RIGHT_SHIFT)
-			_shift=0;
-		else if(scancode == CAPS_LOCK && c_lock == 2)
-			c_lock = 0;
-	}
-	else{
+      CAPS_LOCK_PRESS_COUNT = 0;
+    }
+  }
+  else{
 
-		/* key was pressed */
+    /* key was pressed */
 
-		switch(scancode){
+    switch(scancode){
 
-		case DELETE_KEY:
+    case KBD_SC_DELETE_KEY:
 
-			put_char(' ');
-			move_cursor(-1, X_DIR);
-			break;
+      put_char(' ');
+      move_cursor(-1, X_DIR);
+      break;
 
-		case LEFT_ARROW:
+    case KBD_SC_LEFT_ARROW:
 
-			move_cursor(-1, X_DIR);
-			break;
+      move_cursor(-1, X_DIR);
+      break;
 
-		case RIGHT_ARROW:
+    case KBD_SC_RIGHT_ARROW:
 
-			move_cursor(1, X_DIR);
-			break;
+      move_cursor(1, X_DIR);
+      break;
 
-		case DOWN_ARROW:
+    case KBD_SC_DOWN_ARROW:
 
-			move_cursor(1, Y_DIR);
-			break;
+      move_cursor(1, Y_DIR);
+      break;
 
-		case UP_ARROW:
+    case KBD_SC_UP_ARROW:
 
-			move_cursor(-1, Y_DIR);
-			break;
+      move_cursor(-1, Y_DIR);
+      break;
 
-		case LEFT_SHIFT:
-		case RIGHT_SHIFT:
+    case KBD_SC_LEFT_SHIFT:
+    case KBD_SC_RIGHT_SHIFT:
 
-			_shift = 1;
-			break;
+      SHIFT_ENABLED = TRUE;	
+      break;
 
-		case CAPS_LOCK:
+    case KBD_SC_CAPS_LOCK:
 			
-			c_lock++;
-			break;
+      CAPS_LOCK_PRESS_COUNT++;
+      break;
 
-		default:
+    default:
 
-			if(_shift || c_lock)
-				put_char(skbdus[scancode]);
-			else
-				put_char(kbdus[scancode]);
-			break;
-		}
-	}
+      if(SHIFT_ENABLED ||
+         CAPS_LOCK_PRESS_COUNT > 0) {
+
+        put_char(skbdus[scancode]);
+      }
+      else {
+        put_char(kbdus[scancode]);
+      }
+      break;
+    }
+  }
 }
 
 void kbd_install(){

@@ -5,12 +5,12 @@
  * Definitions for main C code
  */
 
+#include <boot/isr.h>
 #include <lib/core.h>
 #include <mm/mem.h>
 #include <drivers/drivers.h>
-#include <lib/debug.h>
+#include <tools/debug.h>
 #include <proc/proc.h>
-#include <boot/acpi.h>
 
 extern PageDirectoryEntry*	kernel_page_directory;
 extern PageTableEntry		init_pgtbl[];
@@ -35,9 +35,6 @@ int main(uint32* ebp, GrubMultibootInfo* mboot_ptr){
 	//printf("OEMID: %s\n",rsdp->oemid);
 	//printf("revision: %p\n",rsdp->rev);
 	//printf("rsdt_addr: %p\n",rsdp->rsdt_addr);
-
-	//init_acpi();
-
 
 	kbd_install();
 

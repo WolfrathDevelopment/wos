@@ -1,7 +1,7 @@
 megs: 32
 romimage: file=/home/jwolf/Downloads/bochs-2.6.9/bios/BIOS-bochs-latest
 vgaromimage: file=/home/jwolf/Downloads/bochs-2.6.9/bios/VGABIOS-lgpl-latest
-floppya: 1_44=/dev/loop0, status=inserted
+floppya: 1_44=/dev/loop255, status=inserted
 boot: a
 log: bochsout.txt
 mouse: enabled=0

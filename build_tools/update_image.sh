@@ -1,6 +1,6 @@
 #!/bin/bash
-sudo losetup /dev/loop0 floppy.img
-sudo mount /dev/loop0 /mnt
+sudo losetup /dev/loop255 floppy.img
+sudo mount /dev/loop255 /mnt
 sudo cp ../kernel /mnt/kernel
-sudo umount /dev/loop0
-sudo losetup -d /dev/loop0 
+sudo umount /dev/loop255
+sudo losetup -d /dev/loop255 

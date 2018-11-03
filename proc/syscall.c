@@ -5,8 +5,10 @@
  * Implementation of syscall functions
  */
 
+#include <arch/regs.h>
 #include <proc/syscall.h>
 #include <boot/boot.h>
+#include <boot/isr.h>
 
 static void sys_handler(Registers* regs){
 

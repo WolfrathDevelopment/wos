@@ -5,10 +5,12 @@
  * Implementation of paging functions
  */
 
+#include <types.h>
+#include <boot/isr.h>
 #include <mm/mem.h>
 #include <mm/paging.h>
 #include <lib/core.h>
-#include <lib/debug.h>
+#include <tools/debug.h>
 
 /* Initial page table(s) */
 
@@ -160,7 +162,7 @@ void page_fault_handler(Registers regs){
 
 	//trace_stack(5);
 	printf("Page fault at 0x%p! eip=%p\n", fault_addr,regs.eip);
-	PANIC("Unhandled exception!")
+	PANIC("Unhandled exception!");
 
 	int exist = !(regs.err_code & 0x1);
 	int rw = regs.err_code & 0x2;

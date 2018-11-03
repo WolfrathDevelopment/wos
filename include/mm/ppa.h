@@ -2,7 +2,7 @@
 #define WOS_PPA_H
 
 #include <boot/multiboot.h>
-#include <lib/debug.h>
+#include <tools/debug.h>
 #include <mm/mem.h>
 #include <mm/paging.h>
 

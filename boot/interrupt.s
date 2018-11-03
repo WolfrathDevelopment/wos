@@ -85,7 +85,7 @@ IRQ  13,    45
 IRQ  14,    46
 IRQ  15,    47
 
-extern isr_handler
+extern global_isr_handler
 
 ; Common ISR handler
 
@@ -101,7 +101,7 @@ isr_common_stub:
     mov fs, ax
     mov gs, ax
 
-    call isr_handler
+    call global_isr_handler
 
     pop ebx				; reload original data segment
     mov ds, bx

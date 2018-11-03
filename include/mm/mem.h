@@ -9,13 +9,15 @@
 #ifndef MEM_H
 #define MEM_H
 
+#include <arch/regs.h>
 #include <boot/boot.h>
 #include <boot/multiboot.h>
 #include <lib/core.h>
-#include <lib/debug.h>
+#include <tools/debug.h>
 #include <lib/list.h>
 #include <mm/paging.h>
 
+/* Linker provides these values */
 extern uint32 kern_start;
 extern uint32 kern_end;
 

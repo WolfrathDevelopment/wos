@@ -2,35 +2,31 @@
 #include <io/mmio.h>
 #include <lib/string.h>
 
-static uint8* MmioAddressMap[MaxDevices] = {
-  (uint8*) NULL,          /* Invalid device */
-  (uint8*) 0x000B8000     /* VGA frame buffer (console) */
+static uint8_t* MmioAddressMap[MaxDevices] = {
+
+    (uint8*) NULL,          /* Invalid device */
+    (uint8*) 0x000B8000     /* VGA frame buffer (console) */
 };
 
-int write_device_bytes(MmioDevice device, uint8* data, uint32 offset, uint32 length)
+OsRc write_device_bytes(MmioDevice device, uint8_t* data, uint32_t offset, size_t length)
 {
-  int rc = 0;
+    OsRc rc = RC_SUCCESS;
 
-  if(!data)
-  {
-    rc = 1;
-  }
-  else if(!length)
-  {
-    rc = 2;
-  }
-  else if(device == Invalid || device >= MaxDevices)
-  {
-    rc = 3;
-  }
-  else
-  {
-    uint8* mmioAddress = MmioAddressMap[device];
-    if(mmioAddress)
+    if(!data ||
+       !length ||
+       device == Invalid ||
+       device >= MaxDevices)
     {
-      memcpy(mmioAddress + offset, data, length);
+        rc = RC_INVALID_PARM;
     }
-  }
+    else
+    {
+        uint8_t* mmioAddress = MmioAddressMap[device];
+        if(mmioAddress)
+        {
+            memcpy(mmioAddress + offset, data, length);
+        }
+    }
 
-  return rc;
+    return rc;
 }

@@ -6,103 +6,61 @@
  */
 
 #include <lib/string.h>
-#include <lib/debug.h>
+#include <tools/debug.h>
 
-void memcpy(uint8 *dest, const uint8 *src, size_t len){
+void memcpy(void* dst, const void* src, size_t len)
+{
+    const uint8_t *sptr = (const uint8_t*) src;
+    uint8_t *dptr = (uint8 *)dst;
 
-	const uint8 *sp = (const uint8 *)src;
-	uint8 *dp = (uint8 *)dest;
-
-	while(len--)
-		*dp++ = *sp++;
+    while(len--)
+    {
+        *dptr++ = *sptr++;
+    }
 }
 
-void memset(uint8 *dst, uint8 val, size_t len)
+void memset(uint8_t* dst, uint8_t val, size_t len)
 {
-	ASSERT(dst);
-
-	uint8 *temp = (uint8 *)dst;
-	while(len--)
-		*temp++ = val;
+    uint8_t* temp = (uint8_t*)dst;
+    while(len--)
+    {
+        *temp++ = val;
+    }
 }
 
-void memset32(uint32 *dst, uint32 val, size_t len)
+void memset32(uint32_t* dst, uint32_t val, size_t len)
 {
-	ASSERT(dst);
+    ASSERT(len % sizeof(uint32) == 0); // Called wrong memset!
 
-	uint32 *temp = (uint32 *)dst;
-	do
+	uint32_t* temp = (uint32_t*)dst;
+    for(; len != 0; len -= sizeof(uint32_t))
 	{
 		*temp++ = val;
-		len -= sizeof(uint32);
-	} while(len);
-}
-
-int memcmp(uint8* one, uint8* two, size_t len){
-	
-	int i=0;
-	while(i < len){
-		
-		if(one[i] != two[i])
-			return 1;
-
-		i++;
 	}
-
-	return 0;
 }
 
-int strcmp(char *str1, char *str2){
-
-	int i = 0;
-
-	if(ARRAYSIZE(str1) != ARRAYSIZE(str2))
-		return 1;
-
-	while(str1[i] != '\0' && str2[i] != '\0'){
-
-		if(str1[i] != str2[i]){
-			return 1;
-		}
-		i++;
-	}
-  	
-	return 0;
-}
-
-void strcpy(char *dest, const char *src){
-
-	do{
-		*dest++ = *src++;
-	}while (*src != 0);
-}
-
-char *strcat(char *dest, const char *src){
-
-    while (*dest != 0){
-        *dest = *dest++;
+int32_t memcmp(uint8_t* m1, uint8_t* m2, size_t len)
+{	
+    int32_t i = 0;
+    for(; i < len; i++)
+    {	
+        if(m1[i] != m2[i])
+        {
+            return 1;
+        }
     }
 
-    do{
-        *dest++ = *src++;
-    }while (*src != 0);
-
-    return dest;
+    return 0;
 }
 
-
-void zero(void* addr, size_t size)
+void zero(void* dst, size_t len)
 {
-	ASSERT( addr );
-
-	if(size % sizeof(uint32))
-	{
-		memset(addr, 0, size);
-	}
-	else
-	{
-		memset32(addr, 0, size);
-	}
-	
+    if(len % sizeof(uint32_t))
+    {
+        memset(dst, 0, len);
+    }
+    else
+    {
+        memset32(dst, 0, len);
+    }
 }
-

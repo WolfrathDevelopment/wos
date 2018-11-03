@@ -1,6 +1,6 @@
 00000000000i[      ] Bochs x86 Emulator 2.6.9
 00000000000i[      ]   Built from SVN snapshot on April 9, 2017
-00000000000i[      ] Compiled on Nov  2 2017 at 20:49:49
+00000000000i[      ] Compiled on Nov  3 2018 at 17:42:06
 00000000000i[      ] System configuration
 00000000000i[      ]   processors: 1 (cores=1, HT threads=1)
 00000000000i[      ]   A20 line support: yes
@@ -31,7 +31,7 @@
 00000000000i[      ]   Sound support: no
 00000000000i[      ]   USB support: no
 00000000000i[      ]   VGA extension support: vbe
-00000000000i[MEM0  ] allocated memory at 0x7f3e5de15010. after alignment, vector=0x7f3e5de16000
+00000000000i[MEM0  ] allocated memory at 0x7f10321f0010. after alignment, vector=0x7f10321f1000
 00000000000i[MEM0  ] 32.00MB
 00000000000i[MEM0  ] mem block size = 0x00020000, blocks=256
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('/home/jwolf/Downloads/bochs-2.6.9/bios/BIOS-bochs-latest')
@@ -41,7 +41,7 @@
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Thu Dec  7 21:35:28 2017 (time0=1512704128)
+00000000000i[CMOS  ] Setting initial clock to: Sat Nov  3 18:25:36 2018 (time0=1541287536)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
@@ -58,7 +58,7 @@
 00000000000i[PLUGIN] init_dev of 'floppy' plugin device by virtual method
 00000000000i[DMA   ] channel 2 used by Floppy Drive
 00000000000e[FLOPPY] cannot determine media geometry, trying to use defaults
-00000000000i[FLOPPY] fd0: '/dev/loop0' ro=0, h=2,t=80,spt=18
+00000000000i[FLOPPY] fd0: '/dev/loop255' ro=0, h=2,t=80,spt=18
 00000000000i[FLOPPY] Using boot sequence floppy, none, none
 00000000000i[FLOPPY] Floppy boot signature check is enabled
 00000000000i[PLUGIN] init_dev of 'acpi' plugin device by virtual method
@@ -176,31 +176,31 @@
 00001500227i[BXVGA ] VBE known Display Interface b0c0
 00001500259i[BXVGA ] VBE known Display Interface b0c5
 00001503184i[VBIOS ] VBE Bios $Id: vbe.c,v 1.65 2014/07/08 18:02:25 vruppert Exp $
-00070808961i[XGUI  ] charmap update. Font is 9 x 16
-10396421747i[BIOS  ] Booting from 0000:7c00
-10405978051i[BIOS  ] int13_harddisk: function 41, unmapped device for ELDL=80
-10405981729i[BIOS  ] int13_harddisk: function 08, unmapped device for ELDL=80
-10405985391i[BIOS  ] *** int 15h function AX=00c0, BX=0000 not yet supported!
-24561696000i[      ] cpu loop quit, shutting down simulator
-24561696000i[CPU0  ] CPU is in protected mode (active)
-24561696000i[CPU0  ] CS.mode = 32 bit
-24561696000i[CPU0  ] SS.mode = 32 bit
-24561696000i[CPU0  ] EFER   = 0x00000000
-24561696000i[CPU0  ] | EAX=00000000  EBX=c010cff8  ECX=c00b8000  EDX=c0107328
-24561696000i[CPU0  ] | ESP=c010ced8  EBP=c010cee0  ESI=00053c9d  EDI=00053c9e
-24561696000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af PF cf
-24561696000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
-24561696000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] |  DS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] |  SS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] |  ES:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] |  FS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] |  GS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-24561696000i[CPU0  ] | EIP=c01069bb (c01069bb)
-24561696000i[CPU0  ] | CR0=0xe0000011 CR2=0x00a00000
-24561696000i[CPU0  ] | CR3=0x0010f000 CR4=0x00000000
-24561696000i[CPU0  ] 0xc01069bb>> jmp .-2 (0xc01069bb) : EBFE
-24561696000i[CMOS  ] Last time is 1512710268 (Thu Dec  7 23:17:48 2017)
-24561696000i[XGUI  ] Exit
-24561696000i[      ] restoring default signal behavior
-24561696000i[SIM   ] quit_sim called with exit code 1
+00082097893i[XGUI  ] charmap update. Font is 9 x 16
+08627244417i[BIOS  ] Booting from 0000:7c00
+08636800714i[BIOS  ] int13_harddisk: function 41, unmapped device for ELDL=80
+08636804392i[BIOS  ] int13_harddisk: function 08, unmapped device for ELDL=80
+08636808054i[BIOS  ] *** int 15h function AX=00c0, BX=0000 not yet supported!
+09588280000i[      ] cpu loop quit, shutting down simulator
+09588280000i[CPU0  ] CPU is in protected mode (active)
+09588280000i[CPU0  ] CS.mode = 32 bit
+09588280000i[CPU0  ] SS.mode = 32 bit
+09588280000i[CPU0  ] EFER   = 0x00000000
+09588280000i[CPU0  ] | EAX=00000000  EBX=c010912c  ECX=00000f21  EDX=c010750c
+09588280000i[CPU0  ] | ESP=c010dec8  EBP=c010ded0  ESI=c010dff8  EDI=00053c9e
+09588280000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af pf cf
+09588280000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
+09588280000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] |  DS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] |  SS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] |  ES:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] |  FS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] |  GS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09588280000i[CPU0  ] | EIP=c010693a (c010693a)
+09588280000i[CPU0  ] | CR0=0xe0000011 CR2=0x00a00000
+09588280000i[CPU0  ] | CR3=0x00110000 CR4=0x00000000
+09588280000i[CPU0  ] 0xc010693a>> jmp .-2 (0xc010693a) : EBFE
+09588280000i[CMOS  ] Last time is 1541289933 (Sat Nov  3 19:05:33 2018)
+09588280000i[XGUI  ] Exit
+09588280000i[      ] restoring default signal behavior
+09588280000i[SIM   ] quit_sim called with exit code 1

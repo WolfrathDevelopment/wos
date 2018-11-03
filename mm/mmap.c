@@ -69,7 +69,7 @@ void map_kernel(){
 		entry->length_low-=length;
 	}
 	else{
-		PANIC("Failed to map kernel")
+		PANIC("Failed to map kernel");
 	}
 }
 

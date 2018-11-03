@@ -5,34 +5,33 @@
 
 CC= gcc
 
-SOURCES= 	bootstrap.o \
-		boot/acpi.o \
-		boot/interrupt.o \
-		boot/isr.o \
-		boot/gdt.o \
-		boot/init_tables.o \
-		lib/console.o \
-		lib/io.o \
-		lib/string.o \
-		mm/mmap.o \
-		mm/paging.o \
-		mm/alloc.o \
-		mm/kheap.o \
-		mm/ppa.o \
-		lib/list.o \
-		lib/debug.o \
-		drivers/kbd.o \
-		proc/pic.o \
-		proc/proc.o \
-		proc/syscall.o \
-		proc/scheduler.o \
-		proc/stack.o \
-		proc/thread.o \
-    io/bus.o \
-    io/mmio.o \
-		main.o
+SOURCES=bootstrap.o \
+        boot/interrupt.o \
+        boot/isr.o \
+        boot/gdt.o \
+        boot/init_tables.o \
+        lib/console.o \
+        lib/io.o \
+        lib/string.o \
+        mm/mmap.o \
+        mm/paging.o \
+        mm/alloc.o \
+        mm/kheap.o \
+        mm/ppa.o \
+        lib/list.o \
+        tools/debug.o \
+        drivers/kbd.o \
+        proc/pic.o \
+        proc/proc.o \
+        proc/syscall.o \
+        proc/scheduler.o \
+        proc/stack.o \
+        proc/thread.o \
+        io/bus.o \
+        io/mmio.o \
+        main.o
 
-CFLAGS=-I include/ -nostdlib -nostdinc -fno-builtin -fno-stack-protector -m32
+CFLAGS=-I include/ -nostdlib -nostdinc -fpic -fno-builtin -fno-stack-protector -m32
 
 LDFLAGS=-m elf_i386 -Tlink.ld
 

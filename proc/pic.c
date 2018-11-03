@@ -1,4 +1,5 @@
-
+#include <arch/regs.h>
+#include <boot/isr.h>
 #include <proc/proc.h>
 
 #define FREQ_FACTOR 	1193180
