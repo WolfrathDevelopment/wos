@@ -6,6 +6,7 @@
 CC= gcc
 
 SOURCES=bootstrap.o \
+        arch/spinlock.o \
         boot/interrupt.o \
         boot/isr.o \
         boot/gdt.o \
@@ -31,7 +32,7 @@ SOURCES=bootstrap.o \
         io/mmio.o \
         main.o
 
-CFLAGS=-I include/ -nostdlib -nostdinc -fpic -fno-builtin -fno-stack-protector -m32
+CFLAGS=-I include/ -nostdlib -nostdinc -fno-pic -fno-builtin -fno-stack-protector -m32
 
 LDFLAGS=-m elf_i386 -Tlink.ld
 

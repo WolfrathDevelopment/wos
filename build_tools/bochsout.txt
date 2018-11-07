@@ -31,9 +31,9 @@
 00000000000i[      ]   Sound support: no
 00000000000i[      ]   USB support: no
 00000000000i[      ]   VGA extension support: vbe
-00000000000i[MEM0  ] allocated memory at 0x7f10321f0010. after alignment, vector=0x7f10321f1000
-00000000000i[MEM0  ] 32.00MB
-00000000000i[MEM0  ] mem block size = 0x00020000, blocks=256
+00000000000i[MEM0  ] allocated memory at 0x7ff3f9863010. after alignment, vector=0x7ff3f9864000
+00000000000i[MEM0  ] 64.00MB
+00000000000i[MEM0  ] mem block size = 0x00020000, blocks=512
 00000000000i[MEM0  ] rom at 0xfffe0000/131072 ('/home/jwolf/Downloads/bochs-2.6.9/bios/BIOS-bochs-latest')
 00000000000i[PLUGIN] init_dev of 'pci' plugin device by virtual method
 00000000000i[DEV   ] i440FX PMC present at device 0, function 0
@@ -41,7 +41,7 @@
 00000000000i[DEV   ] PIIX3 PCI-to-ISA bridge present at device 1, function 0
 00000000000i[PLUGIN] init_dev of 'cmos' plugin device by virtual method
 00000000000i[CMOS  ] Using local time for initial clock
-00000000000i[CMOS  ] Setting initial clock to: Sat Nov  3 18:25:36 2018 (time0=1541287536)
+00000000000i[CMOS  ] Setting initial clock to: Tue Nov  6 18:17:36 2018 (time0=1541549856)
 00000000000i[PLUGIN] init_dev of 'dma' plugin device by virtual method
 00000000000i[DMA   ] channel 4 used by cascade
 00000000000i[PLUGIN] init_dev of 'pic' plugin device by virtual method
@@ -141,8 +141,8 @@
 00000318050i[KBD   ] reset-disable command received
 00000320819i[BIOS  ] Starting rombios32
 00000321257i[BIOS  ] Shutdown flag 0
-00000321840i[BIOS  ] ram_size=0x02000000
-00000322261i[BIOS  ] ram_end=32MB
+00000321840i[BIOS  ] ram_size=0x04000000
+00000322261i[BIOS  ] ram_end=64MB
 00000334399i[BIOS  ] Found 1 cpu(s)
 00000347983i[BIOS  ] bios_table_addr: 0x000f9cd8 end=0x000fcc00
 00000675778i[PCI   ] i440FX PMC write to PAM register 59 (TLB Flush)
@@ -168,39 +168,39 @@
 00001347940i[PCI   ] setting SMRAM control register to 0x0a
 00001362806i[BIOS  ] MP table addr=0x000f9db0 MPC table addr=0x000f9ce0 size=0xc8
 00001364628i[BIOS  ] SMBIOS table addr=0x000f9dc0
-00001366809i[BIOS  ] ACPI tables: RSDP addr=0x000f9ee0 ACPI DATA addr=0x01ff0000 size=0xf72
-00001370021i[BIOS  ] Firmware waking vector 0x1ff00cc
+00001366809i[BIOS  ] ACPI tables: RSDP addr=0x000f9ee0 ACPI DATA addr=0x03ff0000 size=0xf72
+00001370021i[BIOS  ] Firmware waking vector 0x3ff00cc
 00001371816i[PCI   ] i440FX PMC write to PAM register 59 (TLB Flush)
 00001372539i[BIOS  ] bios_table_cur_addr: 0x000f9f04
 00001500156i[VBIOS ] VGABios $Id: vgabios.c,v 1.76 2013/02/10 08:07:03 vruppert Exp $
 00001500227i[BXVGA ] VBE known Display Interface b0c0
 00001500259i[BXVGA ] VBE known Display Interface b0c5
 00001503184i[VBIOS ] VBE Bios $Id: vbe.c,v 1.65 2014/07/08 18:02:25 vruppert Exp $
-00082097893i[XGUI  ] charmap update. Font is 9 x 16
-08627244417i[BIOS  ] Booting from 0000:7c00
-08636800714i[BIOS  ] int13_harddisk: function 41, unmapped device for ELDL=80
-08636804392i[BIOS  ] int13_harddisk: function 08, unmapped device for ELDL=80
-08636808054i[BIOS  ] *** int 15h function AX=00c0, BX=0000 not yet supported!
-09588280000i[      ] cpu loop quit, shutting down simulator
-09588280000i[CPU0  ] CPU is in protected mode (active)
-09588280000i[CPU0  ] CS.mode = 32 bit
-09588280000i[CPU0  ] SS.mode = 32 bit
-09588280000i[CPU0  ] EFER   = 0x00000000
-09588280000i[CPU0  ] | EAX=00000000  EBX=c010912c  ECX=00000f21  EDX=c010750c
-09588280000i[CPU0  ] | ESP=c010dec8  EBP=c010ded0  ESI=c010dff8  EDI=00053c9e
-09588280000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af pf cf
-09588280000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
-09588280000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] |  DS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] |  SS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] |  ES:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] |  FS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] |  GS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
-09588280000i[CPU0  ] | EIP=c010693a (c010693a)
-09588280000i[CPU0  ] | CR0=0xe0000011 CR2=0x00a00000
-09588280000i[CPU0  ] | CR3=0x00110000 CR4=0x00000000
-09588280000i[CPU0  ] 0xc010693a>> jmp .-2 (0xc010693a) : EBFE
-09588280000i[CMOS  ] Last time is 1541289933 (Sat Nov  3 19:05:33 2018)
-09588280000i[XGUI  ] Exit
-09588280000i[      ] restoring default signal behavior
-09588280000i[SIM   ] quit_sim called with exit code 1
+00060392941i[XGUI  ] charmap update. Font is 9 x 16
+08779946497i[BIOS  ] Booting from 0000:7c00
+08789502794i[BIOS  ] int13_harddisk: function 41, unmapped device for ELDL=80
+08789506472i[BIOS  ] int13_harddisk: function 08, unmapped device for ELDL=80
+08789510134i[BIOS  ] *** int 15h function AX=00c0, BX=0000 not yet supported!
+09036392000i[      ] cpu loop quit, shutting down simulator
+09036392000i[CPU0  ] CPU is in protected mode (active)
+09036392000i[CPU0  ] CS.mode = 32 bit
+09036392000i[CPU0  ] SS.mode = 32 bit
+09036392000i[CPU0  ] EFER   = 0x00000000
+09036392000i[CPU0  ] | EAX=00000000  EBX=c010cff8  ECX=c00b8000  EDX=c0107219
+09036392000i[CPU0  ] | ESP=c010ced8  EBP=c010cee0  ESI=00053c9d  EDI=00053c9e
+09036392000i[CPU0  ] | IOPL=0 id vip vif ac vm rf nt of df if tf SF zf af PF cf
+09036392000i[CPU0  ] | SEG sltr(index|ti|rpl)     base    limit G D
+09036392000i[CPU0  ] |  CS:0008( 0001| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] |  DS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] |  SS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] |  ES:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] |  FS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] |  GS:0010( 0002| 0|  0) 00000000 ffffffff 1 1
+09036392000i[CPU0  ] | EIP=c010655c (c010655c)
+09036392000i[CPU0  ] | CR0=0xe0000011 CR2=0x00a00000
+09036392000i[CPU0  ] | CR3=0x0010f000 CR4=0x00000000
+09036392000i[CPU0  ] 0xc010655c>> jmp .-2 (0xc010655c) : EBFE
+09036392000i[CMOS  ] Last time is 1541552115 (Tue Nov  6 18:55:15 2018)
+09036392000i[XGUI  ] Exit
+09036392000i[      ] restoring default signal behavior
+09036392000i[SIM   ] quit_sim called with exit code 1

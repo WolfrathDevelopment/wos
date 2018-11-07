@@ -58,7 +58,6 @@ void begin_multitasking(){
 
     /* Lets create a kernel clean-up thread */
 
-    proc1.sys = LINUX;
     proc1.pg_dir = kernel_page_directory;
     proc1.pid = next_pid++;
     proc1.flags = 0;

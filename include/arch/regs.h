@@ -2,7 +2,7 @@
  * regs.h
  * Joel Wolfrath, 2013
  *
- * Defines register stack frame 
+ * Register definitions
  */
 
 #include <types.h>
@@ -12,8 +12,8 @@
 
 /* Models x86 registers */
 
-typedef struct {
-
+typedef struct
+{
     /* Data segment selector */
 
     uint32_t ds;
@@ -31,5 +31,12 @@ typedef struct {
     uint32_t eip, cs, eflags, useresp, ss;
 
 } Registers;
+
+/* Caller instruction pointer is 4 bytes above ebp */
+FORCE_INLINE static inline uint32_t get_caller_eip()
+{
+    register uint32_t ebp asm("ebp");
+    return *((uint32_t*)(ebp + 4));
+}
 
 #endif /* _OS_REGS_H */

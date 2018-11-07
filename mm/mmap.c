@@ -12,6 +12,7 @@
 
 #define INTS_TO_LONG(x,y) ((((uint64)x) << 32 ) | y)
 
+#define GRUB_MMAP_TYPE_AVAIL    (0x3)
 
 /* Macro to get next entry in mmap */
 
@@ -32,11 +33,14 @@ void* read_mmap(GrubMultibootInfo* mbt){
 
 		print_mmap_entry(mmap);
 
-		if(mmap->type == 0x3)
+		if(mmap->type == GRUB_MMAP_TYPE_AVAIL)
 			ret = (void*)mmap->base_addr_low;
 
 		mmap = (GrubMemoryMapEntry*)((uint32)mmap + mmap->size + sizeof(uint32));
 	}
+
+    uint32_t length = ((uint32)&kern_end) - ((uint32)&kern_start);
+    printf("Kernel binary size: %dK\n", length / 1024);
 
 	return ret;
 }
@@ -48,7 +52,7 @@ void map_kernel(){
 
 	while((uint32)mmap < mboot->mmap_addr + mboot->mmap_length) {
 
-		printf("map: 0x%p and kern: 0x%p\n", mmap->base_addr_low, &kern_start);
+        //printf("map: 0x%p and kern: 0x%p\n", mmap->base_addr_low, &kern_start);
 		if(mmap->base_addr_low == ((uint32)&kern_start)){
 			entry = mmap;
 			break;
@@ -59,7 +63,7 @@ void map_kernel(){
 	if(entry){
 
 		uint32 length = ((uint32)&kern_end) - ((uint32)&kern_start);
-
+        printf("Kernel binary size: %x\n", length);
 
 		/* Lets remove this memory from the memory map */
 
@@ -130,7 +134,7 @@ void* kmalloc(uint32 size, int align){
 
 void print_mmap_entry(GrubMemoryMapEntry* entry){
 
-	printf("0x%p%p ", entry->base_addr_high, entry->base_addr_low);
-	printf("0x%p%p ", entry->length_high, entry->length_low);
-	printf("0x%p \n", entry->type);
+	//printf("0x%p%p ", entry->base_addr_high, entry->base_addr_low);
+	//printf("0x%p%p ", entry->length_high, entry->length_low);
+	//printf("0x%p \n", entry->type);
 }

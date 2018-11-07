@@ -1,6 +1,7 @@
-#ifndef WOS_PPA_H
-#define WOS_PPA_H
+#ifndef _OS_PPA_H
+#define _OS_PPA_H
 
+#include <arch/spinlock.h>
 #include <boot/multiboot.h>
 #include <tools/debug.h>
 #include <mm/mem.h>
@@ -21,9 +22,8 @@
 
 typedef struct {
 
-	// spinlock TODO
-
-	uint32 bitmap[ MAX_PPA_ENTRIES ];
+    Spinlock lock;
+    uint32 bitmap[ MAX_PPA_ENTRIES ];
 
 } PhysicalPageAllocator;
 
@@ -37,4 +37,4 @@ void ppa_init(GrubMultibootInfo *);
 Page alloc_page();
 void free_page(Page currentPage);
 
-#endif
+#endif /* _OS_PPA_H */

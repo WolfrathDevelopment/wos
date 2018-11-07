@@ -18,10 +18,6 @@
 enum thread_state {CREATED, RUNABLE, RUNNING, WAITING, SLEEPING, STOPPED};
 
 
-/* Which system are we running on? */
-
-enum thread_system { LINUX, OSX, WIN };
-
 /*
 struct context {
     uint32 edi;
@@ -38,7 +34,6 @@ struct w_proc{
 
 	uint32 pid;
 	enum thread_state state;
-	enum thread_system sys;
 	struct w_proc* next;
 	PageDirectoryEntry* pg_dir;
 	uint32 flags;

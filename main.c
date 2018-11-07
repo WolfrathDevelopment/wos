@@ -28,13 +28,6 @@ int main(uint32* ebp, GrubMultibootInfo* mboot_ptr){
 
 	clear_screen();
 	void* addr = read_mmap(mboot_ptr);
-	//struct w_rsdp* rsdp = (struct w_rsdp*)KVIRT(addr);
-	//printf("addr = %p\n", rsdp);
-	//printf("signature: %s\n",rsdp->signature);
-	//printf("checksum: %p\n",rsdp->checksum);
-	//printf("OEMID: %s\n",rsdp->oemid);
-	//printf("revision: %p\n",rsdp->rev);
-	//printf("rsdt_addr: %p\n",rsdp->rsdt_addr);
 
 	kbd_install();
 

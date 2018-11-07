@@ -93,18 +93,18 @@ typedef uint32	PageTableEntry;
 
 enum PTE_FLAGS {
 
-	PTE_Present 	    	= 0x0001,
-	PTE_Writable 		= 0x0002,
-	PTE_User	 			= 0x0004,
-	PTE_WriteThrough		= 0x0008,
-	PTE_CacheDisabled 	= 0x0010,
-	PTE_Accessed	 		= 0x0020,
-	PTE_Dirty 			= 0x0040,
-	PTE_PageSize			= 0x0080,
-	PTE_ZeroBit		 	= 0x0100,
-	PTE_Ignored		 	= 0x0200,
-	PTE_Available1	    = 0x0400,
-	PTE_Available2	 	= 0x0800
+	PTE_Present         = 0x0001,
+	PTE_Writable        = 0x0002,
+	PTE_User            = 0x0004,
+	PTE_WriteThrough    = 0x0008,
+	PTE_CacheDisabled   = 0x0010,
+	PTE_Accessed        = 0x0020,
+	PTE_Dirty           = 0x0040,
+	PTE_PageSize        = 0x0080,
+	PTE_ZeroBit         = 0x0100,
+	PTE_Ignored         = 0x0200,
+	PTE_Available1      = 0x0400,
+	PTE_Available2      = 0x0800
 };
 
 /* mmap.c*/
