@@ -1,185 +1,121 @@
 /*
  * paging.c
- Joel Wolfrath, 2013
+ * Joel Wolfrath, 2013
  *
  * Implementation of paging functions
  */
 
 #include <types.h>
+#include <arch/cpu.h>
 #include <boot/isr.h>
 #include <mm/mem.h>
 #include <mm/paging.h>
+#include <proc/proc.h>
 #include <lib/core.h>
 #include <tools/debug.h>
 
 /* Initial page table(s) */
-
-__attribute__((__aligned__(PAGE_SIZE)))
-PageTableEntry init_pgtbl[PTE_MAX_ENTRIES];
-
+FORCE_ALIGN(PAGE_SIZE) PageTable init_pgtbl;
 
 /* Initial page directory */
-
-__attribute__((__aligned__(PAGE_SIZE)))
-PageDirectoryEntry init_pgdir[PDE_MAX_ENTRIES];
-
+FORCE_ALIGN(PAGE_SIZE) PageDirectory init_pgdir;
 
 /* Initial stack */
+FORCE_ALIGN(PAGE_SIZE) uint8_t init_stack[PAGE_SIZE];
 
-__attribute__((__aligned__(PAGE_SIZE)))
-uint32 init_stack[0x800];
+void update_page_directory()
+{
+    Task* current_task = get_current_task();
+    if(current_task)
+    {
+        uint32_t cr0 = _cr0();
 
+        // Give cr3 the address of this page directory
+        asm volatile("mov %0, %%cr3":: "r"(current_task->page_directory));
 
-PageDirectoryEntry* current_page_directory;
-PageDirectoryEntry* kernel_page_directory;
+        cr0 |= CR0_PAGING_ENABLED;
 
-static void enable_paging(){
-
-	uint32 cr0;
-
-	// Give cr3 the address of this page directory
-	asm volatile("mov %0, %%cr3":: "r"(current_page_directory));
-
-	// Read the value currently in cr0
-	asm volatile("mov %%cr0, %0": "=r"(cr0));
-
-	// Set the paging bit
-	cr0 |= 0x80000000;
-
-	// Write new cr0 value back to the register
-	asm volatile("mov %0, %%cr0":: "r"(cr0));
-
-	// Paging is now enabled!!
+        // Write new cr0 value back to the register
+        asm volatile("mov %0, %%cr0":: "r"(cr0));
+    }
+    else
+    {
+        PANIC("What exactly is running right now?");
+    }
 }
 
-static void disable_paging(){
+static inline PageTable* get_page_table_for_virtual_address(PageDirectory* dir, uint32_t va)
+{
+    PageTable* table = NULL;
+    PageDirEntry pde = dir->tables[PDE_INDEX(va)];
 
-	uint32 cr0;
-	asm volatile("mov %%cr0, %0": "=r"(cr0));
-	cr0 &= 0x7FFFFFFF;
-	asm volatile("mov %0, %%cr0":: "r"(cr0));
+    if(pde.present)
+    {
+        table = (PageTable*) KVIRT(pde.table_frame);
+    }
+
+    return table;
 }
 
-void set_page_directory(PageDirectoryEntry* dir){
+int32_t page_is_mapped(PageDirectory* dir, uint32_t va)
+{
+    PageTable* table = get_page_table_for_virtual_address(dir, va);
+    if(table)
+    {
+        PageTblEntry pte = table->pages[PTE_INDEX(va)];
+        return pte.present;
+    }
 
-	current_page_directory = dir;
-	enable_paging();
+    return FALSE;
 }
-
-int is_mapped(PageDirectoryEntry* dir, uint32 va){
-
-	int pageDirIndex = PDE_INDEX(va);
-	int pageTblIndex = PTE_INDEX(va);
-
-	PageDirectoryEntry pde = dir[pageDirIndex];
-
-	if(isPtePresent(pde)){
-
-		PageTableEntry* tbl = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
-		PageTableEntry pte = tbl[pageTblIndex];
-
-		return isPagePresent(pte);
-	}
-
-	return FALSE;
-}
-
 
 /* Map a page to the virtual address in the given page directory */
+void page_map_virtual(PageDirectory* dir, uint32_t virt_address, PageTblEntry pte)
+{
+    PageTable* table = get_page_table_for_virtual_address(dir, virt_address);
+    if(!table)
+    {
+        // TODO allocate a physical page and map the page table
+        PANIC("Punting for now");
+    }
 
-void map_page(PageDirectoryEntry* dir, uint32 va, PageTableEntry page){
-
-	PageTableEntry* table;
-	PageDirectoryEntry pde = dir[ PDE_INDEX(va) ];
-
-	if(!pde){
-		PANIC("NO PAGE TABLE");     // punting for now... need to allocate table
-	}
-
-	table = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
-
-	/* Write the physical page to the page table */
-
-	table[ PTE_INDEX(va) ] = page;
+    /* Write the physical page to the page table */
+    table->pages[ PTE_INDEX(virt_address) ] = pte;
 }
 
 
 /* Unmap the page at the given virtual address */
-
-void unmap_page(PageDirectoryEntry* dir, uint32 va){
-
-	PageTableEntry* table;
-	PageDirectoryEntry pde = dir[ PDE_INDEX(va) ];
-
-	if(!pde){
-
-		/* This page is not mapped */
-		return;
-	}
-
-	table = (PageTableEntry*) KVIRT( PTE_ADDR(pde) );
-
-	/* Remove the entry in this page table */
-
-	table[ PTE_INDEX(va) ] = 0;
+void page_unmap(PageDirectory* dir, uint32_t virt_address)
+{
+    PageTable* table = get_page_table_for_virtual_address(dir, virt_address);
+    if(table)
+    {
+        /* Remove the entry in this page table */
+        PageTblEntry zero_pte;
+        zero_pte.all_fields = 0;
+        table->pages[ PTE_INDEX(virt_address) ] = zero_pte;
+    }
 }
 
-void init_paging(){
+void init_paging()
+{
+    Task* current_task = get_current_task();
+    register_isr(INT_PAGEFAULT, page_fault_handler);
 
-	register_isr(INT_PAGEFAULT, page_fault_handler);
-
-	kernel_page_directory = init_pgdir;
-
-	/* Unmap the first 4MiB */
-	//kernel_page_directory[0] = 0;
-
-	/* Flush all their TLB entries */
-	//int i=0;
-	//for(; i < 1024; i++)
-	//	invalidate_page( i * 0x1000 );
-
-	uint32 cr3 = (uint32)kernel_page_directory;
-
-	asm volatile("mov %0, %%cr3":: "r"(KPHYS(cr3)));
+    /* First physical page is off limits! */
+    page_unmap(current_task->page_directory, 0);
+    invlpg(0);
 }
 
+void page_fault_handler(OsIsrFrame regs)
+{
+    uint32_t faulting_address = _cr2();
 
-/* Flushes this page from the TLB */
+    printf("Page fault at 0x%p! eip=%p\n", faulting_address, regs.eip);
+    printf("Error Code: %x\n", regs.err_code);
 
-void invalidate_page(uint32 va){
-	asm volatile("invlpg (%0)" ::"r" (va) : "memory");
-}
-
-extern uint32 debug;
-
-void page_fault_handler(Registers regs){
-
-	uint32 fault_addr;
-
-	/* cr2 holds fault address */
-
-	asm volatile("mov %%cr2, %0" : "=r" (fault_addr));
-
-	//trace_stack(5);
-	printf("Page fault at 0x%p! eip=%p\n", fault_addr,regs.eip);
-	PANIC("Unhandled exception!");
-
-	int exist = !(regs.err_code & 0x1);
-	int rw = regs.err_code & 0x2;
-	int us = regs.err_code & 0x4;
-	int res = regs.err_code & 0x8;
-	int id = regs.err_code & 0x10;
-
-	if(exist){
-
-	}
-	if(rw){
-
-	}
-	if(us){
-
-	}
-	if(res){
-
-	}
+    if(regs.err_code & PAGE_FAULT_ERR_EXIST)
+    {
+        PANIC("Tried to access page that doesn't exist");
+    }
 }

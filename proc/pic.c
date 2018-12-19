@@ -14,7 +14,7 @@ struct time_node{
 	uint32 stop;
 };
 
-static void pic_callback(Registers regs){
+static void pic_callback(OsIsrFrame regs){
 
 	count++;
 	if( count > 100){

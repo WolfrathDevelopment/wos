@@ -22,7 +22,7 @@
 
 .set KERN_VIR_BASE, 0xC0000000      # Address to map kernel to
 
-#define STACK_SIZE			0x2000
+#define STACK_SIZE			0x1000
 
 mboot:
   .long  MAGIC
@@ -40,8 +40,9 @@ mboot:
 k_init:
   movl $(init_stack + STACK_SIZE), %esp
   movl $(init_stack + STACK_SIZE), %ebp
+  xorl %ebp, %ebp       # Setup a null frame so our stack trace can terminate
+  push %ebp				# Push null return address on stack 
   push %ecx				# Pass Multiboot Info to main
-  push %ebp				# Pass stack base
   cli
   call main
   hlt

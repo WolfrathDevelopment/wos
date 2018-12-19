@@ -28,10 +28,8 @@ extern void _unlock(uint32_t * value);
 
 static inline void lock(Spinlock * spinlock)
 {
-    if(spinlock->owner == CPU_DEFAULT_ID)
-    {
-        PANIC("We already hold the lock!");
-    }
+    // We better not already own the lock
+    ASSERT(spinlock->owner != CPU_DEFAULT_ID);
 
     _lock(&spinlock->value);
     spinlock->owner = CPU_DEFAULT_ID;
@@ -39,10 +37,8 @@ static inline void lock(Spinlock * spinlock)
 
 static inline void unlock(Spinlock * spinlock)
 {
-    if(spinlock->owner != CPU_DEFAULT_ID)
-    {
-        PANIC("Unlocking a lock we don't hold!");
-    }
+    // We better be holding the lock we are unlocking
+    ASSERT(spinlock->owner == CPU_DEFAULT_ID);
 
     spinlock->owner = CPU_MAX;
     _unlock(&spinlock->value);

@@ -39,39 +39,39 @@
 #define SEG_USER_TLS		(0x28)
 
 void init_seg();
-void set_tss(uint32);
+void set_tss(uint32_t);
 
 /* Models the task state segment */
 
 typedef struct {
 
-	uint32 prev_tss;
-	uint32 esp0;
-	uint32 ss0;
-	uint32 esp1;
-	uint32 ss1;
-	uint32 esp2;
-	uint32 ss2;
-	uint32 cr3;
-	uint32 eip;
-	uint32 eflags;
-	uint32 eax;
-	uint32 ecx;
-	uint32 edx;
-	uint32 ebx;
-	uint32 esp;
-	uint32 ebp;
-	uint32 esi;
-	uint32 edi;
-	uint32 es;
-	uint32 cs;
-	uint32 ss;
-	uint32 ds;
-	uint32 fs;
-	uint32 gs;
-	uint32 ldt;
-	uint16 trap;
-	uint16 iomap_base;
+    uint32_t prev_tss;
+    uint32_t esp0;
+    uint32_t ss0;
+    uint32_t esp1;
+    uint32_t ss1;
+    uint32_t esp2;
+    uint32_t ss2;
+    uint32_t cr3;
+    uint32_t eip;
+    uint32_t eflags;
+    uint32_t eax;
+    uint32_t ecx;
+    uint32_t edx;
+    uint32_t ebx;
+    uint32_t esp;
+    uint32_t ebp;
+    uint32_t esi;
+    uint32_t edi;
+    uint32_t es;
+    uint32_t cs;
+    uint32_t ss;
+    uint32_t ds;
+    uint32_t fs;
+    uint32_t gs;
+    uint32_t ldt;
+    uint16_t trap;
+    uint16_t iomap_base;
 
 } __attribute__((packed)) TaskStateSegment;
 

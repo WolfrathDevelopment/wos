@@ -16,8 +16,8 @@ SOURCES=bootstrap.o \
         lib/string.o \
         mm/mmap.o \
         mm/paging.o \
-        mm/alloc.o \
         mm/kheap.o \
+        mm/alloc.o \
         mm/ppa.o \
         lib/list.o \
         tools/debug.o \
@@ -32,7 +32,7 @@ SOURCES=bootstrap.o \
         io/mmio.o \
         main.o
 
-CFLAGS=-I include/ -nostdlib -nostdinc -fno-pic -fno-builtin -fno-stack-protector -m32
+CFLAGS= -I include/ -nostdlib -nostdinc -fno-pic -fno-builtin -fno-stack-protector -m32
 
 LDFLAGS=-m elf_i386 -Tlink.ld
 

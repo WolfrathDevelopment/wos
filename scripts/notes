@@ -1,0 +1,1 @@
+objdump -drS main.o

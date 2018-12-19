@@ -7,17 +7,16 @@
 
 
 #include <mm/mem.h>
+#include <mm/paging.h>
+#include <mm/ppa.h>
 
 /* Initial kernel heap */
 
 struct w_heap kern_heap;
 
-extern PageDirectoryEntry init_pgdir[];
-extern PageDirectoryEntry* kernel_page_directory;
+extern PageDirectory init_pgdir;
 
-extern uint32 debug;
-
-uint32 next_alloc_address;
+static uint32_t next_alloc_address;
 
 
 #define HEAP_OVERHEAD sizeof(struct w_block)
@@ -29,21 +28,31 @@ void init_kheap(){
 
 	/* Allocate first heap page at end of kernel binary */
 
-	PageTableEntry phys_page = alloc_page_frame( PTE_Present | PTE_Writable );
+    PageFrameIndex newPage = alloc_page();
+
+	PageTblEntry phys_page;
+    phys_page.page_frame = newPage;
+    phys_page.present = 1;
+    phys_page.writable = 1;
+
 	uint32 end = (uint32) ALIGN(&kern_end, PAGE_SIZE);
 
 	uint32 heap_start = KVIRT( end );
 
-	map_page( kernel_page_directory, heap_start, phys_page );
+	page_map_virtual(&init_pgdir, heap_start, phys_page);
 	zero((void*)heap_start, PAGE_SIZE);
 	uint32 size = 0x1000;
 
 
 	/* Allocate 3 more pages for inital heap */
 
-	while( size < INIT_HEAP_SIZE ){
-		map_page( kernel_page_directory, heap_start + size, alloc_page_frame( PTE_Present | PTE_Writable ));
-		zero(((void*)heap_start + size), PAGE_SIZE);
+	while( size < INIT_HEAP_SIZE ) {
+    
+        newPage = alloc_page();
+        phys_page.page_frame = newPage;
+
+		page_map_virtual(&init_pgdir, heap_start + size, phys_page);
+		zero(((void*)(heap_start + size)), PAGE_SIZE);
 		size += 0x1000;
 	}
 

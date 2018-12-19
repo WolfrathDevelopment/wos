@@ -48,7 +48,9 @@ typedef unsigned long long  uint64;
 #define unlikely(x)   (__builtin_expect(!!(x),0))
 
 #ifdef __GNUC__
-#define FORCE_INLINE __attribute__((always_inline))
+#define FORCE_INLINE    __attribute__((always_inline)) inline
+#define FORCE_ALIGN(x)  __attribute__((__aligned__(x)))
+#define PACKED          __attribute__((packed))
 #endif
 
 /* Some return codes */

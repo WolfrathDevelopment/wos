@@ -58,7 +58,7 @@ OsRc register_isr(InterruptId id, InterruptServiceRoutine routine)
 }
 
 /* Generic ISR handler called from asm */
-void global_isr_handler(Registers regs)
+void global_isr_handler(OsIsrFrame regs)
 {
     if(current_proc != NULL)
     {
@@ -78,7 +78,7 @@ void global_isr_handler(Registers regs)
 }
 
 /* Generic IRQ handler called from asm */
-void irq_handler(Registers regs)
+void irq_handler(OsIsrFrame regs)
 {
     if(current_proc != NULL)
     {

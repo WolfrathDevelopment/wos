@@ -8,7 +8,7 @@
 #include <mm/paging.h>
 
 /* This will come out evenly provied sane values of MAX_MEM_SIZE */
-#define MAX_PPA_ENTRIES ((MAX_MEM_SIZE / PAGE_SIZE) / 32)
+#define MAX_PPA_ENTRIES ((MAX_MEM_SIZE / PAGE_SIZE) / sizeof(uint32_t))
 
 /*
  * This is a singleton class responsible for all the allocating and 
@@ -34,7 +34,7 @@ extern PhysicalPageAllocator PPAInstance;
 /* Use memory map from the bootloader to initialize our structures */
 void ppa_init(GrubMultibootInfo *);
 
-Page alloc_page();
-void free_page(Page currentPage);
+PageFrameIndex alloc_page();
+void free_page(PageFrameIndex frame);
 
 #endif /* _OS_PPA_H */

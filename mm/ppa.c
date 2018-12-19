@@ -9,7 +9,7 @@ PhysicalPageAllocator PPAInstance;
 
 void ppa_init(GrubMultibootInfo * info)
 {
-	ASSERT(info); // Who gave us NULL?
+	ASSERT(info); // We need a memory map
     SPINLOCK_INIT(PPAInstance.lock);
 
 	// Mark all pages as available initially
@@ -43,72 +43,69 @@ void ppa_init(GrubMultibootInfo * info)
 				}
 			}  
 		}
+
+        mmap = (GrubMemoryMapEntry*) ((uint32_t)mmap + mmap->size + sizeof(uint32_t));
 	}
 
-	if( 1 /* verbose TODO */)
-	{
-		printf("%d kernel pages marked\n", kernel_pages);
-		printf("%d free pages marked\n", free_pages);
-	}
+    printf("Kernel executable space:   %d KB\n", (kernel_pages * 4));
+    printf("Physical memory available:  %d MB\n", (free_pages * 4) / 1024);
 }
 
-Page alloc_page()
+PageFrameIndex alloc_page()
 {
-	Page foundPage;
-	foundPage.all_fields = 0;
+    PageFrameIndex found_page = PageFrameIndexInvalid;
 
     lock(&PPAInstance.lock);
 
-	int32_t map_index = -1;
-	uint32_t map_offset = 31;
-	uint32_t i, frame;
+    int32_t bitmap_index = -1;
+    uint32_t bitmap_index_offset = 0;
 
-	/* TODO we can do better than O(n) */
+    /* TODO we can do better than O(n) */
+    /* TODO do we need to hold the lock while we search? */
 
-	for(i = 0; i < MAX_PPA_ENTRIES; i++)
-	{
-		if(PPAInstance.bitmap[i] != 0xFFFFFFFF)
-		{
-			// Found a page
-			map_index = i;
-			break;
-		}
-	}
+    uint32_t i = 0;
+    for(i = 0; i < MAX_PPA_ENTRIES; i++)
+    {
+        if(PPAInstance.bitmap[i])
+        {
+            // Found a page
+            bitmap_index = i;
+            break;
+        }   
+    }
 
-	if(map_index != -1)
-	{
-		for(i = 0x80000000; i > 0; i >>= 1)
-		{
-			if(i & PPAInstance.bitmap[i])
-			{
-				map_offset--;
-			}
-			else
-			{
-				break;
-			}
-		}
+    if(bitmap_index != -1)
+    {
+        bitmap_index_offset = 31;
+        for(i = 0x80000000; i != 0; i >>= 1)
+        {
+            if(i & PPAInstance.bitmap[bitmap_index])
+            {
+                break;
+            }
+            bitmap_index_offset--;
+        }
 
-		SET_BIT(PPAInstance.bitmap[ map_index ], map_offset);
-		foundPage.frame = (map_index * 32) + map_offset;
-	}
+	    PPAInstance.bitmap[bitmap_index] &= ~(1 << bitmap_index_offset);
+        found_page = (bitmap_index * 32) + bitmap_index_offset;
+    }
 
     unlock(&PPAInstance.lock);
 
-	return foundPage;
+    return found_page;
 }
 
-void free_page(Page currentPage)
+void free_page(PageFrameIndex frame)
 {
     lock(&PPAInstance.lock);
 
-	uint32_t map_index = PPA_INDEX(currentPage.frame);
-	uint32_t map_offset = PPA_OFFSET(currentPage.frame);
+	uint32_t map_index = PPA_INDEX(frame);
+	uint32_t map_offset = PPA_OFFSET(frame);
 
 	ASSERT(map_index < MAX_PPA_ENTRIES);
-	ASSERT(	! IS_BIT_SET(PPAInstance.bitmap[map_index], map_offset)); // Page never allocated?
+	ASSERT(PPAInstance.bitmap[map_index] ^ (1 << map_offset)); // Page never allocated?
 
-	CLR_BIT(PPAInstance.bitmap[ map_index ], map_offset);
+	PPAInstance.bitmap[ map_index ] |= (1 << map_offset);
 
     unlock(&PPAInstance.lock);
 }

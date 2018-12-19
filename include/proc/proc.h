@@ -8,6 +8,7 @@
 #define PROC_H
 
 #include <mm/mem.h>
+#include <mm/paging.h>
 #include <boot/boot.h>
 #include <types.h>
 #include <lib/core.h>
@@ -16,7 +17,7 @@
 /* What is the state of the given thread? */
 
 enum thread_state {CREATED, RUNABLE, RUNNING, WAITING, SLEEPING, STOPPED};
-
+typedef enum thread_state TaskState;
 
 /*
 struct context {
@@ -37,9 +38,20 @@ struct w_proc{
 	struct w_proc* next;
 	PageDirectoryEntry* pg_dir;
 	uint32 flags;
-	Registers* regs;
+	OsIsrFrame* regs;
 }__attribute__((packed));
 
+struct _Task
+{
+    uint32_t            pid;
+    TaskState           state;
+    PageDirectory*      page_directory;
+    uint32_t            flags;
+    OsIsrFrame*         registers;
+};
+typedef struct _Task Task;
+
+Task* get_current_task();
 
 /* pic.c */
 

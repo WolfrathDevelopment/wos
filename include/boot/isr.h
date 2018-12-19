@@ -18,7 +18,7 @@ typedef enum {
 } InterruptId;
 
 /* Function signature for an ISR */
-typedef void (*InterruptServiceRoutine)(Registers regs);
+typedef void (*InterruptServiceRoutine)(OsIsrFrame frame);
 
 /* Setup the interrupt descriptor table */
 OsRc init_idt();
