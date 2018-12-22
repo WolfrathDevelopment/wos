@@ -22,7 +22,7 @@ int main(GrubMultibootInfo* mboot_ptr){
 
 	/* Set up segments */
 	init_seg();
-	init_idt();
+	idt_init();
 	sti();
 
 	clear_screen();

@@ -127,7 +127,7 @@ void* kmalloc(uint32 size, int32 align);
 /* paging.c */
 
 void set_page_directory(PageDirectoryEntry*);
-void page_fault_handler(OsIsrFrame);
+void page_fault_handler(OsIsrFrame*);
 void map_page(PageDirectoryEntry*,uint32, PageTableEntry);
 int is_mapped(PageDirectoryEntry*, uint32);
 void unmap_page(PageDirectoryEntry*,uint32);

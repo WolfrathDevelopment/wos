@@ -167,7 +167,7 @@ static uint8 skbdus[128] ={
     0,	/* All other keys are undefined */
 };
 
-static void kbd_callback(OsIsrFrame regs){
+static void kbd_callback(OsIsrFrame* regs){
 
   uint8_t scancode = read_io_bus(IO_BUS_KBD_SCANCODE_REG);
 
@@ -247,5 +247,5 @@ static void kbd_callback(OsIsrFrame regs){
 
 void kbd_install(){
 
-	register_isr(IRQ1, &kbd_callback);
+	isr_register(OsIsrIrq1, &kbd_callback);
 }

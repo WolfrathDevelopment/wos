@@ -13,16 +13,19 @@
 
 typedef enum {
     
-    MaxIsrId     = 256
+    OsIsrPageFault  = 0x00D,
+    OsIsrPic        = 0x020,
+    OsIsrIrq1       = 0x021,
+    OsIsrMaxId      = 0x100
 
-} InterruptId;
+} OsIsrId;
 
 /* Function signature for an ISR */
-typedef void (*InterruptServiceRoutine)(OsIsrFrame frame);
+typedef void (*OsIsr)(OsIsrFrame* frame);
 
 /* Setup the interrupt descriptor table */
-OsRc init_idt();
+OsRc idt_init();
 
-OsRc register_isr(InterruptId id, InterruptServiceRoutine routine);
+OsRc isr_register(OsIsrId id, OsIsr routine);
 
 #endif /* _OS_ISR_H */

@@ -14,11 +14,10 @@
 static void set_gdt(int, uint32, uint32, uint8, uint8);
 static void set_idt(uint8, uint32, uint16, uint8);
 
-
 /* The new GDT */
 
-GlobalDescTableEntry	gdt_entries[7];
-GlobalDescTablePointer	g_ptr;
+GlobalDescTableEntry    gdt_entries[7];
+GlobalDescTablePointer  g_ptr;
 
 
 /* Task state of current task */
@@ -107,7 +106,6 @@ static void seg_init(){
 	uint32 addr = (uint32)&current_tss;
 
 	set_gdt(6, addr, sizeof(TaskStateSegment), tmp_access, tmp_gran);
-
 
 	gdt_flush(&g_ptr);
 }

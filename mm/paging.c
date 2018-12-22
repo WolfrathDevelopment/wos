@@ -100,21 +100,21 @@ void page_unmap(PageDirectory* dir, uint32_t virt_address)
 void init_paging()
 {
     Task* current_task = get_current_task();
-    register_isr(INT_PAGEFAULT, page_fault_handler);
+    isr_register(OsIsrPageFault, page_fault_handler);
 
     /* First physical page is off limits! */
     page_unmap(current_task->page_directory, 0);
     invlpg(0);
 }
 
-void page_fault_handler(OsIsrFrame regs)
+void page_fault_handler(OsIsrFrame* regs)
 {
     uint32_t faulting_address = _cr2();
 
-    printf("Page fault at 0x%p! eip=%p\n", faulting_address, regs.eip);
-    printf("Error Code: %x\n", regs.err_code);
+    printf("Page fault at 0x%p! eip=%p\n", faulting_address, regs->eip);
+    printf("Error Code: %x\n", regs->err_code);
 
-    if(regs.err_code & PAGE_FAULT_ERR_EXIST)
+    if(regs->err_code & PAGE_FAULT_ERR_EXIST)
     {
         PANIC("Tried to access page that doesn't exist");
     }

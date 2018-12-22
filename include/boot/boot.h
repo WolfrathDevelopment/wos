@@ -14,8 +14,6 @@
 #ifndef BOOT_H
 #define BOOT_H
 
-#define INT_PAGEFAULT   (14)
-#define INT_PIC         (32)
 #define IRQ1            (33)
 #define IRQ2            (34)
 #define IRQ3            (35)

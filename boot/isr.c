@@ -14,18 +14,18 @@
 
 /* THE interrupt table */
 
-InterruptServiceRoutine	gbl_interrupt_handlers[MaxIsrId];
+OsIsr gbl_interrupt_handlers[OsIsrMaxId];
 
 /* The new IDT */
 
-InterruptDescTableEntry		idt_entries[256];
-InterruptDescTablePointer	i_ptr;
+InterruptDescTableEntry     idt_entries[OsIsrMaxId];
+InterruptDescTablePointer   i_ptr;
 
 /* The current process structure */
 
 extern struct w_proc* current_proc;
 
-static void set_idt(uint8 num, uint32 base, uint16 sel, uint8 flags)
+static void set_idt(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags)
 {
     idt_entries[num].base_addr_low = base & 0xFFFF;
     idt_entries[num].base_addr_high = (base >> 16) & 0xFFFF;
@@ -40,12 +40,12 @@ static void set_idt(uint8 num, uint32 base, uint16 sel, uint8 flags)
 
 /* Add interrupt handler to interrupt table */
 
-OsRc register_isr(InterruptId id, InterruptServiceRoutine routine)
+OsRc isr_register(OsIsrId id, OsIsr routine)
 {
     ASSERT(gbl_interrupt_handlers[id] == 0); // Don't trash an existing isr
     OsRc rc = RC_SUCCESS;
 
-    if(!routine || id >= MaxIsrId)
+    if(!routine || id >= OsIsrMaxId)
     {
         rc = RC_INVALID_PARM;
     }
@@ -66,15 +66,15 @@ void global_isr_handler(OsIsrFrame regs)
     }
 
     /* Is there a handler registered? */
-	if (gbl_interrupt_handlers[regs.int_no])
+     OsIsr handler = gbl_interrupt_handlers[regs.int_no];
+    if (handler)
     {
-        InterruptServiceRoutine handler = gbl_interrupt_handlers[regs.int_no];
-        handler(regs);
-	}
-	else
+        handler(&regs);
+    }
+    else
     {
-		// I guess we're dropping this one on the floor...
-	}
+        // I guess we're dropping this one on the floor...
+    }
 }
 
 /* Generic IRQ handler called from asm */
@@ -83,106 +83,104 @@ void irq_handler(OsIsrFrame regs)
     if(current_proc != NULL)
     {
         memcpy(current_proc->regs, &regs, sizeof(regs));
-	}
+    }
 
-	/* Send an EOI signal to the PIC */
+    /* Send an EOI signal to the PIC */
+    if (regs.int_no >= 40){
 
-	if (regs.int_no >= 40){
+        /* Send reset signal to slave */
+        out_byte(0xA0, 0x20);
+    }
 
-		/* Send reset signal to slave */
-		out_byte(0xA0, 0x20);
-	}
+    /* Reset master */
+    out_byte(0x20, 0x20);
 
-
-	/* Reset master */
-	out_byte(0x20, 0x20);
-
-	if(gbl_interrupt_handlers[regs.int_no] != 0)
+    OsIsr handler = gbl_interrupt_handlers[regs.int_no];
+    if(handler)
     {
-		if(regs.int_no == INT_PIC)
+        if(regs.int_no == OsIsrPic)
         {
-        	/* Context switch! */
-			if(current_proc != NULL)
+            /* Context switch! */
+            if(current_proc != NULL)
             {
-				schedule();
-			}
-		}
+                schedule();
+            }
+        }
 
-		InterruptServiceRoutine handler = gbl_interrupt_handlers[regs.int_no];
-		handler(regs);
-	}
+        handler(&regs);
+    }
 }
 
-OsRc init_idt()
+OsRc idt_init()
 {
-	zero(&gbl_interrupt_handlers, sizeof(InterruptServiceRoutine) * MaxIsrId);
+    zero(&gbl_interrupt_handlers, sizeof(OsIsr) * OsIsrMaxId);
 
-	i_ptr.limit = sizeof(InterruptDescTableEntry) * 256 -1;
-	i_ptr.base  = (uint32)&idt_entries;
+    i_ptr.limit = sizeof(InterruptDescTableEntry) * OsIsrMaxId - 1;
+    i_ptr.base  = (uint32)&idt_entries;
 
-	zero(&idt_entries, sizeof(InterruptDescTableEntry) * 256);
+    zero(&idt_entries, sizeof(InterruptDescTableEntry) * OsIsrMaxId);
 
-	/* Remap IRQ table */
+    /* Remap IRQ table */
 
-	out_byte(0x20, 0x11);
-	out_byte(0xA0, 0x11);
-	out_byte(0x21, 0x20);
-	out_byte(0xA1, 0x28);
-	out_byte(0x21, 0x04);
-	out_byte(0xA1, 0x02);
-	out_byte(0x21, 0x01);
-	out_byte(0xA1, 0x01);
-	out_byte(0x21, 0x0);
-	out_byte(0xA1, 0x0);
+    out_byte(0x20, 0x11);
+    out_byte(0xA0, 0x11);
+    out_byte(0x21, 0x20);
+    out_byte(0xA1, 0x28);
+    out_byte(0x21, 0x04);
+    out_byte(0xA1, 0x02);
+    out_byte(0x21, 0x01);
+    out_byte(0xA1, 0x01);
+    out_byte(0x21, 0x0);
+    out_byte(0xA1, 0x0);
 
-	set_idt( 0, (uint32)isr0 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 1, (uint32)isr1 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 2, (uint32)isr2 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 3, (uint32)isr3 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 4, (uint32)isr4 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 5, (uint32)isr5 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 6, (uint32)isr6 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 7, (uint32)isr7 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 8, (uint32)isr8 , SEG_KERNEL_CODE, 0x8E);
-	set_idt( 9, (uint32)isr9 , SEG_KERNEL_CODE, 0x8E);
-	set_idt(10, (uint32)isr10, SEG_KERNEL_CODE, 0x8E);
-	set_idt(11, (uint32)isr11, SEG_KERNEL_CODE, 0x8E);
-	set_idt(12, (uint32)isr12, SEG_KERNEL_CODE, 0x8E);
-	set_idt(13, (uint32)isr13, SEG_KERNEL_CODE, 0x8E);
-	set_idt(14, (uint32)isr14, SEG_KERNEL_CODE, 0x8E);
-	set_idt(15, (uint32)isr15, SEG_KERNEL_CODE, 0x8E);
-	set_idt(16, (uint32)isr16, SEG_KERNEL_CODE, 0x8E);
-	set_idt(17, (uint32)isr17, SEG_KERNEL_CODE, 0x8E);
-	set_idt(18, (uint32)isr18, SEG_KERNEL_CODE, 0x8E);
-	set_idt(19, (uint32)isr19, SEG_KERNEL_CODE, 0x8E);
-	set_idt(20, (uint32)isr20, SEG_KERNEL_CODE, 0x8E);
-	set_idt(21, (uint32)isr21, SEG_KERNEL_CODE, 0x8E);
-	set_idt(22, (uint32)isr22, SEG_KERNEL_CODE, 0x8E);
-	set_idt(23, (uint32)isr23, SEG_KERNEL_CODE, 0x8E);
-	set_idt(24, (uint32)isr24, SEG_KERNEL_CODE, 0x8E);
-	set_idt(25, (uint32)isr25, SEG_KERNEL_CODE, 0x8E);
-	set_idt(26, (uint32)isr26, SEG_KERNEL_CODE, 0x8E);
-	set_idt(27, (uint32)isr27, SEG_KERNEL_CODE, 0x8E);
-	set_idt(28, (uint32)isr28, SEG_KERNEL_CODE, 0x8E);
-	set_idt(29, (uint32)isr29, SEG_KERNEL_CODE, 0x8E);
-    set_idt(30, (uint32)isr30, SEG_KERNEL_CODE, 0x8E);
-	set_idt(31, (uint32)isr31, SEG_KERNEL_CODE, 0x8E);
-	set_idt(32, (uint32)irq0, SEG_KERNEL_CODE, 0x8E);
-	set_idt(33, (uint32)irq1, SEG_KERNEL_CODE, 0x8E);
-	set_idt(34, (uint32)irq2, SEG_KERNEL_CODE, 0x8E);
-	set_idt(35, (uint32)irq3, SEG_KERNEL_CODE, 0x8E);
-	set_idt(36, (uint32)irq4, SEG_KERNEL_CODE, 0x8E);
-	set_idt(37, (uint32)irq5, SEG_KERNEL_CODE, 0x8E);
-	set_idt(38, (uint32)irq6, SEG_KERNEL_CODE, 0x8E);
-	set_idt(39, (uint32)irq7, SEG_KERNEL_CODE, 0x8E);
-	set_idt(40, (uint32)irq8, SEG_KERNEL_CODE, 0x8E);
-	set_idt(41, (uint32)irq9, SEG_KERNEL_CODE, 0x8E);
-	set_idt(42, (uint32)irq10, SEG_KERNEL_CODE, 0x8E);
-	set_idt(43, (uint32)irq11, SEG_KERNEL_CODE, 0x8E);
-	set_idt(44, (uint32)irq12, SEG_KERNEL_CODE, 0x8E);
-	set_idt(45, (uint32)irq13, SEG_KERNEL_CODE, 0x8E);
-	set_idt(46, (uint32)irq14, SEG_KERNEL_CODE, 0x8E);
-	set_idt(47, (uint32)irq15, SEG_KERNEL_CODE, 0x8E);
+    set_idt( 0, (uint32_t)isr0 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 1, (uint32_t)isr1 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 2, (uint32_t)isr2 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 3, (uint32_t)isr3 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 4, (uint32_t)isr4 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 5, (uint32_t)isr5 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 6, (uint32_t)isr6 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 7, (uint32_t)isr7 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 8, (uint32_t)isr8 , SEG_KERNEL_CODE, 0x8E);
+    set_idt( 9, (uint32_t)isr9 , SEG_KERNEL_CODE, 0x8E);
+    set_idt(10, (uint32_t)isr10, SEG_KERNEL_CODE, 0x8E);
+    set_idt(11, (uint32_t)isr11, SEG_KERNEL_CODE, 0x8E);
+    set_idt(12, (uint32_t)isr12, SEG_KERNEL_CODE, 0x8E);
+    set_idt(13, (uint32_t)isr13, SEG_KERNEL_CODE, 0x8E);
+    set_idt(14, (uint32_t)isr14, SEG_KERNEL_CODE, 0x8E);
+    set_idt(15, (uint32_t)isr15, SEG_KERNEL_CODE, 0x8E);
+    set_idt(16, (uint32_t)isr16, SEG_KERNEL_CODE, 0x8E);
+    set_idt(17, (uint32_t)isr17, SEG_KERNEL_CODE, 0x8E);
+    set_idt(18, (uint32_t)isr18, SEG_KERNEL_CODE, 0x8E);
+    set_idt(19, (uint32_t)isr19, SEG_KERNEL_CODE, 0x8E);
+    set_idt(20, (uint32_t)isr20, SEG_KERNEL_CODE, 0x8E);
+    set_idt(21, (uint32_t)isr21, SEG_KERNEL_CODE, 0x8E);
+    set_idt(22, (uint32_t)isr22, SEG_KERNEL_CODE, 0x8E);
+    set_idt(23, (uint32_t)isr23, SEG_KERNEL_CODE, 0x8E);
+    set_idt(24, (uint32_t)isr24, SEG_KERNEL_CODE, 0x8E);
+    set_idt(25, (uint32_t)isr25, SEG_KERNEL_CODE, 0x8E);
+    set_idt(26, (uint32_t)isr26, SEG_KERNEL_CODE, 0x8E);
+    set_idt(27, (uint32_t)isr27, SEG_KERNEL_CODE, 0x8E);
+    set_idt(28, (uint32_t)isr28, SEG_KERNEL_CODE, 0x8E);
+    set_idt(29, (uint32_t)isr29, SEG_KERNEL_CODE, 0x8E);
+    set_idt(30, (uint32_t)isr30, SEG_KERNEL_CODE, 0x8E);
+    set_idt(31, (uint32_t)isr31, SEG_KERNEL_CODE, 0x8E);
+    set_idt(32, (uint32_t)irq0, SEG_KERNEL_CODE, 0x8E);
+    set_idt(33, (uint32_t)irq1, SEG_KERNEL_CODE, 0x8E);
+    set_idt(34, (uint32_t)irq2, SEG_KERNEL_CODE, 0x8E);
+    set_idt(35, (uint32_t)irq3, SEG_KERNEL_CODE, 0x8E);
+    set_idt(36, (uint32_t)irq4, SEG_KERNEL_CODE, 0x8E);
+    set_idt(37, (uint32_t)irq5, SEG_KERNEL_CODE, 0x8E);
+    set_idt(38, (uint32_t)irq6, SEG_KERNEL_CODE, 0x8E);
+    set_idt(39, (uint32_t)irq7, SEG_KERNEL_CODE, 0x8E);
+    set_idt(40, (uint32_t)irq8, SEG_KERNEL_CODE, 0x8E);
+    set_idt(41, (uint32_t)irq9, SEG_KERNEL_CODE, 0x8E);
+    set_idt(42, (uint32_t)irq10, SEG_KERNEL_CODE, 0x8E);
+    set_idt(43, (uint32_t)irq11, SEG_KERNEL_CODE, 0x8E);
+    set_idt(44, (uint32_t)irq12, SEG_KERNEL_CODE, 0x8E);
+    set_idt(45, (uint32_t)irq13, SEG_KERNEL_CODE, 0x8E);
+    set_idt(46, (uint32_t)irq14, SEG_KERNEL_CODE, 0x8E);
+    set_idt(47, (uint32_t)irq15, SEG_KERNEL_CODE, 0x8E);
 
-	idt_flush(&i_ptr);
+    idt_flush(&i_ptr);
 }

@@ -6,8 +6,8 @@
  * OS files.
  */
 
-#ifndef __OS_TYPES_H
-#define __OS_TYPES_H
+#ifndef _OS_TYPES_H
+#define _OS_TYPES_H
 
 /* Null is a useful definition to have */
 
