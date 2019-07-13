@@ -1,4 +1,5 @@
 #include <mm/ppa.h>
+#include <io/console.h>
 #include <lib/core.h>
 #include <lib/bitmap.h>
 
@@ -31,8 +32,8 @@ void ppa_init(GrubMultibootInfo * info)
 			uint32_t max_addr = base_addr + mmap->length_low;
 			for( ; base_addr < max_addr; base_addr += PAGE_SIZE)
 			{
-				if(	base_addr <  (uint32)&kern_start ||
-					base_addr >= (uint32)&kern_end)
+				if(	base_addr <  (uint32_t)&kern_start ||
+					base_addr >= (uint32_t)&kern_end)
 				{
 					// mark_frame_empty
 					free_pages++;

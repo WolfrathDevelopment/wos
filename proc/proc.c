@@ -18,8 +18,8 @@ OsIsrFrame init_regs;
 
 extern struct w_tss current_tss;
 extern PageDirectory init_pgdir;
-//extern uint32 next_alloc_address;
-extern uint32* init_stack;
+//extern uint32_t next_alloc_address;
+extern uint32_t* init_stack;
 
 Task glb_kinit_task;
 
@@ -29,7 +29,7 @@ Task* get_current_task()
 }
 
 // access to this int must be synchronized!
-uint32 next_pid = 1;
+uint32_t next_pid = 1;
 
 void context_switch(struct w_proc* next){
 

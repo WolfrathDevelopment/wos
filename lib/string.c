@@ -11,7 +11,7 @@
 void memcpy(void* dst, const void* src, size_t len)
 {
     const uint8_t *sptr = (const uint8_t*) src;
-    uint8_t *dptr = (uint8 *)dst;
+    uint8_t *dptr = (uint8_t *)dst;
 
     while(len--)
     {
@@ -30,7 +30,7 @@ void memset(uint8_t* dst, uint8_t val, size_t len)
 
 void memset32(uint32_t* dst, uint32_t val, size_t len)
 {
-    ASSERT(len % sizeof(uint32) == 0); // Called wrong memset!
+    ASSERT(len % sizeof(uint32_t) == 0); // Called wrong memset!
 
 	uint32_t* temp = (uint32_t*)dst;
     for(; len != 0; len -= sizeof(uint32_t))

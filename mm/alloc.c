@@ -6,39 +6,41 @@
  */
 
 #include <mm/mem.h>
+#include <io/console.h>
 
+/* TODO: Use max mem constants and PAGE_SIZE below */
 #define ADDR_INDEX(x)			( x / 0x20000 )
 #define ADDR_OFFSET(x)			( x % 0x20 )
 #define NUM_INDEX				(32768)
 
 /* Access to this map must be synchronized!! */
 
-uint32 page_map[ NUM_INDEX ];
+uint32_t page_map[ NUM_INDEX ];
 
 
-extern uint32 kern_start;
-extern uint32 kern_end;
-extern uint32 next_page;
+extern uint32_t kern_start;
+extern uint32_t kern_end;
+extern uint32_t next_page;
 
-static void mark_frame_used(uint32 addr){
+static void mark_frame_used(uint32_t addr){
 
-	uint32 index = ADDR_INDEX(addr);
-	uint32 offset = ADDR_OFFSET( (addr/0x1000) );
+	uint32_t index = ADDR_INDEX(addr);
+	uint32_t offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] |= 0x1 << offset;
 }
 
-static void mark_frame_empty(uint32 addr){
+static void mark_frame_empty(uint32_t addr){
 
-	uint32 index = ADDR_INDEX(addr);
-	uint32 offset = ADDR_OFFSET( (addr/0x1000) );
+	uint32_t index = ADDR_INDEX(addr);
+	uint32_t offset = ADDR_OFFSET( (addr/0x1000) );
 	page_map[index] &= ~(0x1 << offset);
 }
 
-static uint32 check_frame(uint32 addr){
+static uint32_t check_frame(uint32_t addr){
 
-	uint32 index = ADDR_INDEX(addr);
-	uint32 offset = ADDR_OFFSET( (addr/0x1000) );
-	uint32 val = page_map[index] & (0x1 << offset);
+	uint32_t index = ADDR_INDEX(addr);
+	uint32_t offset = ADDR_OFFSET( (addr/0x1000) );
+	uint32_t val = page_map[index] & (0x1 << offset);
 
 	return val;
 }
@@ -46,10 +48,10 @@ static uint32 check_frame(uint32 addr){
 
 /* Find an available page frame */
 
-static uint32 find_frame(uint32 usr){
+static uint32_t find_frame(uint32_t usr){
 
-	uint32 i, frame, offset, max;
-	int32 index;
+	uint32_t i, frame, offset, max;
+	int32_t index;
 
 	if(usr)
 		max = NUM_INDEX;
@@ -95,28 +97,28 @@ static uint32 find_frame(uint32 usr){
 
 void init_alloc(GrubMultibootInfo* mbt){
 
-	uint32 i;
-	for(i=0; i< NUM_INDEX; i++)
+	uint32_t i = 0;
+	for(; i< NUM_INDEX; i++)
 		page_map[i] = 0xFFFFFFFF;
 
 	GrubMemoryMapEntry* mmap = (GrubMemoryMapEntry*) mbt->mmap_addr;
 
-	uint32 count = 0;
-	uint32 kern = 0;
+	uint32_t count = 0;
+	uint32_t kern = 0;
 
 
 	/* Map all available pages to our page_map */
 
-	while((uint32)mmap < mbt->mmap_addr + mbt->mmap_length) {
+	while((uint32_t)mmap < mbt->mmap_addr + mbt->mmap_length) {
 
 		if(mmap->type == 1){
 
-			uint32 addr = mmap->base_addr_low;
+			uint32_t addr = mmap->base_addr_low;
 			addr = ALIGN(addr, PAGE_SIZE);
 
 			for(i=addr; i<addr + mmap->length_low; i+=0x1000){
 
-				if(i<(uint32)&kern_start || i>=(uint32)&kern_end){
+				if(i<(uint32_t)&kern_start || i>=(uint32_t)&kern_end){
 					mark_frame_empty(i);
 					count++;
 				}
@@ -127,7 +129,7 @@ void init_alloc(GrubMultibootInfo* mbt){
 
 		}
 
-		mmap = (GrubMemoryMapEntry*)((uint32)mmap+mmap->size+sizeof(uint32));
+		mmap = (GrubMemoryMapEntry*)((uint32_t)mmap+mmap->size+sizeof(uint32_t));
 	}
 
 	/* Map Null frame used */
@@ -141,7 +143,7 @@ void init_alloc(GrubMultibootInfo* mbt){
 
 /* Allocate an available page */
 
-PageTableEntry alloc_page_frame(uint32 flags){
+PageTableEntry alloc_page_frame(uint32_t flags){
 
 	/* Allocate an aligned page. Use uint to avoid pointer arithmetic */
 
@@ -166,6 +168,6 @@ PageTableEntry alloc_page_frame(uint32 flags){
 	return addr | flags;
 }
 
-void free_page_frame(uint32 addr){
+void free_page_frame(uint32_t addr){
 	mark_frame_empty(addr);
 }

@@ -18,10 +18,8 @@
 #include <mm/paging.h>
 
 /* Linker provides these values */
-extern uint32 kern_start;
-extern uint32 kern_end;
-
-/* Deep magic begins here... */
+extern uint32_t kern_start;
+extern uint32_t kern_end;
 
 /*
 	USER VIRTUAL MEMORY LAYOUT (ELF)
@@ -88,8 +86,8 @@ extern uint32 kern_end;
 #define KPHYS(x)			(x - KMAP_START)
 #define KVIRT(x)			(x + KMAP_START)
 
-typedef uint32	PageDirectoryEntry;
-typedef uint32	PageTableEntry;
+typedef uint32_t PageDirectoryEntry;
+typedef uint32_t PageTableEntry;
 
 enum PTE_FLAGS {
 
@@ -121,25 +119,25 @@ typedef struct {
 void* read_mmap(GrubMultibootInfo* mbt);
 void print_mmap_entry(GrubMemoryMapEntry*);
 void map_kernel();
-void* kmalloc(uint32 size, int32 align);
+void* kmalloc(uint32_t size, int32_t align);
 
 
 /* paging.c */
 
 void set_page_directory(PageDirectoryEntry*);
 void page_fault_handler(OsIsrFrame*);
-void map_page(PageDirectoryEntry*,uint32, PageTableEntry);
-int is_mapped(PageDirectoryEntry*, uint32);
-void unmap_page(PageDirectoryEntry*,uint32);
+void map_page(PageDirectoryEntry*,uint32_t, PageTableEntry);
+int32_t is_mapped(PageDirectoryEntry*, uint32_t);
+void unmap_page(PageDirectoryEntry*,uint32_t);
 void init_paging();
-void invalidate_page(uint32);
+void invalidate_page(uint32_t);
 
 
 /* alloc.c */
 
 void init_alloc(GrubMultibootInfo*);
-PageTableEntry alloc_page_frame(uint32);
-void free_page_frame(uint32);
+PageTableEntry alloc_page_frame(uint32_t);
+void free_page_frame(uint32_t);
 
 
 /* kheap.c */
@@ -148,21 +146,21 @@ void free_page_frame(uint32);
 
 struct w_block{
 
-	uint32 start;
-	uint32 end;
+	uint32_t start;
+	uint32_t end;
 	LINKED_LIST_MEMBER(block_node);
 };
 
 struct w_heap{
 
-	uint32 start_addr;
-	uint32 size;
+	uint32_t start_addr;
+	uint32_t size;
 	LINKED_LIST(block_list_head);
 };
 
 void init_kheap();
-void* kalloc(uint32);
-void kfree(uint32);
+void* kalloc(uint32_t);
+void kfree(uint32_T);
 void brk(struct w_heap*);
 
 #endif

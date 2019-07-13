@@ -11,8 +11,8 @@
 #include <boot/boot.h>
 #include <boot/isr.h>
 
-static void set_gdt(int, uint32, uint32, uint8, uint8);
-static void set_idt(uint8, uint32, uint16, uint8);
+static void set_gdt(int, uint32_t, uint32_t, uint8_t, uint8_t);
+static void set_idt(uint8_t, uint32_t, uint16_t, uint8_t);
 
 /* The new GDT */
 
@@ -41,7 +41,7 @@ TaskStateSegment current_tss;
 #define SEG_USER	(0x60)		/* User permissions? 	*/
 
 
-void set_tss(uint32 esp){
+void set_tss(uint32_t esp){
 
 	current_tss.esp0 = esp;
 	current_tss.cs   = 0x08; // 0x0b for user mode
@@ -54,10 +54,10 @@ void set_tss(uint32 esp){
 static void seg_init(){
 
 	g_ptr.limit = (sizeof(GlobalDescTableEntry) * 5) - 1;
-	g_ptr.base  = (uint32)&gdt_entries;
+	g_ptr.base  = (uint32_t)&gdt_entries;
 
-	uint32 tmp_access;
-	uint32 tmp_gran;
+	uint32_t tmp_access;
+	uint32_t tmp_gran;
 
 	/* Segment 0 - Null Segment */
 
@@ -103,7 +103,7 @@ static void seg_init(){
 
 	tmp_access = SEG_P | SEG_KERN | SEG_X | SEG_TSS;
 	tmp_gran = SEG_32 | SEG_GBYTE;
-	uint32 addr = (uint32)&current_tss;
+	uint32_t addr = (uint32_t)&current_tss;
 
 	set_gdt(6, addr, sizeof(TaskStateSegment), tmp_access, tmp_gran);
 
@@ -119,7 +119,7 @@ void init_seg(){
 
 /* Set the value of one GDT entry */
 
-static void set_gdt(int n,uint32 base,uint32 lim,uint8 a,uint8 gran){
+static void set_gdt(int n,uint32_t base, uint32_t lim, uint8_t a, uint8_t gran){
 
 	gdt_entries[n].base_low = (base & 0xFFFF);
 	gdt_entries[n].base_middle = (base >> 16) & 0xFF;

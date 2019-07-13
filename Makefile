@@ -11,15 +11,16 @@ SOURCES=bootstrap.o \
         boot/isr.o \
         boot/gdt.o \
         boot/init_tables.o \
-        lib/console.o \
-        lib/io.o \
+        io/bus.o \
+        io/console.o \
+        io/mmio.o \
+        lib/list.o \
         lib/string.o \
         mm/mmap.o \
         mm/paging.o \
         mm/kheap.o \
         mm/alloc.o \
         mm/ppa.o \
-        lib/list.o \
         tools/debug.o \
         drivers/kbd.o \
         proc/pic.o \
@@ -28,8 +29,6 @@ SOURCES=bootstrap.o \
         proc/scheduler.o \
         proc/stack.o \
         proc/thread.o \
-        io/bus.o \
-        io/mmio.o \
         main.o
 
 CFLAGS= -I include/ -nostdlib -nostdinc -fno-pic -fno-builtin -fno-stack-protector -m32

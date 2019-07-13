@@ -11,6 +11,7 @@ typedef enum {
 
 } MmioDevice;
 
-OsRc mmio_write_bytes(MmioDevice device, uint8* data, uint32 offset, uint32 length);
+OsRc mmio_read_bytes(MmioDevice device, uint8_t* dst, uint32_t offset, uint32_t length);
+OsRc mmio_write_bytes(MmioDevice device, uint8_t* data, uint32_t offset, uint32_t length);
 
 #endif /* __OS_MMIO_H */

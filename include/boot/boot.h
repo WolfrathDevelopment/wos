@@ -71,18 +71,18 @@ typedef struct {
     uint16_t trap;
     uint16_t iomap_base;
 
-} __attribute__((packed)) TaskStateSegment;
+} PACKED TaskStateSegment;
 
 typedef struct {
 
-    uint16 limit_low;
-    uint16 base_low;
-    uint8  base_middle;
-    uint8  access;
-    uint8  granularity;
-    uint8  base_high;
+    uint16_t limit_low;
+    uint16_t base_low;
+    uint8_t  base_middle;
+    uint8_t  access;
+    uint8_t  granularity;
+    uint8_t  base_high;
 
-} __attribute__((packed)) GlobalDescTableEntry;
+} PACKED GlobalDescTableEntry;
 
 
 /*
@@ -92,10 +92,10 @@ typedef struct {
 
 typedef struct {
 
-    uint16 limit;
-    uint32 base;		/* Address of the first w_gdte */
+    uint16_t limit;
+    uint32_t base;		/* Address of the first w_gdte */
 
-} __attribute__((packed)) GlobalDescTablePointer;
+} PACKED GlobalDescTablePointer;
 
 
 /* A struct describing an interrupt gate */
@@ -108,17 +108,17 @@ typedef struct {
     uint8_t  flags;
     uint16_t base_addr_high;	/* upper 16 bits of jmp address */
 
-} __attribute__((packed)) InterruptDescTableEntry;
+} PACKED InterruptDescTableEntry;
 
 
 /* pointer to an array of interrupt handlers */
 
 typedef struct {
 
-    uint16 limit;
-    uint32 base;		/* Address of the first w_idte */
+    uint16_t limit;
+    uint32_t base;		/* Address of the first w_idte */
 
-} __attribute__((packed)) InterruptDescTablePointer;
+} PACKED InterruptDescTablePointer;
 
 /* ASM flush routines */
 

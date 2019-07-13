@@ -21,11 +21,11 @@ typedef enum thread_state TaskState;
 
 /*
 struct context {
-    uint32 edi;
-    uint32 esi;
-    uint32 ebx;
-    uint32 ebp;
-    uint32 eip;
+    uint32_t edi;
+    uint32_t esi;
+    uint32_t ebx;
+    uint32_t ebp;
+    uint32_t eip;
 };
 */
 
@@ -33,13 +33,13 @@ struct context {
 
 struct w_proc{
 
-	uint32 pid;
+	uint32_t          pid;
 	enum thread_state state;
-	struct w_proc* next;
-	PageDirectoryEntry* pg_dir;
-	uint32 flags;
-	OsIsrFrame* regs;
-}__attribute__((packed));
+	struct w_proc*    next;
+	PageDirectory*    pg_dir;
+	uint32_t          flags;
+	OsIsrFrame*       regs;
+} PACKED;
 
 struct _Task
 {
@@ -58,8 +58,8 @@ Task* get_current_task();
 typedef void (*w_timer_callback)();
 
 void init_pic();
-void reset_pic(uint32);
-void register_timer(w_timer_callback, uint32);
+void reset_pic(uint32_t);
+void register_timer(w_timer_callback, uint32_t);
 
 
 /* proc.c */
@@ -81,29 +81,29 @@ void schedule();
 /* stack.c */
 
 void* get_eip();
-void* copy_stack(uint32*, uint32*,uint32);
+void* copy_stack(uint32_t*, uint32_t*,uint32_t);
 
 /*
  * If we want the current esp, we better not have
  * stack overhead from a function call...
  */
 
-__attribute__((always_inline)) inline static uint32 get_esp(){
+FORCE_INLINE static uint32_t get_esp(){
 
-    uint32 esp;
+    uint32_t esp;
     asm volatile("movl %%esp, %0" : "=r"(esp));
     return esp;
 }
 
-__attribute__((always_inline)) inline static void set_esp(uint32 esp){
+FORCE_INLINE static void set_esp(uint32_t esp){
     asm volatile("movl %0, %%esp" : : "r" (esp));
 }
 
-__attribute__((always_inline)) inline static void set_ss(uint16 ss){
+FORCE_INLINE static void set_ss(uint16_t ss){
     asm volatile("mov %0, %%ss" : : "r" (ss));
 }
 
-__attribute__((always_inline)) inline static void* push_regs(){
+FORCE_INLINE static void* push_regs(){
 
     asm volatile("push %ss");
     asm volatile("pushl %esp");
@@ -116,14 +116,14 @@ __attribute__((always_inline)) inline static void* push_regs(){
     asm volatile("push %ds");
 }
 
-__attribute__((always_inline)) inline static void pop_context(){
+FORCE_INLINE static void pop_context(){
 
     asm volatile("popl %ebx");
     asm volatile("mov %bx, %ds");
     asm volatile("mov %bx, %es");
     asm volatile("mov %bx, %fs");
     asm volatile("mov %bx, %gs");
-        asm volatile("popa");
+    asm volatile("popa");
     asm volatile("addl $0x8, %esp");
     asm volatile("sti");
     asm volatile("iret");

@@ -22,14 +22,14 @@ void* get_eip(){
  * stack overhead from a function call...
  */
 /*
-__attribute__((always_inline)) uint32 get_esp(){
+__attribute__((always_inline)) uint32_t get_esp(){
 
-    uint32 esp;
+    uint32_t esp;
     asm volatile("movl %%esp, %0" : "=r"(esp));
     return esp;
 }
 
-__attribute__((always_inline)) void set_esp(uint32 esp){
+__attribute__((always_inline)) void set_esp(uint32_t esp){
     asm volatile("movl %0, %%esp" : : "r" (esp));
 }
 
@@ -50,14 +50,15 @@ __attribute__((always_inline)) void* push_regs(){
     asm volatile("push %ds");
 }
 */
-void* copy_stack(uint32* ns, uint32* cs, uint32 esp){
+void* copy_stack(uint32_t* ns, uint32_t* cs, uint32_t esp){
 
-    int i;
+    int i = 0;
+    /* TODO eww constants... */
     for(i = 0; i < 0x400; i++){
         ns[i] = cs[i];
     }
 
-    return (void*)(((uint32)ns) + (esp - ((uint32)cs)));
+    return (void*)(((uint32_t)ns) + (esp - ((uint32_t)cs)));
 }
 /*
 __attribute__((always_inline)) void pop_context(){

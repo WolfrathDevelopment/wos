@@ -7,7 +7,7 @@
 
 #include <lib/list.h>
 
-extern uint32 debug;
+extern uint32_t debug;
 
 /* Add the node to the end of the list */
 

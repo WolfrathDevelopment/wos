@@ -6,6 +6,7 @@
  */
 
 #include <tools/debug.h>
+#include <io/console.h>
 
 void dump_memory(uint8_t* address, uint32_t length)
 {
@@ -41,7 +42,7 @@ void trace_stack(uint32_t maxFrames)
         }
     
         /* Go back one more frame */
-        ebp = (uint32*)ebp[0];
+        ebp = (uint32_t*)ebp[0];
         printf("  0x%p\n", eip);
     }
 

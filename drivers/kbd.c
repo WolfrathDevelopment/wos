@@ -8,17 +8,18 @@
 #include <arch/regs.h>
 #include <boot/isr.h>
 #include <drivers/drivers.h>
+#include <io/console.h>
 #include <io/bus.h>
 
 #define X_DIR 			1
 #define Y_DIR 			0
 
-static uint32 SHIFT_ENABLED = 0;
-static uint32 CAPS_LOCK_PRESS_COUNT = 0;
+static uint32_t SHIFT_ENABLED = 0;
+static uint32_t CAPS_LOCK_PRESS_COUNT = 0;
 
 /* standard scancodes */
 
-static uint8 kbdus[128] ={
+static uint8_t kbdus[128] ={
 
     0,  27, '1', '2', '3', '4', '5', '6', '7', '8',	/* 9 */
 
@@ -92,7 +93,7 @@ static uint8 kbdus[128] ={
 
 /* shift scancodes */
 
-static uint8 skbdus[128] ={
+static uint8_t skbdus[128] ={
 
     0,  27, '!', '@', '#', '$', '%', '^', '&', '*',	/* 9 */
 

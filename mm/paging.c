@@ -9,6 +9,7 @@
 #include <arch/cpu.h>
 #include <boot/isr.h>
 #include <mm/mem.h>
+#include <io/console.h>
 #include <mm/paging.h>
 #include <proc/proc.h>
 #include <lib/core.h>

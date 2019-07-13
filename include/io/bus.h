@@ -14,7 +14,7 @@
 #define IO_BUS_HIGH_BYTE                (14)
 #define IO_BUS_LOW_BYTE                 (15)
 
-void write_io_bus_port(uint16 port, uint8 value);
-uint8 read_io_bus(uint16 port);
+void write_io_bus_port(uint16_t port, uint8_t value);
+uint8_t read_io_bus(uint16_t port);
 
 #endif /* __OS_BUS_H */

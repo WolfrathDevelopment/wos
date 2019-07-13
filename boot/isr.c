@@ -89,11 +89,11 @@ void irq_handler(OsIsrFrame regs)
     if (regs.int_no >= 40){
 
         /* Send reset signal to slave */
-        out_byte(0xA0, 0x20);
+        write_io_bus_port(IO_BUS_SLAVE_PIC_CONTROL_REG, 0x20);
     }
 
     /* Reset master */
-    out_byte(0x20, 0x20);
+    write_io_bus_port(IO_BUS_MASTER_PIC_CONTROL_REG, 0x20);
 
     OsIsr handler = gbl_interrupt_handlers[regs.int_no];
     if(handler)
@@ -113,25 +113,27 @@ void irq_handler(OsIsrFrame regs)
 
 OsRc idt_init()
 {
+    OsRc rc = RC_SUCCESS;
+
     zero(&gbl_interrupt_handlers, sizeof(OsIsr) * OsIsrMaxId);
 
     i_ptr.limit = sizeof(InterruptDescTableEntry) * OsIsrMaxId - 1;
-    i_ptr.base  = (uint32)&idt_entries;
+    i_ptr.base  = (uint32_t)&idt_entries;
 
     zero(&idt_entries, sizeof(InterruptDescTableEntry) * OsIsrMaxId);
 
     /* Remap IRQ table */
 
-    out_byte(0x20, 0x11);
-    out_byte(0xA0, 0x11);
-    out_byte(0x21, 0x20);
-    out_byte(0xA1, 0x28);
-    out_byte(0x21, 0x04);
-    out_byte(0xA1, 0x02);
-    out_byte(0x21, 0x01);
-    out_byte(0xA1, 0x01);
-    out_byte(0x21, 0x0);
-    out_byte(0xA1, 0x0);
+    write_io_bus_port(IO_BUS_MASTER_PIC_CONTROL_REG, 0x11);
+    write_io_bus_port(IO_BUS_SLAVE_PIC_CONTROL_REG, 0x11);
+    write_io_bus_port(IO_BUS_MASTER_PIC_DATA_REG, 0x20);
+    write_io_bus_port(IO_BUS_SLAVE_PIC_DATA_REG, 0x28);
+    write_io_bus_port(IO_BUS_MASTER_PIC_DATA_REG, 0x04);
+    write_io_bus_port(IO_BUS_SLAVE_PIC_DATA_REG, 0x02);
+    write_io_bus_port(IO_BUS_MASTER_PIC_DATA_REG, 0x01);
+    write_io_bus_port(IO_BUS_SLAVE_PIC_DATA_REG, 0x01);
+    write_io_bus_port(IO_BUS_MASTER_PIC_DATA_REG, 0x00);
+    write_io_bus_port(IO_BUS_SLAVE_PIC_DATA_REG, 0x00);
 
     set_idt( 0, (uint32_t)isr0 , SEG_KERNEL_CODE, 0x8E);
     set_idt( 1, (uint32_t)isr1 , SEG_KERNEL_CODE, 0x8E);
@@ -183,4 +185,6 @@ OsRc idt_init()
     set_idt(47, (uint32_t)irq15, SEG_KERNEL_CODE, 0x8E);
 
     idt_flush(&i_ptr);
+
+    return rc;
 }

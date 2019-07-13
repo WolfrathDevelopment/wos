@@ -23,7 +23,7 @@
 typedef struct {
 
     Spinlock lock;
-    uint32 bitmap[ MAX_PPA_ENTRIES ];
+    uint32_t bitmap[ MAX_PPA_ENTRIES ];
 
 } PhysicalPageAllocator;
 

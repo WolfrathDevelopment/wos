@@ -7,6 +7,7 @@
 
 #include <boot/isr.h>
 #include <lib/core.h>
+#include <io/console.h>
 #include <mm/mem.h>
 #include <mm/ppa.h>
 #include <drivers/drivers.h>
@@ -18,14 +19,23 @@ extern PageDirectory	init_pgdir;
 extern struct w_tss		current_tss;
 extern struct w_proc*	current_proc;
 
-int main(GrubMultibootInfo* mboot_ptr){
+int main(GrubMultibootInfo* mboot_ptr)
+{
+    OsRc setupRc = RC_SUCCESS;
 
 	/* Set up segments */
 	init_seg();
-	idt_init();
+
+    setupRc = idt_init();
+    if(setupRc != RC_SUCCESS)
+    {
+        TRACE_RC(setupRc);
+        PANIC("idt init failed");
+    }
+
 	sti();
 
-	clear_screen();
+	console_init();
 	void* addr = read_mmap(mboot_ptr);
 
 	kbd_install();
